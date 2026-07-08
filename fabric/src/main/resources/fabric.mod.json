@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "devices",
   "version": "${version}",
-  "name": "Devices Mod",
+  "name": "Omnixerio Devices",
   "description": "Adds working electronic devices into Minecraft!\nCurseForge: https://curseforge.com/minecraft/mc-mods/devices-mod\nModrinth: https://modrinth.com/mod/devices-mod\nSource Code: https://github.com/omnixerio/devices-mod\n\nOriginal mod made by MrCrayfish called \"MrCrayfish's Device Mod\".\nAvailable at: https://mrcrayfish.com/mods/cdm\nSource Code: https://github.com/MrCrayfish/MrCrayfishDeviceMod",
   "authors": [
     "Ultreon Team"
@@ -52,7 +52,8 @@
   "depends": {
     "fabricloader": ">=0.17",
     "minecraft": ["1.21.1"],
-    "architectury": ">=13 <14"
+    "architectury": ">=13 <14",
+    "forgeconfigapiport": "*"
   },
   "custom": {
     "modmenu": {

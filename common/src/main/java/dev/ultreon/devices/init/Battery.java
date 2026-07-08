@@ -3,6 +3,8 @@ package dev.ultreon.devices.init;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.Objects;
+
 public class Battery {
     public static final Codec<Battery> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("capacity").forGetter(Battery::getCapacity),
@@ -47,5 +49,17 @@ public class Battery {
 
     public float getChargeRatio() {
         return (float) charge / capacity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Battery battery = (Battery) o;
+        return capacity == battery.capacity && charge == battery.charge;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(capacity, charge);
     }
 }

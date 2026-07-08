@@ -57,7 +57,6 @@ public record RouterRenderer(
 
                     RenderSystem.lineWidth(14F);
                     BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-                    OmnixerioDevicesMod.LOGGER.warn("DEBUG :: StartLine = {}, {}, {}", startLineX, startLineY, startLineZ);
                     buffer.addVertex((float) startLineX, (float) startLineY, (float) startLineZ).setColor(0f, 0f, 0f, 0.5f);
                     buffer.addVertex((devicePos.getX() - routerPos.getX()) + 0.5f, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5f).setColor(1f, 1f, 1f, 0.35f);
                     BufferUploader.drawWithShader(buffer.buildOrThrow());
@@ -65,7 +64,6 @@ public record RouterRenderer(
                     RenderSystem.lineWidth(4F);
                     buffer = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR);
 
-                    OmnixerioDevicesMod.LOGGER.warn("DEBUG :: StartLine = {}, {}, {}", startLineX, startLineY, startLineZ);
                     buffer.addVertex((float) startLineX, (float) startLineY, (float) startLineZ).setColor(0f, 0f, 0f, 0.5f);
                     buffer.addVertex((devicePos.getX() - routerPos.getX()) + 0.5f, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5f).setColor(0f, 1f, 0f, 0.5f);
                     BufferUploader.drawWithShader(buffer.buildOrThrow());

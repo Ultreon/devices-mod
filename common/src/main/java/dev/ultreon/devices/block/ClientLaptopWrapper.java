@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 public class ClientLaptopWrapper {
 
     public static void execute(ComputerBlockEntity laptop) {
-//        Minecraft.getInstance().setScreen(new Laptop(laptop));
-        Minecraft.getInstance().setScreen(new ModernLaptop(laptop));
+        Minecraft.getInstance().setScreen(new Laptop(laptop));
+//        Minecraft.getInstance().setScreen(new ModernLaptop(laptop));
     }
 }

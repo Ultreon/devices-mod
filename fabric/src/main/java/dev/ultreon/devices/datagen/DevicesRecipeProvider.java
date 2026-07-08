@@ -149,6 +149,18 @@ public class DevicesRecipeProvider extends FabricRecipeProvider {
                 .define('c', Items.COPPER_INGOT)
                 .unlockedBy("has_laptop", has(ModItemTags.LAPTOPS))
                 .save(exporter);
+
+        //*************************//
+        //     Component Items     //
+        //*************************//
+        new ShapedRecipeBuilder(RecipeCategory.MISC, ModItems.COMPONENT_MOTHERBOARD.get(), 1)
+                .pattern("crc")
+                .pattern("rbr")
+                .define('r', Items.REDSTONE)
+                .define('c', Items.GOLD_INGOT)
+                .define('b', ModItems.COMPONENT_CIRCUIT_BOARD.get())
+                .unlockedBy("has_circuit_board", has(ModItems.COMPONENT_CIRCUIT_BOARD.get()))
+                .save(exporter);
         new ShapedRecipeBuilder(RecipeCategory.MISC, ModItems.COMPONENT_FLASH_CHIP.get(), 1)
                 .pattern("iri")
                 .pattern("ppp")

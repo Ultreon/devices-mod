@@ -55,15 +55,18 @@ public class ModCreativeTabs {
             output.accept(ModItems.COMPONENT_CARRIAGE.get());
             output.accept(ModItems.COMPONENT_SMALL_ELECTRIC_MOTOR.get());
             output.accept(ModItems.COMPONENT_CONTROLLER_UNIT.get());
-            output.accept(ModItems.BATTERY_CELL.get());
 
-            ItemStack fullBattery = new ItemStack(ModItems.BATTERY_CELL.get(), 1);
-            fullBattery.set(ModDataComponents.BATTERY.get(), new Battery(BatteryCellItem.BATTERY_CAPACITY, BatteryCellItem.BATTERY_CAPACITY));
-            output.accept(fullBattery);
+            if (parameters.hasPermissions()) {
+                output.accept(ModItems.BATTERY_CELL.get());
 
-            ItemStack overchargedBattery = new ItemStack(ModItems.BATTERY_CELL.get(), 1);
-            overchargedBattery.set(ModDataComponents.BATTERY.get(), new Battery(BatteryCellItem.BATTERY_CAPACITY, BatteryCellItem.BATTERY_CAPACITY * 2));
-            output.accept(overchargedBattery);
+                ItemStack fullBattery = new ItemStack(ModItems.BATTERY_CELL.get(), 1);
+                fullBattery.set(ModDataComponents.BATTERY.get(), new Battery(BatteryCellItem.BATTERY_CAPACITY, BatteryCellItem.BATTERY_CAPACITY));
+                output.accept(fullBattery);
+
+                ItemStack overchargedBattery = new ItemStack(ModItems.BATTERY_CELL.get(), 1);
+                overchargedBattery.set(ModDataComponents.BATTERY.get(), new Battery(BatteryCellItem.BATTERY_CAPACITY, BatteryCellItem.BATTERY_CAPACITY * 2));
+                output.accept(overchargedBattery);
+            }
         });
     }));
     public static final RegistrySupplier<CreativeModeTab> TAB_INGREDIENTS = register("ingredients", () -> CreativeTabRegistry.create(builder -> {

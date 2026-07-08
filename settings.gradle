@@ -12,4 +12,4 @@ include("common")
 include("fabric")
 include("neoforge")
 
-rootProject.name = "omnixerio-devices-mod"
+rootProject.name = "omnixerio-devices"

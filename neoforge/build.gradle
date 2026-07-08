@@ -8,14 +8,14 @@ architectury {
 }
 
 base {
-    archivesName = "omnixerio-devices-mod-neoforge"
+    archivesName = "omnixerio-devices-neoforge"
 }
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
     neoForge {
-
+        accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))
     }
 }
 

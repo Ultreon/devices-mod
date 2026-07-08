@@ -8,7 +8,7 @@ architectury {
 }
 
 base {
-    archivesName = "omnixerio-devices-mod-fabric"
+    archivesName = "omnixerio-devices-fabric"
 }
 
 fabricApi {

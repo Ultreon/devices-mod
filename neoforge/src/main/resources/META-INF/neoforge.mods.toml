@@ -10,7 +10,7 @@ issueTrackerURL = "https://github.com/omnixerio/devices-mod/issues"
 [[mods]]
 modId = "devices"
 version = "${version}"
-displayName = "Devices Mod"
+displayName = "Omnixerio Devices"
 #updateJSONURL="http://myurl.me/"
 displayURL = "https://github.com/omnixerio/devices-mod"
 logoFile = "devices_mod.png"
