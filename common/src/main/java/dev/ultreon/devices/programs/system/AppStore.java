@@ -16,6 +16,7 @@ import dev.ultreon.devices.api.app.component.Label;
 import dev.ultreon.devices.api.app.component.Spinner;
 import dev.ultreon.devices.api.utils.OnlineRequest;
 import dev.ultreon.devices.core.Laptop;
+import dev.ultreon.devices.debug.DebugLog;
 import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.object.TrayItem;
 import dev.ultreon.devices.programs.system.component.AppGrid;
@@ -103,19 +104,34 @@ public class AppStore extends SystemApp {
         homePageLayout.addComponent(spinner);
 
         OnlineRequest.getInstance().make(CERTIFICATES_BASE_URL + "/certified_apps.json", (success, response) -> {
-            certifiedApps.clear();
-            spinner.setVisible(false);
-            if (success) {
-                Minecraft.getInstance().doRunTask(() -> {
-                    AppGrid grid = new AppGrid(0, 81, 3, 1, this);
-                    certifiedApps.addAll(parseJson(response));
-                    shuffleAndShrink(certifiedApps, 3).forEach(grid::addEntry);
-                    homePageLayout.addComponent(grid);
-                    grid.reloadIcons();
-                });
-            } else {
-                // TODO error handling
-            }
+            Minecraft.getInstance().execute(() -> {
+                certifiedApps.clear();
+                spinner.setVisible(false);
+                if (success) {
+                    try {
+                        certifiedApps.addAll(parseJson(response));
+                    } catch (Exception e) {
+                        OmnixerioDevicesMod.LOGGER.error("Failed to parse certified apps JSON", e);
+                    }
+                    if (certifiedApps.isEmpty()) {
+                        DebugLog.log("certifiedApps is empty after parse");
+                        Label errorLabel = new Label(ChatFormatting.RED + "No certified apps loaded", 10, 86);
+                        homePageLayout.addComponent(errorLabel);
+                    } else {
+                        DebugLog.log("Creating grid with " + certifiedApps.size() + " entries");
+                        AppGrid grid = new AppGrid(0, 81, 3, 1, this);
+                        shuffleAndShrink(certifiedApps, 3).forEach(grid::addEntry);
+                        homePageLayout.addComponent(grid);
+                        grid.reloadIcons();
+                    }
+                    markForLayoutUpdate();
+                } else {
+                    OmnixerioDevicesMod.LOGGER.error("Failed to load certified apps (success=false)");
+                    Label errorLabel = new Label(ChatFormatting.RED + "Failed to load certified apps", 10, 86);
+                    homePageLayout.addComponent(errorLabel);
+                    markForLayoutUpdate();
+                }
+            });
         });
 
         Label labelOther = new Label(ChatFormatting.WHITE + ChatFormatting.BOLD.toString() + "Other Apps", 10, 178);

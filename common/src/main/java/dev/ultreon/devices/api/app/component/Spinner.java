@@ -41,7 +41,7 @@ public class Spinner extends Component {
             bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1f));
             RenderSystem.setShaderColor(bgColor.getRed() / 255f, bgColor.getGreen() / 255f, bgColor.getBlue() / 255f, 1f);
             RenderSystem.setShaderTexture(0, Component.COMPONENTS_GUI);
-            graphics.blit(Component.COMPONENTS_GUI, xPosition, yPosition, (currentProgress % 8) * 12, 12 + 12 * (int) Math.floor((double) currentProgress / 8), 12, 12);
+            graphics.blit(Component.COMPONENTS_GUI, x, y, (currentProgress % 8) * 12, 12 + 12 * (int) Math.floor((double) currentProgress / 8), 12, 12);
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         }
     }

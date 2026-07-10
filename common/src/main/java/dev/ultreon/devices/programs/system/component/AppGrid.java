@@ -8,6 +8,7 @@ import dev.ultreon.devices.api.app.component.Image;
 import dev.ultreon.devices.api.app.component.Label;
 import dev.ultreon.devices.api.utils.RenderUtil;
 import dev.ultreon.devices.core.Laptop;
+import dev.ultreon.devices.debug.DebugFlags;
 import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.programs.system.AppStore;
 import dev.ultreon.devices.programs.system.object.AppEntry;
@@ -37,6 +38,7 @@ public class AppGrid extends Component {
 
     private long lastClick = 0;
     private int clickedIndex;
+    private int renderX, renderY;
 
     private Layout container;
 
@@ -64,6 +66,8 @@ public class AppGrid extends Component {
 
     @Override
     protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+        renderX = x;
+        renderY = y;
         int size = Math.min(entries.size(), verticalItems * horizontalItems);
         for (int i = 0; i < size; i++) {
             int itemX = x + (i % horizontalItems) * (itemWidth + padding) + padding;
@@ -79,8 +83,8 @@ public class AppGrid extends Component {
     protected void handleMouseClick(int mouseX, int mouseY, int mouseButton) {
         int size = Math.min(entries.size(), verticalItems * horizontalItems);
         for (int i = 0; i < size; i++) {
-            int itemX = xPosition + (i % horizontalItems) * (itemWidth + padding) + padding;
-            int itemY = yPosition + (i / horizontalItems) * (itemHeight + padding) + padding;
+            int itemX = renderX + (i % horizontalItems) * (itemWidth + padding) + padding;
+            int itemY = renderY + (i / horizontalItems) * (itemHeight + padding) + padding;
             if (GuiHelper.isMouseWithin(mouseX, mouseY, itemX, itemY, itemWidth, itemHeight)) {
                 if (System.currentTimeMillis() - this.lastClick <= 200 && clickedIndex == i) {
                     this.lastClick = 0;
@@ -115,6 +119,11 @@ public class AppGrid extends Component {
 
     private Layout generateAppTile(AppEntry entry, int left, int top) {
         Layout layout = new Layout(left, top, itemWidth, itemHeight);
+        if (DebugFlags.TILE_BACKGROUND_DEBUG) {
+            layout.setBackground((graphics, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
+                graphics.fill(x, y, x + width, y + height, new Color(255, 0, 0, 80).getRGB());
+            });
+        }
 
         int iconOffset = (itemWidth - 14 * 3) / 2;
         if (entry instanceof LocalEntry localEntry) {

@@ -5,4 +5,6 @@ public class DebugFlags {
     public static final boolean LOG_APP_ICON_STITCHES = true;
     public static final boolean PRINT_APP_ICONS_STACK_TRACES = true;
     public static final boolean PRINT_MISSING_APP_ICONS_STACK_TRACES = false;
+    public static final boolean TILE_BACKGROUND_DEBUG = false;
+    public static final boolean LABEL_BACKGROUND_DEBUG = false;
 }

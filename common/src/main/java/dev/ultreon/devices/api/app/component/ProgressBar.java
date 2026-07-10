@@ -34,9 +34,9 @@ public class ProgressBar extends Component {
     public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             Color bgColor = new Color(getColorScheme().getBackgroundColor());
-            graphics.fill(xPosition, yPosition, xPosition + width, yPosition + height, bgColor.darker().darker().getRGB());
-            graphics.fill(xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + height - 1, bgColor.getRGB());
-            graphics.fill(xPosition + 2, yPosition + 2, xPosition + 2 + getProgressScaled(), yPosition + height - 2, bgColor.brighter().brighter().getRGB());
+            graphics.fill(x, y, x + width, y + height, bgColor.darker().darker().getRGB());
+            graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, bgColor.getRGB());
+            graphics.fill(x + 2, y + 2, x + 2 + getProgressScaled(), y + height - 2, bgColor.brighter().brighter().getRGB());
         }
     }
 

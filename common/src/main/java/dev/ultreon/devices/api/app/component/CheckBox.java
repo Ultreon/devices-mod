@@ -60,10 +60,10 @@ public class CheckBox extends Component implements RadioGroup.Item {
         if (this.visible) {
             if (group == null) {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor());
-                graphics.fill(xPosition, yPosition, xPosition + 10, yPosition + 10, color(borderColor, bgColor.darker().darker().getRGB()));
-                graphics.fill(xPosition + 1, yPosition + 1, xPosition + 9, yPosition + 9, color(backgroundColor, bgColor.getRGB()));
+                graphics.fill(x, y, x + 10, y + 10, color(borderColor, bgColor.darker().darker().getRGB()));
+                graphics.fill(x + 1, y + 1, x + 9, y + 9, color(backgroundColor, bgColor.getRGB()));
                 if (checked) {
-                    graphics.fill(xPosition + 2, yPosition + 2, xPosition + 8, yPosition + 8, color(checkedColor, bgColor.brighter().brighter().getRGB()));
+                    graphics.fill(x + 2, y + 2, x + 8, y + 8, color(checkedColor, bgColor.brighter().brighter().getRGB()));
                 }
             } else {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
@@ -71,9 +71,9 @@ public class CheckBox extends Component implements RadioGroup.Item {
                 bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1f));
                 RenderSystem.setShaderColor(bgColor.getRed() / 255f, bgColor.getGreen() / 255f, bgColor.getBlue() / 255f, 1f);
                 RenderSystem.setShaderTexture(0, COMPONENTS_GUI);
-                graphics.blit(COMPONENTS_GUI, xPosition, yPosition, checked ? 10 : 0, 60, 10, 10);
+                graphics.blit(COMPONENTS_GUI, x, y, checked ? 10 : 0, 60, 10, 10);
             }
-            graphics.drawString(mc.font, name, xPosition + 12, yPosition + 1, color(textColor, getColorScheme().getTextColor()));
+            graphics.drawString(mc.font, name, x + 12, y + 1, color(textColor, getColorScheme().getTextColor()));
         }
     }
 

@@ -2,6 +2,7 @@ package dev.ultreon.devices.api.app.component;
 
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.core.Laptop;
+import dev.ultreon.devices.debug.DebugFlags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -33,9 +34,12 @@ public class Label extends Component {
     @Override
     public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
+            if (DebugFlags.LABEL_BACKGROUND_DEBUG) {
+                graphics.fill(x - 1, y - 1, x + mc.font.width(text) + 1, y + mc.font.lineHeight + 1, new Color(0, 255, 0, 120).getRGB());
+            }
             graphics.pose().pushPose();
             {
-                graphics.pose().translate(xPosition, yPosition, 0);
+                graphics.pose().translate(x, y, 0);
                 graphics.pose().scale((float) scale, (float) scale, (float) scale);
                 if (alignment == ALIGN_RIGHT)
                     graphics.pose().translate((int) -(mc.font.width(text) * scale), 0, 0);

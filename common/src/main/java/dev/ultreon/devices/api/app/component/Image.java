@@ -62,7 +62,13 @@ public class Image extends Component {
             super.init(layout);
             if (appInfo.getIcon().getBase().getU() == -1 && appInfo.getIcon().getBase().getV() == -1) {
                 var image = new Image(0, 0, componentWidth, componentHeight, 0, 0, 14, 14, 224, 224, Laptop.ICON_TEXTURES);
+                image.initialized = true;
+                if (image.loader != null) {
+                    image.image = image.loader.load(image);
+                }
                 this.addComponent(image);
+                image.init(this);
+                image.handleLoad();
                 return;
             }
             for (AppInfo.Icon.Glyph glyph : glyphs) {
@@ -78,8 +84,11 @@ public class Image extends Component {
                     return cs;
                 };
                 image.setTint(suscs);
+                image.initialized = true;
+                if (image.loader != null) {
+                    image.image = image.loader.load(image);
+                }
                 this.addComponent(image);
-                //image.init(layout);
             }
         }
     }
@@ -329,7 +338,9 @@ public class Image extends Component {
         this.loader = loader;
         if (initialized) {
             loader.setup(this);
-            spinner.setVisible(true);
+            if (spinner != null) {
+                spinner.setVisible(true);
+            }
         }
     }
 

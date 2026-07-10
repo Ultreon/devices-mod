@@ -43,10 +43,10 @@ public class Slider extends Component {
     public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             Color bgColor = new Color(getColorScheme().getBackgroundColor());
-            graphics.fill(xPosition, yPosition + 4, xPosition + width, yPosition + 8, bgColor.darker().darker().getRGB());
-            graphics.fill(xPosition + 1, yPosition + 5, xPosition + width - 1, yPosition + 7, bgColor.getRGB());
-            graphics.fill(xPosition + newSliderX, yPosition, xPosition + newSliderX + 8, yPosition + 12, bgColor.darker().darker().getRGB());
-            graphics.fill(xPosition + newSliderX + 1, yPosition + 1, xPosition + newSliderX + 7, yPosition + 11, bgColor.brighter().brighter().getRGB());
+            graphics.fill(x, y + 4, x + width, y + 8, bgColor.darker().darker().getRGB());
+            graphics.fill(x + 1, y + 5, x + width - 1, y + 7, bgColor.getRGB());
+            graphics.fill(x + newSliderX, y, x + newSliderX + 8, y + 12, bgColor.darker().darker().getRGB());
+            graphics.fill(x + newSliderX + 1, y + 1, x + newSliderX + 7, y + 11, bgColor.brighter().brighter().getRGB());
         }
     }
 

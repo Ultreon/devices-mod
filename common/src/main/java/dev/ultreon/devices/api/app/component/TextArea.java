@@ -156,7 +156,7 @@ public class TextArea extends Component {
                     int scrollBarHeight = Math.max(20, (int) ((float) visibleLines / (float) lines.size() * (float) visibleScrollBarHeight));
                     float scrollPercentage = Mth.clamp((verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines), 0f, 1f);
                     int scrollBarY = (int) ((visibleScrollBarHeight - scrollBarHeight) * scrollPercentage);
-                    int scrollY = yPosition + 2 + scrollBarY;
+                    int scrollY = y + 2 + scrollBarY;
                     graphics.fill(x + width - 2 - scrollBarSize, scrollY, x + width - 2, scrollY + scrollBarHeight, placeholderColor);
                 }
 
@@ -166,7 +166,7 @@ public class TextArea extends Component {
                     float scrollPercentage = (float) (horizontalScroll + 1) / (float) (maxLineWidth - visibleWidth + 1);
                     int scrollBarWidth = Math.max(20, (int) ((float) visibleWidth / (float) maxLineWidth * (float) visibleScrollBarWidth));
                     int relativeScrollX = (int) (scrollPercentage * (visibleScrollBarWidth - scrollBarWidth));
-                    int scrollX = xPosition + 2 + Mth.clamp(relativeScrollX + horizontalOffset, 0, visibleScrollBarWidth - scrollBarWidth);
+                    int scrollX = x + 2 + Mth.clamp(relativeScrollX + horizontalOffset, 0, visibleScrollBarWidth - scrollBarWidth);
                     graphics.fill(scrollX, y + height - scrollBarSize - 2, scrollX + scrollBarWidth, y + height - 2, placeholderColor);
                 }
             }

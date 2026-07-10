@@ -13,7 +13,6 @@ import dev.ultreon.devices.programs.system.AppStore;
 import dev.ultreon.devices.programs.system.FileBrowserApp;
 import dev.ultreon.devices.programs.system.SettingsApp;
 import dev.ultreon.devices.programs.system.SystemApp;
-import dev.ultreon.devices.util.Vulnerability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
@@ -56,7 +55,6 @@ public class TaskBar {
 
         var trayItemsTag = tag.getCompound("TrayItems");
 
-        addTrayItem(new Vulnerability.VulnerabilityTrayItem(), trayItemsTag);
         addTrayItem(new FileBrowserApp.FileBrowserTrayItem(), trayItemsTag);
         addTrayItem(new SettingsApp.SettingsTrayItem(), trayItemsTag);
         addTrayItem(new AppStore.StoreTrayItem(), trayItemsTag);

@@ -70,38 +70,38 @@ public abstract class ComboBox<T> extends Component {
             int xOffset = width - height;
 
             /* Corners */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + xOffset, yPosition, 96 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + height - 2 + xOffset, yPosition, 99 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + height - 2 + xOffset, yPosition + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + xOffset, yPosition + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y, 96 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y, 99 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
 
             /* Middles */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + 2 + xOffset, yPosition, 98 + i * 5, 12, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + height - 2 + xOffset, yPosition + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + 2 + xOffset, yPosition + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + xOffset, yPosition + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y, 98 + i * 5, 12, height - 4, 2, 1, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
 
             /* Center */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + 2 + xOffset, yPosition + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1);
 
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
             /* Icons */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, xPosition + xOffset + 3, yPosition + 5, 111, 12, 8, 5, 8, 5);
+            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset + 3, y + 5, 111, 12, 8, 5, 8, 5);
 
             Color boxColor = new Color(getColorScheme().getBackgroundColor());
             Color borderColor = boxColor.darker().darker();
 
             /* Box */
-            drawHorizontalLine(graphics, xPosition, xPosition + xOffset, yPosition, borderColor.getRGB());
-            drawHorizontalLine(graphics, xPosition, xPosition + xOffset, yPosition + height - 1, borderColor.getRGB());
-            drawVerticalLine(graphics, xPosition, yPosition, yPosition + height - 1, borderColor.getRGB());
-            graphics.fill(xPosition + 1, yPosition + 1, xPosition + xOffset, yPosition + height - 1, boxColor.getRGB());
+            drawHorizontalLine(graphics, x, x + xOffset, y, borderColor.getRGB());
+            drawHorizontalLine(graphics, x, x + xOffset, y + height - 1, borderColor.getRGB());
+            drawVerticalLine(graphics, x, y, y + height - 1, borderColor.getRGB());
+            graphics.fill(x + 1, y + 1, x + xOffset, y + height - 1, boxColor.getRGB());
 
             if (itemRenderer != null) {
                 itemRenderer.render(graphics, value, mc, x + 1, y + 1, xOffset - 1, height - 2);
             } else if (value != null) {
-                RenderUtil.drawStringClipped(graphics, value.toString(), xPosition + 3, yPosition + 3, width - 15, Color.WHITE.getRGB(), true);
+                RenderUtil.drawStringClipped(graphics, value.toString(), x + 3, y + 3, width - 15, Color.WHITE.getRGB(), true);
             }
 
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

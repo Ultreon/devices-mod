@@ -96,13 +96,13 @@ public class ClientModEvents {
         public CompletableFuture<Void> reload(@NotNull PreparableReloadListener.PreparationBarrier preparationBarrier, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor, @NotNull Executor gameExecutor) {
             LOGGER.debug("Reloading resources from the Device Mod.");
 
-            return CompletableFuture.runAsync(() -> {
-                if (!ApplicationManager.getAllApplications().isEmpty()) {
-                    ApplicationManager.getAllApplications().forEach(AppInfo::reload);
-                    generateIconAtlas(resourceManager); // FIXME: Broken resource reloading, can't find image resource while definitely exists.
-                }
-
-            }, gameExecutor).thenCompose(preparationBarrier::wait);
+            return preparationBarrier.wait(CompletableFuture.<Void>completedFuture(null))
+                    .thenCompose(unused -> CompletableFuture.runAsync(() -> {
+                        if (!ApplicationManager.getAllApplications().isEmpty()) {
+                            ApplicationManager.getAllApplications().forEach(AppInfo::reload);
+                            generateIconAtlas(resourceManager);
+                        }
+                    }, gameExecutor));
         }
     }
 
@@ -142,20 +142,22 @@ public class ClientModEvents {
             ResourceManager rm = resourceManager;
 
             public boolean writeImage(AppInfo info, ResourceLocation location, boolean silent) {
-                String path = "/assets/" + location.getNamespace() + "/" + location.getPath();
                 try {
                     if (rm == null) {
                         rm = Minecraft.getInstance().getResourceManager();
                     }
-                    InputStream input = getClass().getClassLoader().getResourceAsStream(path);
+                    InputStream input = null;
+                    try {
+                        input = getClass().getResourceAsStream("/assets/" + location.getNamespace() + "/" + location.getPath());
+                    } catch (Exception ignored) {
+                    }
                     if (input == null) {
-                        input = getClass().getResourceAsStream(path);
-                        if (input == null) {
-                            Resource resource = rm.getResource(location).orElse(null);
-                            if (resource == null)
-                                throw new FileNotFoundException("Resource for " + location + " wasn't found");
-                            input = resource.open();
+                        Resource resource = rm.getResource(location).orElse(null);
+                        if (resource == null) {
+                            if (silent) return false;
+                            throw new FileNotFoundException("Resource for " + location + " wasn't found");
                         }
+                        input = resource.open();
                     }
                     BufferedImage icon = ImageIO.read(input);
                     if (icon.getWidth() != ICON_SIZE || icon.getHeight() != ICON_SIZE) {

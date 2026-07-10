@@ -30,7 +30,5 @@ public class BuiltinApps {
             ApplicationManager.registerApplication(OmnixerioDevicesMod.id("snake"), () -> SnakeApp::new, false);
             ApplicationManager.registerApplication(OmnixerioDevicesMod.id("themes"), () -> ThemesApp::new, false);
         }
-
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("vulnerability"), () -> VulnerabilityApp::new, true);
     }
 }
