@@ -22,7 +22,7 @@ public class DebugLog {
 
     public static void logTime(long ticks, String message) {
         if (Platform.isDevelopmentEnvironment()) {
-            LOGGER.info("(@" + ticks + " ticks) " + message);
+            LOGGER.info("(@{} ticks) {}", ticks, message);
         }
     }
 }
