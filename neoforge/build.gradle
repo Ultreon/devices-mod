@@ -15,7 +15,7 @@ loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
     neoForge {
-        accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))
+
     }
 }
 
@@ -31,7 +31,6 @@ dependencies {
     neoForge "net.neoforged:neoforge:$neoforge_version"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-neoforge:${architectury_version}"
-    modApi 'com.cinemamod:mcef-neoforge:2.1.6-1.21.1'
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }

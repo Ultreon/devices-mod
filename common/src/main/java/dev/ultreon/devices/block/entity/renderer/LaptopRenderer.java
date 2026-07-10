@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.ultreon.devices.block.LaptopBlock;
 import dev.ultreon.devices.block.entity.LaptopBlockEntity;
 import dev.ultreon.devices.init.ModItems;
+import dev.ultreon.devices.mixin.common.accessors.ItemEntityAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -46,7 +47,7 @@ public class LaptopRenderer implements BlockEntityRenderer<LaptopBlockEntity> {
             }
         };
 
-        entityItem.bobOffs = 0;
+        ((ItemEntityAccessor) entityItem).setBobOffs(0);
         entityItem.setYRot(0);
         BlockState state = blockEntity.getBlock().defaultBlockState().setValue(LaptopBlock.TYPE, LaptopBlock.Type.SCREEN);
 

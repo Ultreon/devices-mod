@@ -16,11 +16,11 @@ import dev.ultreon.devices.init.Battery;
 import dev.ultreon.devices.init.ModBlockEntities;
 import dev.ultreon.devices.init.ModDataComponents;
 import dev.ultreon.devices.init.ModItems;
+import dev.ultreon.devices.mixin.common.accessors.ItemPropertiesAccessor;
 import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.programs.system.object.ColorSchemePresets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -40,6 +40,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -139,7 +141,7 @@ public class ClientModEvents {
             int mode = 0;
             ResourceManager rm = resourceManager;
 
-            public boolean writeImage(AppInfo info, ResourceLocation location) {
+            public boolean writeImage(AppInfo info, ResourceLocation location, boolean silent) {
                 String path = "/assets/" + location.getNamespace() + "/" + location.getPath();
                 try {
                     if (rm == null) {
@@ -157,7 +159,7 @@ public class ClientModEvents {
                     }
                     BufferedImage icon = ImageIO.read(input);
                     if (icon.getWidth() != ICON_SIZE || icon.getHeight() != ICON_SIZE) {
-                        OmnixerioDevicesMod.LOGGER.error("Incorrect icon size for " + (info == null ? null : info.getAppId()) + " (Must be 14 by 14 pixels)");
+                        OmnixerioDevicesMod.LOGGER.error("Incorrect icon size for {} (Must be 14 by 14 pixels)", info == null ? null : info.getAppId());
                         return false;
                     }
                     int iconU = (index % 16) * ICON_SIZE;
@@ -175,19 +177,15 @@ public class ClientModEvents {
                     }
                     index++;
                     if (DebugFlags.LOG_APP_ICON_STITCHES) {
-                        OmnixerioDevicesMod.LOGGER.info("Stitching texture: " + location);
+                        OmnixerioDevicesMod.LOGGER.info("Stitching texture: {}", location);
                     }
                     return true;
                 } catch (FileNotFoundException e) {
-                    OmnixerioDevicesMod.LOGGER.error("Unable to load icon for '" + (info == null ? null : info.getAppId()) + "': " + e.getMessage());
-                    if (DebugFlags.PRINT_MISSING_APP_ICONS_STACK_TRACES) {
-                        e.printStackTrace();
-                    }
+                    if (silent) return false;
+                    OmnixerioDevicesMod.LOGGER.error("Unable to load icon for '{}': {}", info == null ? null : info.getAppId(), e.getMessage(), e);
                 } catch (Exception e) {
-                    OmnixerioDevicesMod.LOGGER.error("Unable to load icon for " + (info == null ? null : info.getAppId()));
-                    if (DebugFlags.PRINT_APP_ICONS_STACK_TRACES) {
-                        e.printStackTrace();
-                    }
+                    if (silent) return false;
+                    OmnixerioDevicesMod.LOGGER.error("Unable to load icon for {}", info == null ? null : info.getAppId(), e);
                 }
                 return false;
             }
@@ -207,6 +205,8 @@ public class ClientModEvents {
                 try {
                     ImageIO.write(atlas, "png", output);
                     byte[] bytes = output.toByteArray();
+                    if (Platform.isDevelopmentEnvironment())
+                        Files.write(Paths.get("app_icons.png"), bytes);
                     ByteArrayInputStream input = new ByteArrayInputStream(bytes);
                     Minecraft.getInstance().submit(() -> {
                         try {
@@ -221,8 +221,7 @@ public class ClientModEvents {
             }
         };
 
-        imageWriter.writeImage(null, OmnixerioDevicesMod.id("textures/app/icon/base/missing.png"));
-
+        imageWriter.writeImage(null, OmnixerioDevicesMod.id("textures/app/icon/base/missing.png"), false);
 
         for (AppInfo info : ApplicationManager.getAllApplications()) {
             if (info.getIcon() == null) continue;
@@ -230,11 +229,11 @@ public class ClientModEvents {
             //ResourceLocation identifier = info.getId();
             //ResourceLocation iconResource = new ResourceLocation(info.getIcon());
             imageWriter.mode = 0;
-            imageWriter.writeImage(info, info.getIcon().getBase().getResourceLocation());
+            imageWriter.writeImage(info, info.getIcon().getBase().getResourceLocation(), false);
             imageWriter.mode = 1;
-            imageWriter.writeImage(info, info.getIcon().getOverlay0().getResourceLocation());
+            imageWriter.writeImage(info, info.getIcon().getOverlay0().getResourceLocation(), true);
             imageWriter.mode = 2;
-            imageWriter.writeImage(info, info.getIcon().getOverlay1().getResourceLocation());
+            imageWriter.writeImage(info, info.getIcon().getOverlay1().getResourceLocation(), true);
         }
         imageWriter.mode = 0;
         imageWriter.finish();
@@ -267,7 +266,7 @@ public class ClientModEvents {
         LOGGER.info("Registering item properties.");
 
         // Register the item properties.
-        ItemProperties.register(
+        ItemPropertiesAccessor.register(
                 ModItems.BATTERY_CELL.get(),
                 OmnixerioDevicesMod.id("charge"),
                 (stack, level, livingEntity, i) -> {
@@ -277,7 +276,7 @@ public class ClientModEvents {
                     }
                     return chargeRatio;
                 });
-        ItemProperties.register(
+        ItemPropertiesAccessor.register(
                 ModItems.BATTERY_CELL.get(),
                 OmnixerioDevicesMod.id("overcharged"),
                 (stack, level, livingEntity, i) -> {
@@ -286,7 +285,7 @@ public class ClientModEvents {
                     }
                     return 0f;
                 });
-        ItemProperties.register(
+        ItemPropertiesAccessor.register(
                 ModItems.BATTERY_CELL.get(),
                 OmnixerioDevicesMod.id("empty"),
                 (stack, level, livingEntity, i) -> {
@@ -295,7 +294,7 @@ public class ClientModEvents {
                     }
                     return 0f;
                 });
-        ItemProperties.register(
+        ItemPropertiesAccessor.register(
                 ModItems.BATTERY_CELL.get(),
                 OmnixerioDevicesMod.id("broken"),
                 (stack, level, livingEntity, i) -> {

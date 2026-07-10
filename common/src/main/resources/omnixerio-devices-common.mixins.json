@@ -5,10 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "dev.ultreon.devices.mixin.common.MixinPlugin",
   "mixins": [
-    "CefUtilMixin"
+    "accessors.ItemEntityAccessor"
   ],
   "client": [
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "accessors.ItemPropertiesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

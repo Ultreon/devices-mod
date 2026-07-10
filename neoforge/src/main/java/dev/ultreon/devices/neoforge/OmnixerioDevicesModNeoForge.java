@@ -37,34 +37,7 @@ import java.util.Map;
 @Mod(Reference.MOD_ID)
 public final class OmnixerioDevicesModNeoForge {
     public static final Logger LOGGER = LogUtils.getLogger();
-    private final OmnixerioDevicesMod instance = new OmnixerioDevicesMod() {
-        @Override
-        protected void registerApplicationEvent() {
-            OmnixerioDevicesModNeoForge.this.modEventBus.post(new NeoForgeApplicationRegistration());
-        }
-
-        @Override
-        public int getBurnTime(ItemStack stack, RecipeType<?> type) {
-            return stack.getBurnTime(type);
-        }
-
-        @Override
-        protected List<Application> getApplications() {
-            return ObfuscationReflectionHelper.getPrivateValue(Laptop.class, null, "APPLICATIONS");
-        }
-
-        @Override
-        @OnlyIn(Dist.CLIENT)
-        protected void setRegisteredRenders(Map<String, IPrint.Renderer> map) {
-            ObfuscationReflectionHelper.setPrivateValue(PrintingManager.class, null, map, "registeredRenders");
-        }
-
-        @Override
-        @OnlyIn(Dist.CLIENT)
-        protected Map<String, IPrint.Renderer> getRegisteredRenders() {
-            return ObfuscationReflectionHelper.getPrivateValue(PrintingManager.class, null, "registeredRenders");
-        }
-    };
+    private final OmnixerioDevicesMod instance;
 
     public IEventBus modEventBus;
 
@@ -100,6 +73,34 @@ public final class OmnixerioDevicesModNeoForge {
 
         // Register ourselves for server and other game events we are interested in
         LOGGER.info("Registering mod class to forge events.");
+        instance = new OmnixerioDevicesMod() {
+            @Override
+            protected void registerApplicationEvent() {
+                OmnixerioDevicesModNeoForge.this.modEventBus.post(new NeoForgeApplicationRegistration());
+            }
+
+            @Override
+            public int getBurnTime(ItemStack stack, RecipeType<?> type) {
+                return stack.getBurnTime(type);
+            }
+
+            @Override
+            protected List<Application> getApplications() {
+                return ObfuscationReflectionHelper.getPrivateValue(Laptop.class, null, "APPLICATIONS");
+            }
+
+            @Override
+            @OnlyIn(Dist.CLIENT)
+            protected void setRegisteredRenders(Map<String, IPrint.Renderer> map) {
+                ObfuscationReflectionHelper.setPrivateValue(PrintingManager.class, null, map, "registeredRenders");
+            }
+
+            @Override
+            @OnlyIn(Dist.CLIENT)
+            protected Map<String, IPrint.Renderer> getRegisteredRenders() {
+                return ObfuscationReflectionHelper.getPrivateValue(PrintingManager.class, null, "registeredRenders");
+            }
+        };
     }
 
     private void fmlCommonSetup(FMLCommonSetupEvent t) {

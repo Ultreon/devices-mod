@@ -106,6 +106,7 @@ public abstract class OmnixerioDevicesMod {
 
     protected OmnixerioDevicesMod() {
         OmnixerioDevicesMod.instance = this;
+        registerApplications();
     }
 
     public static OmnixerioDevicesMod getInstance() {
@@ -132,8 +133,6 @@ public abstract class OmnixerioDevicesMod {
         LOGGER.info("Doing some common setup.");
 
         PacketHandler.init();
-
-        registerApplications();
 
         EnvExecutor.runInEnv(Env.CLIENT, () -> () -> {
             OmnixerioDevicesMod.setupSiteRegistrations();
@@ -306,11 +305,9 @@ public abstract class OmnixerioDevicesMod {
     @NotNull
     @Environment(EnvType.CLIENT)
     private static AppInfo generateAppInfo(ResourceLocation identifier, Class<? extends Application> clazz) {
-        LOGGER.debug("Generating app info for " + identifier.toString());
+        LOGGER.debug("Generating app info for {}", identifier.toString());
 
-        AppInfo info = new AppInfo(identifier, SystemApp.class.isAssignableFrom(clazz));
-        info.reload();
-        return info;
+        return new AppInfo(identifier, SystemApp.class.isAssignableFrom(clazz));
     }
 
     @Environment(EnvType.CLIENT)
@@ -321,7 +318,7 @@ public abstract class OmnixerioDevicesMod {
 
     @Environment(EnvType.CLIENT)
     public boolean registerPrint(ResourceLocation identifier, Class<? extends IPrint> classPrint) {
-        LOGGER.debug("Registering print: " + identifier.toString());
+        LOGGER.debug("Registering print: {}", identifier.toString());
 
         try {
             Constructor<? extends IPrint> constructor = classPrint.getConstructor();
@@ -337,12 +334,12 @@ public abstract class OmnixerioDevicesMod {
                 }
                 idToRenderer.put(identifier.toString(), renderer);
             } catch (InstantiationException e) {
-                OmnixerioDevicesMod.LOGGER.error("The print renderer '" + classRenderer.getName() + "' is missing an empty constructor and could not be registered!");
+                OmnixerioDevicesMod.LOGGER.error("The print renderer '{}' is missing an empty constructor and could not be registered!", classRenderer.getName());
                 return false;
             }
             return true;
         } catch (Exception e) {
-            OmnixerioDevicesMod.LOGGER.error("The print '" + classPrint.getName() + "' is missing an empty constructor and could not be registered!");
+            OmnixerioDevicesMod.LOGGER.error("The print '{}' is missing an empty constructor and could not be registered!", classPrint.getName());
         }
         return false;
     }
@@ -386,7 +383,7 @@ public abstract class OmnixerioDevicesMod {
         LifecycleEvent.SERVER_STOPPED.register(instance -> server = null);
 
         PlayerEvent.PLAYER_JOIN.register((player -> {
-            LOGGER.info("Player logged in: " + player.getName());
+            LOGGER.info("Player logged in: {}", player.getName());
 
             if (allowedApps != null) {
                 PacketHandler.sendToClient(S2CSyncApplicationsPacket.create(allowedApps), player);
@@ -444,7 +441,7 @@ public abstract class OmnixerioDevicesMod {
                             }
                             case "site-register" -> type = Type.SITE_REGISTER;
                             default -> {
-                                LOGGER.error("Invalid element type: " + typeElem.getAsString());
+                                LOGGER.error("Invalid element type: {}", typeElem.getAsString());
                                 continue;
                             }
                         }
@@ -476,13 +473,13 @@ public abstract class OmnixerioDevicesMod {
                                 var registerFuture = setupSiteRegistration(registerUrl);
                                 registerFuture.join();
                             } catch (Exception e) {
-                                LOGGER.error("Error when loading site register: " + registerUrl);
+                                LOGGER.error("Error when loading site register: {}", registerUrl);
                             }
                         }
                     }
                 }
             } else {
-                LOGGER.error("Error occurred when loading site registrations at: " + url);
+                LOGGER.error("Error occurred when loading site registrations at: {}", url);
                 future.complete(null);
                 return;
             }
