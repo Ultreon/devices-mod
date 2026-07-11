@@ -5,9 +5,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 public class GuiButtonClose extends Button {
+    private static final Identifier CLOSE_HOVER = Window.TITLEBAR.withPath("close_hover");
+    private static final Identifier CLOSE = Window.TITLEBAR.withPath("close");
+
     public GuiButtonClose(int x, int y) {
         super(x, y, 11, 11, Component.literal(""),
                 (_) -> { }, (_)-> Component.empty());
@@ -18,9 +22,7 @@ public class GuiButtonClose extends Button {
         if (this.visible) {
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 
-            if (this.isHovered) {
-                graphics.blit(RenderPipelines.GUI_TEXTURED, Window.WINDOW_GUI, this.getX(), this.getY(), this.width + 15, 0, this.width, this.height, 256, 256);
-            }
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, isHovered ? CLOSE_HOVER : CLOSE, this.getX(), this.getY(), 11, 11);
         }
     }
 }

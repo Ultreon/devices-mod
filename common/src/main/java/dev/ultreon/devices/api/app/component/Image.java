@@ -117,7 +117,7 @@ public class Image extends Component {
         this.setTint(() -> cs);
     }
 
-    private static class ColorSupplier {
+    public static class ColorSupplier {
         int r;
         int g;
         int b;

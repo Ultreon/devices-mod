@@ -1,5 +1,6 @@
 package dev.ultreon.devices.api.app.component;
 
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.IIcon;
 import dev.ultreon.devices.api.app.listener.ClickListener;
@@ -24,7 +25,9 @@ import static net.minecraft.network.chat.Component.literal;
 
 @SuppressWarnings("unused")
 public class Button extends Component {
-    protected static final Identifier BUTTON_TEXTURES = Identifier.withDefaultNamespace("textures/gui/widgets.png");
+    protected static final Identifier BUTTON_NORMAL = OmnixerioDevices.id("button/normal");
+    protected static final Identifier BUTTON_HOVERED = OmnixerioDevices.id("button/hovered");
+    protected static final Identifier BUTTON_DISABLED = OmnixerioDevices.id("button/disabled");
 
     protected static final int TOOLTIP_DELAY = 20;
 
@@ -85,7 +88,7 @@ public class Button extends Component {
      * Alternate button constructor
      *
      * @param left how many pixels from the left
-     *             I	 * @param top how many pixels from the top
+     * @param top how many pixels from the top
      * @param icon icon to be displayed in the button
      */
     public Button(int left, int top, IIcon icon) {
@@ -217,21 +220,7 @@ public class Button extends Component {
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getButtonColor());
 
             this.hovered = GuiHelper.isMouseWithin(mouseX, mouseY, x, y, width, height) && windowActive;
-            int i = this.getHoverState(this.hovered);
-            /* Corners */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y, 2, 2, 96 + i * 5, 12, 2, 2, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y, 2, 2, 99 + i * 5, 12, 2, 2, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y + height - 2, 2, 2, 99 + i * 5, 15, 2, 2, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y + height - 2, 2, 2, 96 + i * 5, 15, 2, 2, 256, 256, 0xff000000 | color.getRGB());
-
-            /* Middles */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y, width - 4, 2, 98 + i * 5, 12, 1, 2, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y + 2, 2, height - 4, 99 + i * 5, 14, 2, 1, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y + height - 2, width - 4, 2, 98 + i * 5, 15, 1, 2, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y + 2, 2, height - 4, 96 + i * 5, 14, 2, 1, 256, 256, 0xff000000 | color.getRGB());
-
-            /* Center */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y + 2, width - 4, height - 4, 98 + i * 5, 14, 1, 1, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, !enabled ? BUTTON_DISABLED : (hovered ? BUTTON_HOVERED : BUTTON_NORMAL), x, y, width, height, 0xff000000 | color.getRGB());
 
             if (this.hovered) {
                 graphics.outline(x, y, width, height, Laptop.getSystem().getSettings().getColorScheme().getButtonOutlineColor());

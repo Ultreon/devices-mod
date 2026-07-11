@@ -13,10 +13,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 
 public class Window<T extends Wrappable> {
-    public static final Identifier WINDOW_GUI = OmnixerioDevices.id("textures/gui/application.png");
+    public static final Identifier TITLEBAR = OmnixerioDevices.id("window/titlebar");
+    public static final Identifier CONTENT = OmnixerioDevices.id("window/content");
+    public static final Identifier CONTENT_LIGHT = OmnixerioDevices.id("window/content_light");
 
     public static final int COLOR_WINDOW_DARK = new Color(0f, 0f, 0f, 0.25f).getRGB();
     final Laptop laptop;
@@ -77,7 +80,7 @@ public class Window<T extends Wrappable> {
         content.onTick();
     }
 
-    public void render(GuiGraphicsExtractor graphics, Laptop gui, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
+    public void extract(GuiGraphicsExtractor graphics, Laptop gui, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
         if (content.isPendingLayoutUpdate()) {
             this.setWidth(content.getWidth());
             this.setHeight(content.getHeight());
@@ -87,25 +90,13 @@ public class Window<T extends Wrappable> {
             content.clearPendingLayout();
         }
 
-        graphics.pose().pushMatrix();
+        var pose = graphics.pose();
+        pose.pushMatrix();
         try {
-
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getWindowBackgroundColor());
 
-            /* Corners */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX, y + offsetY, 0, 0, 1, 1, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + width - 13, y + offsetY, 2, 0, 13, 13, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + width - 1, y + offsetY + height - 1, 14, 14, 1, 1, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX, y + offsetY + height - 1, 0, 14, 1, 1, 256, 256, 0xff000000 | color.getRGB());
-
-            /* Edges */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + 1, y + offsetY, width - 14, 13, 1, 0, 1, 13, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + width - 1, y + offsetY + 13, 1, height - 14, 14, 13, 1, 1, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + 1, y + offsetY + height - 1, width - 2, 1, 1, 14, 13, 1, 256, 256, 0xff000000 | color.getRGB());
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX, y + offsetY + 13, 1, height - 14, 0, 13, 1, 1, 256, 256, 0xff000000 | color.getRGB());
-
-            /* Center */
-            graphics.blit(RenderPipelines.GUI_TEXTURED, WINDOW_GUI, x + offsetX + 1, y + offsetY + 13, width - 2, height - 14, 1, 13, 13, 1, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TITLEBAR, x + offsetX, y + offsetY, width, 13, 0xff000000 | color.getRGB());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CONTENT, x + offsetX, y + offsetY + 13, width, height - 14, 0xff000000 | color.getRGB());
 
             String windowTitle = content.getWindowTitle();
             if (mc.font.width(windowTitle) > width - 2 - 13 - 3) { // window width, border, close button, padding, padding
@@ -118,14 +109,14 @@ public class Window<T extends Wrappable> {
             /* Render content */
             content.render(graphics, gui, mc, x + offsetX + 1, y + offsetY + 13, mouseX, mouseY, active && dialogWindow == null, partialTicks);
 
-            graphics.pose().translate(0, 0);
+            pose.translate(0, 0);
 
             if (dialogWindow != null) {
                 graphics.fill(x + offsetX, y + offsetY, x + offsetX + width, y + offsetY + height, COLOR_WINDOW_DARK);
-                dialogWindow.render(graphics, gui, mc, x, y, mouseX, mouseY, active, partialTicks);
+                dialogWindow.extract(graphics, gui, mc, x, y, mouseX, mouseY, active, partialTicks);
             }
         } finally {
-            graphics.pose().popMatrix();
+            pose.popMatrix();
         }
     }
 

@@ -31,7 +31,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class TaskBar {
-    public static final Identifier APP_BAR_GUI = OmnixerioDevices.id("textures/gui/application_bar.png");
+    public static final Identifier TASKBAR = OmnixerioDevices.id("taskbar");
+    public static final Identifier TASKBAR_FILL = OmnixerioDevices.id("taskbar_fill");
+    public static final Identifier TASKBAR_ACTIVE = OmnixerioDevices.id("taskbar_active");
     public static final int BAR_HEIGHT = 18;
     private static final int APPS_DISPLAYED = OmnixerioDevices.DEVELOPER_MODE ? 18 : 10;
 
@@ -111,22 +113,23 @@ public class TaskBar {
         bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
 
         int trayItemsWidth = trayItems.size() * 14;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x, y, 1, 18, 0, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
-        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + 1, y, Laptop.getScreenWidth() - 36 - trayItemsWidth, 18, 1, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
-        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + Laptop.getScreenWidth() - 35 - trayItemsWidth, y, 35 + trayItemsWidth, 18, 2, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
+        int bgColorArgb = 0xff000000 | bgColor.getRGB();
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TASKBAR_FILL, x, y, 18, 18, bgColorArgb);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TASKBAR, x + 18, y, Laptop.getScreenWidth() - 18 - trayItemsWidth, 18, bgColorArgb);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TASKBAR_FILL, x + 18 + Laptop.getScreenWidth(), y, trayItemsWidth, 18, bgColorArgb);
 
         for (int i = 0; i < APPS_DISPLAYED && i < laptop.installedApps.size(); i++) {
             AppInfo info = laptop.installedApps.get(i + offset);
             RenderUtil.drawApplicationIcon(graphics, info, x + 2 + i * 16, y + 2);
             if (laptop.isApplicationRunning(info)) {
-                graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + 1 + i * 16, y + 1, 35, 0, 16, 16, 256, 256);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TASKBAR_ACTIVE, x + 1 + i * 16, y + 1, 16, 16, bgColorArgb);
             }
         }
 
         assert mc.level == null || mc.player != null;
        // assert mc.level != null; //can no longer assume
         MutableComponent timeString = Component.literal(timeToString(mc.level != null ? mc.level.getOverworldClockTime() : 0));
-        graphics.textRenderer().accept(TextAlignment.LEFT, x + Laptop.getScreenWidth() - 31, y + 5, timeString);
+        graphics.textRenderer().accept(TextAlignment.RIGHT, x + Laptop.getScreenWidth() - 5, y + 5, timeString);
 
         /* Settings App */
         int startX = x + Laptop.getScreenWidth() - 48;
@@ -142,7 +145,7 @@ public class TaskBar {
         if (isMouseInside(mouseX, mouseY, x + 1, y + 1, x + 236, y + 16)) {
             int appIndex = (mouseX - x - 1) / 16;
             if (appIndex >= 0 && appIndex < offset + APPS_DISPLAYED && appIndex < laptop.installedApps.size()) {
-                graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + appIndex * 16 + 1, y + 1, 35, 0, 16, 16, 256, 256);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TASKBAR_ACTIVE, x + appIndex * 16 + 1, y + 1, 16, 16);
                 laptop.renderComponentTooltip(graphics, List.of(Component.literal(laptop.installedApps.get(appIndex).getName())), mouseX, mouseY);
             }
         }

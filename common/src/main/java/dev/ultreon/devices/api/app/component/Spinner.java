@@ -1,15 +1,19 @@
 package dev.ultreon.devices.api.app.component;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.Identifier;
 
 import java.awt.*;
 
 public class Spinner extends Component {
+    private static final Identifier SPINNER = OmnixerioDevices.id("spinner");
     protected final int MAX_PROGRESS = 31;
     protected int currentProgress = 0;
 
@@ -39,7 +43,7 @@ public class Spinner extends Component {
             Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
             float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
             bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1f));
-            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y, (currentProgress % 8) * 12, 12 + 12 * (int) Math.floor((double) currentProgress / 8), 12, 12, 256, 256, 0xff000000 | bgColor.getRGB());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPINNER, x, y, (currentProgress % 8) * 12, 12 + 12 * (int) Math.floor((double) currentProgress / 8), 12, 12, 256, 256, 0xff000000 | bgColor.getRGB());
         }
     }
 }

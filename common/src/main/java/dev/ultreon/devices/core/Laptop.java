@@ -28,6 +28,7 @@ import dev.ultreon.devices.programs.system.SystemApp;
 import dev.ultreon.devices.programs.system.component.FileBrowser;
 import dev.ultreon.devices.programs.system.task.TaskUpdateApplicationData;
 import dev.ultreon.devices.programs.system.task.TaskUpdateSystemData;
+import dev.ultreon.devices.util.GLHelper;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import net.minecraft.client.Minecraft;
@@ -53,6 +54,7 @@ import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
@@ -76,8 +78,8 @@ public class Laptop extends Screen implements System {
     public static final int ICON_SIZE = 14;
     private static final Identifier LAPTOP_FONT = OmnixerioDevices.id("laptop");
     public static final net.minecraft.network.chat.MutableComponent SYSTEM_HAS_CRASHED = Component.literal("System has crashed!");
+    private static final Identifier LAPTOP_GUI = OmnixerioDevices.id("laptop");
     private static Font font;
-    private static final Identifier LAPTOP_GUI = OmnixerioDevices.id("textures/gui/laptop.png");
     private static final List<Application> APPLICATIONS = new ArrayList<>();
     private static boolean worldLess;
     private static Laptop instance;
@@ -462,29 +464,12 @@ public class Laptop extends Screen implements System {
 
         graphics.fill(0, 0, width, height, 0x60000000);
 
-        //*************************//
-        //     Physical Screen     //
-        //*************************//
         int deviceWidth = videoInfo.getResolution().width() + BORDER * 2;
         int deviceHeight = videoInfo.getResolution().height() + BORDER * 2;
         int posX = (width - deviceWidth) / 2;
         int posY = (height - deviceHeight) / 2;
 
-        // Corners
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX, posY, 0, 0, BORDER, BORDER, 256, 256); // TOP-LEFT
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + deviceWidth - BORDER, posY, 11, 0, BORDER, BORDER, 256, 256); // TOP-RIGHT
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + deviceWidth - BORDER, posY + deviceHeight - BORDER, 11, 11, BORDER, BORDER, 256, 256); // BOTTOM-RIGHT
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX, posY + deviceHeight - BORDER, 0, 11, BORDER, BORDER, 256, 256); // BOTTOM-LEFT
-
-        // Edges
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + BORDER, posY, getScreenWidth(), BORDER, 10, 0, 1, BORDER, 256, 256); // TOP
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + deviceWidth - BORDER, posY + BORDER, BORDER, getScreenHeight(), 11, 10, BORDER, 1, 256, 256); // RIGHT
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + BORDER, posY + deviceHeight - BORDER, getScreenWidth(), BORDER, 10, 11, 1, BORDER, 256, 256); // BOTTOM
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX, posY + BORDER, BORDER, getScreenHeight(), 0, 11, BORDER, 1, 256, 256); // LEFT
-
-        // Center
-        graphics.blit(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX + BORDER, posY + BORDER, getScreenWidth(), getScreenHeight(), 10, 10, 1, 1, 256, 256);
-
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, LAPTOP_GUI, posX, posY, deviceWidth, deviceHeight);
     }
 
     /**
@@ -506,7 +491,7 @@ public class Laptop extends Screen implements System {
 
         extractBezels(graphics, mouseX, mouseY, partialTicks);
 
-        graphics.enableScissor(posX, posY, videoInfo.getResolution().width() + BORDER, videoInfo.getResolution().height() + BORDER);
+        GLHelper.pushScissor(graphics, posX, posY, posX + videoInfo.getResolution().width() + BORDER, posY + videoInfo.getResolution().height() + BORDER);
         try {
             //*******************//
             //     Wallpaper     //
@@ -520,38 +505,17 @@ public class Laptop extends Screen implements System {
                 insideContext = isMouseInside(mouseX, mouseY, context.xPosition, context.yPosition, context.xPosition + context.width, context.yPosition + context.height);
             }
 
-            //****************//
-            //     Window     //
-            //****************//
+
+
             graphics.pose().pushMatrix();
 
             try {
-                //   Window<?>[] windows1 = Arrays.stream(windows.toArray()).filter(Objects::nonNull).toArray(Window<?>[]::new);
+                // Render the windows
                 for (int i = windows.size() - 1; i >= 0; i--) {
                     var window = windows.get(i);
-                    if (window != null) {
-                        Matrix3x2fStack last = graphics.pose();
-                        try {
-                            if (i == 0) {
-                                window.render(graphics, this, minecraft, posX + BORDER, posY + BORDER, mouseX, mouseY, !insideContext, partialTicks);
-                            } else {
-                                window.render(graphics, this, minecraft, posX + BORDER, posY + BORDER, Integer.MAX_VALUE, Integer.MAX_VALUE, false, partialTicks);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Dialog.Message message = new Dialog.Message("An error has occurred.\nSend logs to devs.");
-                            message.setTitle("Error");
-                            CompoundTag intent = new CompoundTag();
-                            if (window.content instanceof Application app) {
-                                AppInfo info = app.getInfo();
-                                if (info != null) {
-                                    intent.putString("name", info.getName());
-                                }
-                                openApplication(ApplicationManager.getApplication(OmnixerioDevices.id("diagnostics")), intent);
-                                closeApplication(app);
-                            }
-                        }
-                    }
+
+                    if (window == null) continue;
+                    extractWindow(graphics, mouseX, mouseY, partialTicks, i, window, posX, posY, insideContext);
                 }
             } finally {
                 graphics.pose().popMatrix();
@@ -568,14 +532,37 @@ public class Laptop extends Screen implements System {
             Image.CACHE.entrySet().removeIf(entry -> {
                 Image.CachedImage cachedImage = entry.getValue();
                 if (cachedImage.isDynamic() && cachedImage.isPendingDeletion()) {
-                    cachedImage.release();;
+                    cachedImage.release();
                 }
                 return false;
             });
 
             super.extractRenderState(graphics, mouseX, mouseY, frameTime);
         } finally {
-            graphics.disableScissor();
+            GLHelper.popScissor(graphics);
+        }
+    }
+
+    private void extractWindow(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks, int i, Window<?> window, int posX, int posY, boolean insideContext) {
+        try {
+            if (i == 0) {
+                window.extract(graphics, this, minecraft, posX + BORDER, posY + BORDER, mouseX, mouseY, !insideContext, partialTicks);
+            } else {
+                window.extract(graphics, this, minecraft, posX + BORDER, posY + BORDER, Integer.MAX_VALUE, Integer.MAX_VALUE, false, partialTicks);
+            }
+        } catch (Exception e) {
+            OmnixerioDevices.LOGGER.error("Error while extracting window state", e);
+            Dialog.Message message = new Dialog.Message("An error has occurred.\nSend logs to devs.");
+            message.setTitle("Error");
+            CompoundTag intent = new CompoundTag();
+            if (window.content instanceof Application app) {
+                AppInfo info = app.getInfo();
+                if (info != null) {
+                    intent.putString("name", info.getName());
+                }
+                openApplication(ApplicationManager.getApplication(OmnixerioDevices.id("diagnostics")), intent);
+                closeApplication(app);
+            }
         }
     }
 
@@ -585,9 +572,6 @@ public class Laptop extends Screen implements System {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        int mouseX = (int) event.x();
-        int mouseY = (int) event.y();
-        int mouseButton = event.button();
         try {
             return mouseClickedInternal(event, doubleClick);
         } catch (NullPointerException e) {
@@ -600,7 +584,7 @@ public class Laptop extends Screen implements System {
 
     private void bsod(Throwable e) {
         this.bsod = new BSOD(e);
-        e.printStackTrace();
+        OmnixerioDevices.LOGGER.error("BSOD", e);
     }
 
     public VideoInfo getVideoInfo() {
