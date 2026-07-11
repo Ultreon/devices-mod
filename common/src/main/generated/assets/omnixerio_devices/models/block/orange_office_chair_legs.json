@@ -1,0 +1,6 @@
+{
+  "parent": "omnixerio_devices:block/office_chair_legs",
+  "textures": {
+    "chair_color": "minecraft:block/orange_wool"
+  }
+}

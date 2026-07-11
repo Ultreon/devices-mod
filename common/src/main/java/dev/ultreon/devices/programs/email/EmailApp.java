@@ -23,11 +23,11 @@ import dev.ultreon.devices.programs.email.object.Email;
 import dev.ultreon.devices.programs.email.task.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class EmailApp extends Application {
-    private static final ResourceLocation ENDER_MAIL_ICONS = Resources.ENDER_MAIL_ICONS;
-    private static final ResourceLocation ENDER_MAIL_BACKGROUND = Resources.ENDER_MAIL_BACKGROUND;
+    private static final Identifier ENDER_MAIL_ICONS = Resources.ENDER_MAIL_ICONS;
+    private static final Identifier ENDER_MAIL_BACKGROUND = Resources.ENDER_MAIL_BACKGROUND;
 
     private static final Pattern EMAIL = Pattern.compile("^([a-zA-Z\\d]{1,10})@endermail\\.official$");
     private final Color COLOR_EMAIL_CONTENT_BACKGROUND = new Color(160, 160, 160);
@@ -209,7 +209,6 @@ public class EmailApp extends Application {
             TaskManager.sendTask(taskUpdateInbox);
         });
         layoutInbox.setBackground((graphics, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
-            RenderSystem.setShaderTexture(0, ENDER_MAIL_BACKGROUND);
             RenderUtil.drawRectWithTexture(ENDER_MAIL_BACKGROUND, graphics, x, y, 0, 0, width, height, 640, 360, 640, 360);
 
             Color temp = new Color(Laptop.getSystem().getSettings().getColorScheme().getBackgroundColor());
@@ -224,26 +223,23 @@ public class EmailApp extends Application {
                 graphics.fill(x + 130, y + 35, x + width - 5, y + height - 5, new Color(1f, 1f, 1f, 0.25f).getRGB());
                 RenderUtil.drawStringClipped(graphics, e.getSubject(), x + 135, y + 10, 120, Color.WHITE.getRGB(), true);
                 RenderUtil.drawStringClipped(graphics, e.getAuthor() + "@endermail.official", x + 135, y + 22, 120, Color.LIGHT_GRAY.getRGB(), false);
-                graphics.drawWordWrap(Laptop.getFont(), FormattedText.of(e.getMessage()), x + 135, y + 40, 115, Color.WHITE.getRGB());
+                graphics.textWithWordWrap(Laptop.getLaptopFont(), FormattedText.of(e.getMessage()), x + 135, y + 40, 115, Color.WHITE.getRGB());
             }
         });
 
         listEmails = new ItemList<>(5, 25, 116, 4);
         listEmails.setListItemRenderer(new ListItemRenderer<>(28) {
             @Override
-            public void render(GuiGraphics graphics, Email e, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, Email e, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 graphics.fill(x, y, x + width, y + height, selected ? Color.DARK_GRAY.getRGB() : Color.GRAY.getRGB());
 
                 if (!e.isRead()) {
-                    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
                     RenderUtil.drawApplicationIcon(graphics, info, x + width - 16, y + 2);
                 }
 
                 if (e.getAttachment() != null) {
-                    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
                     int posX = x + (!e.isRead() ? -12 : 0) + width;
-                    RenderSystem.setShaderTexture(0, ENDER_MAIL_ICONS);
-                    RenderUtil.drawRectWithTexture(ENDER_MAIL_ICONS, graphics, posX, y + 16, 20, 10, 7, 10, 13, 20);
+                    RenderUtil.drawRectWithTexture3(ENDER_MAIL_ICONS, graphics, posX, y + 16, 20, 10, 7, 10, 13, 20);
                 }
                 RenderUtil.drawStringClipped(graphics, e.getSubject(), x + 5, y + 5, width - 20, Color.WHITE.getRGB(), false);
                 RenderUtil.drawStringClipped(graphics, e.getAuthor() + "@endermail.official", x + 5, y + 17, width - 20, Color.LIGHT_GRAY.getRGB(), false);
@@ -330,7 +326,7 @@ public class EmailApp extends Application {
         layoutNewEmail = new Layout(231, 148);
         layoutNewEmail.setBackground((graphics, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
             if (attachedFile != null) {
-                AppInfo info = ApplicationManager.getApplication(Objects.requireNonNull(ResourceLocation.tryParse(attachedFile.getOpeningApp()), "Attached file has no opening app"));
+                AppInfo info = ApplicationManager.getApplication(Objects.requireNonNull(Identifier.tryParse(attachedFile.getOpeningApp()), "Attached file has no opening app"));
                 RenderUtil.drawApplicationIcon(graphics, info, x + 46, y + 130);
             }
         });
@@ -427,8 +423,7 @@ public class EmailApp extends Application {
             graphics.fill(x, y + 50, x + layoutViewEmail.width, y + 156, COLOR_EMAIL_CONTENT_BACKGROUND.getRGB());
 
             if (attachedFile != null) {
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                AppInfo info = ApplicationManager.getApplication(Objects.requireNonNull(ResourceLocation.tryParse(attachedFile.getOpeningApp()), "Attached file has no opening app"));
+                AppInfo info = ApplicationManager.getApplication(Objects.requireNonNull(Identifier.tryParse(attachedFile.getOpeningApp()), "Attached file has no opening app"));
                 RenderUtil.drawApplicationIcon(graphics, info, x + 204, y + 4);
             }
         });
@@ -478,7 +473,7 @@ public class EmailApp extends Application {
         TaskCheckEmailAccount taskCheckAccount = new TaskCheckEmailAccount();
         taskCheckAccount.setCallback((nbt, success) -> {
             if (success) {
-                currentName = Objects.requireNonNull(nbt, "Callback has no nbt attached").getString("Name");
+                currentName = Objects.requireNonNull(nbt, "Callback has no nbt attached").getStringOr("Name", "Anonymous");
                 listEmails.removeAll();
                 for (Email email : EmailManager.INSTANCE.getInbox()) {
                     listEmails.addItem(email);

@@ -1,0 +1,6 @@
+{
+  "parent": "omnixerio_devices:block/laptop_screen",
+  "textures": {
+    "2": "minecraft:block/orange_wool"
+  }
+}

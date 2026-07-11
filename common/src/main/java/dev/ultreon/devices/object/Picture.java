@@ -25,9 +25,9 @@ public class Picture {
     public static Picture fromFile(File file) {
         CompoundTag data = file.getData();
         assert data != null;
-        Picture picture = new Picture(data.getString("Name"), data.getString("Author"), Objects.requireNonNull(Size.getFromSize(data.getInt("Resolution"))));
+        Picture picture = new Picture(data.getString("Name").orElseThrow(), data.getString("Author").orElseThrow(), Objects.requireNonNull(Size.getFromSize(data.getInt("Resolution").orElseThrow())));
         picture.source = file;
-        picture.pixels = data.getIntArray("Pixels");
+        picture.pixels = data.getIntArray("Pixels").orElseThrow();
         return picture;
     }
 
@@ -88,8 +88,10 @@ public class Picture {
     public enum Size {
         X16(16, 16, 8, 8), X32(32, 32, 4, 4);
 
-        public int width, height;
-        public int pixelWidth, pixelHeight;
+        public final int width;
+        public final int height;
+        public final int pixelWidth;
+        public final int pixelHeight;
 
         Size(int width, int height, int pixelWidth, int pixelHeight) {
             this.width = width;

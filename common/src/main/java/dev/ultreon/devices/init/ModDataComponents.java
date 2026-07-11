@@ -2,7 +2,7 @@ package dev.ultreon.devices.init;
 
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.item.data.*;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -10,7 +10,7 @@ import net.minecraft.core.registries.Registries;
 import java.util.function.Supplier;
 
 public class ModDataComponents {
-    private static final Registrar<DataComponentType<?>> REGISTER = OmnixerioDevicesMod.REGISTRIES.get().get(Registries.DATA_COMPONENT_TYPE);
+    private static final Registrar<DataComponentType<?>> REGISTER = OmnixerioDevices.REGISTRIES.get().get(Registries.DATA_COMPONENT_TYPE);
 
     public static final RegistrySupplier<DataComponentType<FlashDriveComponent>> FLASH_DRIVE = register("flash_drive", () -> DataComponentType.<FlashDriveComponent>builder().persistent(FlashDriveComponent.CODEC).build());
     public static final RegistrySupplier<DataComponentType<ExternalDriveComponent>> EXTERNAL_DRIVE = register("external_drive", () -> DataComponentType.<ExternalDriveComponent>builder().persistent(ExternalDriveComponent.CODEC).build());
@@ -20,7 +20,7 @@ public class ModDataComponents {
     public static final RegistrySupplier<DataComponentType<Battery>> BATTERY = register("battery", () -> DataComponentType.<Battery>builder().persistent(Battery.CODEC).build());
 
     private static <T extends DataComponentType<?>> RegistrySupplier<T> register(String id, Supplier<T> supplier) {
-        return REGISTER.register(OmnixerioDevicesMod.id(id), supplier);
+        return REGISTER.register(OmnixerioDevices.id(id), supplier);
     }
 
     public static void register() {

@@ -1,0 +1,31 @@
+{
+    "result": {
+        "item": "omnixerio_devices:lime_office_chair"
+    },
+    "pattern": [
+        "CDC",
+        "CLC",
+        "WFW"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "D": {
+            "item": "minecraft:lime_wool",
+            "data": 5
+        },
+        "C": {
+            "item": "minecraft:concrete",
+            "data": 7
+        },
+        "L": {
+            "item": "minecraft:leather"
+        },
+        "W": {
+            "item": "omnixerio_devices:wheel"
+        },
+        "F": {
+            "item": "minecraft:cobblestone_wall",
+            "data": 0
+        }
+    }
+}

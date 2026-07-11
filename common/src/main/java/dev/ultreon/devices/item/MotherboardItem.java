@@ -6,10 +6,13 @@ import dev.ultreon.devices.util.KeyboardHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author MrCrayfish
@@ -20,7 +23,7 @@ public class MotherboardItem extends ComponentItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<net.minecraft.network.chat.Component> builder, TooltipFlag tooltipFlag) {
         MotherboardComponents components = stack.get(ModDataComponents.MOTHERBOARD_COMPONENTS.get());
         if (components == null) {
             components = new MotherboardComponents(false, false, false, false);
@@ -28,23 +31,23 @@ public class MotherboardItem extends ComponentItem {
         }
 
         if (!KeyboardHelper.isShiftDown()) {
-            tooltip.add(net.minecraft.network.chat.Component.literal("CPU: " + (components.hasCpu() ? "Added" : "Missing")));
-            tooltip.add(net.minecraft.network.chat.Component.literal("RAM: " + (components.hasRam() ? "Added" : "Missing")));
-            tooltip.add(net.minecraft.network.chat.Component.literal("GPU: " + (components.hasGpu() ? "Added" : "Missing")));
-            tooltip.add(net.minecraft.network.chat.Component.literal("WIFI: " + (components.hasWifi() ? "Added" : "Missing")));
-            tooltip.add(net.minecraft.network.chat.Component.literal(ChatFormatting.YELLOW + "Hold shift for help"));
+            builder.accept(net.minecraft.network.chat.Component.literal("CPU: " + (components.hasCpu() ? "Added" : "Missing")));
+            builder.accept(net.minecraft.network.chat.Component.literal("RAM: " + (components.hasRam() ? "Added" : "Missing")));
+            builder.accept(net.minecraft.network.chat.Component.literal("GPU: " + (components.hasGpu() ? "Added" : "Missing")));
+            builder.accept(net.minecraft.network.chat.Component.literal("WIFI: " + (components.hasWifi() ? "Added" : "Missing")));
+            builder.accept(net.minecraft.network.chat.Component.literal(ChatFormatting.YELLOW + "Hold shift for help"));
         } else {
-            tooltip.add(net.minecraft.network.chat.Component.literal("To add the required components"));
-            tooltip.add(net.minecraft.network.chat.Component.literal("place the motherboard and the"));
-            tooltip.add(net.minecraft.network.chat.Component.literal("corresponding component into a"));
-            tooltip.add(net.minecraft.network.chat.Component.literal("crafting table to combine them."));
+            builder.accept(net.minecraft.network.chat.Component.literal("To add the required components"));
+            builder.accept(net.minecraft.network.chat.Component.literal("place the motherboard and the"));
+            builder.accept(net.minecraft.network.chat.Component.literal("corresponding component into a"));
+            builder.accept(net.minecraft.network.chat.Component.literal("crafting table to combine them."));
         }
     }
 
     private String getComponentStatus(CompoundTag tag, String component) {
-        if (tag != null && tag.contains("components", Tag.TAG_COMPOUND)) {
-            CompoundTag components = tag.getCompound("components");
-            if (components.contains(component, Tag.TAG_BYTE)) {
+        if (tag != null && tag.contains("components")) {
+            CompoundTag components = tag.getCompoundOrEmpty("components");
+            if (components.contains(component)) {
                 return ChatFormatting.GREEN + "Added";
             }
         }

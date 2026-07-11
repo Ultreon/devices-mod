@@ -6,16 +6,17 @@ import dev.ultreon.devices.core.network.Router;
 import dev.ultreon.devices.util.Colorable;
 import dev.ultreon.devices.util.Tickable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity implements Tickable {
@@ -28,7 +29,7 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
 
     public void tick() {
         assert level != null;
-        if (level.isClientSide)
+        if (level.isClientSide())
             return;
 
         if (connection != null) {
@@ -102,18 +103,23 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         if (connection != null) {
-            tag.put("connection", connection.toTag());
+            ValueOutput connection1 = tag.child("connection");
+            connection.save(connection1);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("connection", Tag.TAG_COMPOUND)) {
-            connection = Connection.fromTag(tag.getCompound("connection"));
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+
+        Optional<CompoundTag> optionalConnection = tag.read("connection", CompoundTag.CODEC);
+        if (!optionalConnection.isPresent()) {
+            connection = null;
+        } else {
+            optionalConnection.ifPresent(connectionIn -> connection = Connection.fromTag(optionalConnection.get()));
         }
     }
 
@@ -125,16 +131,15 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
         }
 
         @Override
-        protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-            super.loadAdditional(tag, provider);
-            if (tag.contains("color", Tag.TAG_STRING)) {
-                color = DyeColor.byId(tag.getByte("color"));
-            }
+        protected void loadAdditional(ValueInput tag) {
+            super.loadAdditional(tag);
+            byte color = tag.getByteOr("color", (byte) 0);
+            this.color = DyeColor.byId(color > 15 || color < 0 ? 0 : color);
         }
 
         @Override
-        protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-            super.saveAdditional(tag, provider);
+        protected void saveAdditional(ValueOutput tag) {
+            super.saveAdditional(tag);
             tag.putByte("color", (byte) color.getId());
         }
 

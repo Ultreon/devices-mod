@@ -32,7 +32,7 @@ public class TaskPing extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockEntity blockEntity = level.getChunkAt(BlockPos.of(tag.getLong("sourceDevicePos"))).getBlockEntity(BlockPos.of(tag.getLong("sourceDevicePos")), LevelChunk.EntityCreationType.IMMEDIATE);
+        BlockEntity blockEntity = level.getChunkAt(BlockPos.of(tag.getLong("sourceDevicePos").orElseThrow())).getBlockEntity(BlockPos.of(tag.getLong("sourceDevicePos").orElseThrow()), LevelChunk.EntityCreationType.IMMEDIATE);
         if (blockEntity instanceof NetworkDeviceBlockEntity networkDevice) {
             if (networkDevice.isConnected()) {
                 this.strength = networkDevice.getSignalStrength();

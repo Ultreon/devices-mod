@@ -2,10 +2,11 @@ package dev.ultreon.devices.api.print;
 
 import com.google.common.collect.HashBiMap;
 import dev.architectury.injectables.annotations.PlatformOnly;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
+import dev.ultreon.devices.client.OmnixerioDevicesClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,19 +31,19 @@ public class PrintingManager {
         PrintingManager.registeredRenders = registeredRenders;
     }
 
-    public static void registerPrint(ResourceLocation identifier, Class<? extends IPrint> classPrint) {
+    public static void registerPrint(Identifier identifier, Class<? extends IPrint> classPrint) {
         try {
             classPrint.getConstructor().newInstance();
-            if (OmnixerioDevicesMod.getInstance().registerPrint(identifier, classPrint)) {
-                OmnixerioDevicesMod.LOGGER.info("Registering print '" + classPrint.getName() + "'");
+            if (OmnixerioDevicesClient.getInstance().registerPrint(identifier, classPrint)) {
+                OmnixerioDevices.LOGGER.info("Registering print '" + classPrint.getName() + "'");
                 registeredPrints.put(identifier.toString(), classPrint);
             } else {
-                OmnixerioDevicesMod.LOGGER.error("The print '" + classPrint.getName() + "' could not be registered due to a critical error!");
+                OmnixerioDevices.LOGGER.error("The print '" + classPrint.getName() + "' could not be registered due to a critical error!");
             }
         } catch (NoSuchMethodException e) {
-            OmnixerioDevicesMod.LOGGER.error("The print '" + classPrint.getName() + "' is missing an empty constructor and could not be registered!");
+            OmnixerioDevices.LOGGER.error("The print '" + classPrint.getName() + "' is missing an empty constructor and could not be registered!");
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            OmnixerioDevicesMod.LOGGER.error("The print '" + classPrint.getName() + "' could not be registered due to a critical error!");
+            OmnixerioDevices.LOGGER.error("The print '" + classPrint.getName() + "' could not be registered due to a critical error!");
         }
     }
 

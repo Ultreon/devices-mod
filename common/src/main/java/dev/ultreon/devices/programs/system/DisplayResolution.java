@@ -5,8 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 
 public interface DisplayResolution {
     static DisplayResolution load(CompoundTag resolution) {
-        var width = resolution.getInt("width");
-        var height = resolution.getInt("height");
+        var width = resolution.getIntOr("width", 384);
+        var height = resolution.getIntOr("height", 216);
 
         for (PredefinedResolution predefinedResolution : PredefinedResolution.values()) {
             if (predefinedResolution.width() == width && predefinedResolution.height() == height) {

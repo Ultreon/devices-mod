@@ -1,6 +1,5 @@
 package dev.ultreon.devices.programs.system.component;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -9,10 +8,11 @@ import dev.ultreon.devices.api.app.Layout;
 import dev.ultreon.devices.api.app.component.ComboBox;
 import dev.ultreon.devices.api.app.component.Slider;
 import dev.ultreon.devices.core.Laptop;
+import dev.ultreon.devices.debug.DebugLog;
 import dev.ultreon.devices.util.GLHelper;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.awt.*;
 
@@ -63,36 +63,26 @@ public class Palette extends Component {
     }
 
     @Override
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         graphics.fill(x, y, x + 52, y + 52, Color.DARK_GRAY.getRGB());
+//
+//        Tesselator tessellator = Tesselator.getInstance();
+//        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+//        buffer.addVertex((float) ((double) x + 1), y + 1 + 50, 1).setColor(0f, 0f, 0f, 1f);
+//        buffer.addVertex(x + 1 + 50, y + 1 + 50, 1).setColor(0f, 0f, 0f, 1f);
+//        buffer.addVertex((float) (x + 1 + 50), (float) ((double) y + 1), 1).setColor(currentColor.getRed() / 255f, currentColor.getGreen() / 255f, currentColor.getBlue() / 255f, 1f);
+//        buffer.addVertex((float) ((double) x + 1), (float) ((double) y + 1), 1).setColor(1f, 1f, 1f, 1f);
+//        BufferUploader.draw(buffer.buildOrThrow());
+//
+//        // Todo: Make shade model flag again.
+////        GlStateManager.shadeModel(GL11.GL_FLAT);
+//        RenderSystem.disableBlend();
+//        // Todo: Make enabling alpha possible.
+////        RenderSystem.enableAlpha();
+//        // RenderSystem.enableTexture();
+//        Lighting.setupFor3DItems();
 
-        // Todo: Disable lighting somehow.
-        Lighting.setupForFlatItems();
-//        RenderSystem.disableLighting();
-        // RenderSystem.disableTexture();
-        RenderSystem.enableBlend();
-        // Todo: Disable alpha somehow
-//        RenderSystem.disableAlpha();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        // Todo: Make shade model for GL_SMOOTH possible.
-       // RenderSystem.setShaderTexture(0, GameRenderer.());
-//        RenderSystem.shadeModel(GL11.GL_SMOOTH);
-
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        buffer.addVertex((float) ((double) x + 1), y + 1 + 50, 1).setColor(0f, 0f, 0f, 1f);
-        buffer.addVertex(x + 1 + 50, y + 1 + 50, 1).setColor(0f, 0f, 0f, 1f);
-        buffer.addVertex((float) (x + 1 + 50), (float) ((double) y + 1), 1).setColor(currentColor.getRed() / 255f, currentColor.getGreen() / 255f, currentColor.getBlue() / 255f, 1f);
-        buffer.addVertex((float) ((double) x + 1), (float) ((double) y + 1), 1).setColor(1f, 1f, 1f, 1f);
-        BufferUploader.draw(buffer.buildOrThrow());
-
-        // Todo: Make shade model flag again.
-//        GlStateManager.shadeModel(GL11.GL_FLAT);
-        RenderSystem.disableBlend();
-        // Todo: Make enabling alpha possible.
-//        RenderSystem.enableAlpha();
-        // RenderSystem.enableTexture();
-        Lighting.setupFor3DItems();
+        DebugLog.logOnce(DebugLog.ERROR, "e933dd9d-d635-4593-a454-d103afb008e5", "Palette rendering not implemented yet.");
     }
 
     @Override
@@ -100,7 +90,8 @@ public class Palette extends Component {
         if (mouseButton != 0) return;
 
         if (GuiHelper.isMouseInside(mouseX, mouseY, xPosition + 1, yPosition + 1, xPosition + 51, yPosition + 51)) {
-            colorPicker.setValue(GLHelper.getPixel(mouseX, mouseY).getRGB());
+//            colorPicker.setValue();
+            DebugLog.logOnce(DebugLog.ERROR, "871c0dc3-9cb4-42d7-8ddc-cbbc34496174", "Palette input not implemented yet.");
         }
     }
 }

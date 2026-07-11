@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -38,15 +37,8 @@ public abstract class ComputerBlock extends DeviceBlock {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        InteractionResult use = use(blockState, level, blockPos, player, interactionHand, blockHitResult);
-        return switch (use) {
-            case SUCCESS, SUCCESS_NO_ITEM_USED -> ItemInteractionResult.SUCCESS;
-            case CONSUME -> ItemInteractionResult.CONSUME;
-            case PASS -> ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            case CONSUME_PARTIAL -> ItemInteractionResult.CONSUME_PARTIAL;
-            default -> ItemInteractionResult.FAIL;
-        };
+    protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        return use(state, level, pos, player, hand, hitResult);
     }
 
     @NotNull
@@ -54,16 +46,14 @@ public abstract class ComputerBlock extends DeviceBlock {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ComputerBlockEntity computer) {
             accessComputer(level, computer);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS_SERVER;
         }
         return InteractionResult.PASS;
     }
 
     public void accessComputer(Level level, ComputerBlockEntity computer) {
-        if (level.isClientSide) {
-            EnvExecutor.runInEnv(Env.CLIENT, () -> () -> {
-                ClientLaptopWrapper.execute(computer);
-            });
+        if (level.isClientSide()) {
+            EnvExecutor.runInEnv(Env.CLIENT, () -> () -> ClientLaptopWrapper.execute(computer));
         }
     }
 

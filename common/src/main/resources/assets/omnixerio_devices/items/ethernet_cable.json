@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/ethernet_cable",
+    "type": "minecraft:model"
+  }
+}

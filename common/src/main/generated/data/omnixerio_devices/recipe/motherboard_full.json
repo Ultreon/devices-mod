@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "omnixerio_devices:cpu"
+    },
+    {
+      "item": "omnixerio_devices:gpu"
+    },
+    {
+      "item": "omnixerio_devices:ram"
+    },
+    {
+      "item": "omnixerio_devices:wifi"
+    },
+    {
+      "item": "omnixerio_devices:motherboard"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:motherboard_full"
+  }
+}

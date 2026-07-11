@@ -321,7 +321,7 @@ public class GitWebFrame extends Component {
     }
 
     private void generateLayout(String websiteData, boolean dynamic) {
-        Minecraft.getInstance().doRunTask(() ->
+        Minecraft.getInstance().submit(() ->
         {
             List<ModuleEntry> modules = parseData(websiteData);
             if (modules == null) {
@@ -342,8 +342,8 @@ public class GitWebFrame extends Component {
                 offset += height;
             }
 
-            if (modules.size() > 0) {
-                ModuleEntry entry = modules.get(modules.size() - 1);
+            if (!modules.isEmpty()) {
+                ModuleEntry entry = modules.getLast();
                 Module module = entry.getModule();
                 int height = module.calculateHeight(entry.getData(), width);
                 //if (height == 0)

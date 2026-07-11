@@ -1,17 +1,17 @@
 package dev.ultreon.devices.api.app;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.programs.system.object.ColorScheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public abstract class Component {
     /**
      * The default components textures
      */
-    public static final ResourceLocation COMPONENTS_GUI = OmnixerioDevicesMod.id("textures/gui/components.png");
+    public static final Identifier COMPONENTS_GUI = OmnixerioDevices.id("textures/gui/components.png");
     public static final int ALIGN_LEFT = 0;
     public static final int ALIGN_RIGHT = 1;
     public static final int ALIGN_CENTER = 2;
@@ -99,7 +99,7 @@ public abstract class Component {
      * @param windowActive if the window is active (at front)
      * @param partialTicks percentage passed in-between two ticks
      */
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
     }
 
     /**
@@ -113,7 +113,7 @@ public abstract class Component {
      * @param mouseY       the current y position of the mouse
      * @param windowActive if the window is active (at front)
      */
-    protected void renderOverlay(GuiGraphics graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
+    protected void renderOverlay(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
     }
 
     /**
@@ -246,11 +246,11 @@ public abstract class Component {
         return Laptop.getSystem().getSettings().getColorScheme();
     }
 
-    public void drawVerticalLine(GuiGraphics graphics, int x, int y1, int y2, int rgb) {
+    public void drawVerticalLine(GuiGraphicsExtractor graphics, int x, int y1, int y2, int rgb) {
         graphics.fill(x, y1, x + 1, y2, rgb);
     }
 
-    public void drawHorizontalLine(GuiGraphics graphics, int x1, int x2, int y, int rgb) {
+    public void drawHorizontalLine(GuiGraphicsExtractor graphics, int x1, int x2, int y, int rgb) {
         graphics.fill(x1, y, x2, y + 1, rgb);
     }
 }

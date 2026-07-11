@@ -2,7 +2,7 @@ package dev.ultreon.devices.object.tiles;
 
 import dev.ultreon.devices.api.utils.RenderUtil;
 import dev.ultreon.devices.object.Game;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class TileFlower extends Tile
 {
@@ -12,9 +12,9 @@ public class TileFlower extends Tile
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, Game game, int x, int y, Game.Layer layer)
+	public void render(GuiGraphicsExtractor graphics, Game game, int x, int y, Game.Layer layer)
 	{
-		RenderUtil.drawRectWithTexture(null, graphics, game.xPosition + x * WIDTH, game.yPosition + y * HEIGHT - 4, this.x * 16, this.y * 16, WIDTH, 8, 16, 16);
+		RenderUtil.drawRectWithTexture3(null, graphics, game.xPosition + x * WIDTH, game.yPosition + y * HEIGHT - 4, this.x * 16, this.y * 16, WIDTH, 8, 16, 16);
 	}
 
 	@Override

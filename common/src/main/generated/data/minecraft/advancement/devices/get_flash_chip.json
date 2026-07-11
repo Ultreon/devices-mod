@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:omnixerio_devices/root",
+  "criteria": {
+    "got_flash_chip": {
+      "conditions": {
+        "items": [
+          {
+            "items": "omnixerio_devices:flash_chip"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "omnixerio_devices:textures/gui/advancement_background.png",
+    "description": "Create your first flash chip",
+    "icon": {
+      "count": 1,
+      "id": "omnixerio_devices:flash_chip"
+    },
+    "title": "Flashy Chips"
+  },
+  "requirements": [
+    [
+      "got_flash_chip"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

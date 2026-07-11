@@ -30,12 +30,12 @@ public class AuctionItem {
     }
 
     public static AuctionItem readFromNBT(CompoundTag tag) {
-        UUID id = UUID.fromString(tag.getString("id"));
-        CompoundTag item = tag.getCompound("item");
+        UUID id = UUID.fromString(tag.getString("id").orElseThrow());
+        CompoundTag item = tag.getCompound("item").orElseThrow();
         ItemStack stack = ItemStack.CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-        int price = tag.getInt("price");
-        long timeLeft = tag.getLong("time");
-        UUID sellerId = UUID.fromString(tag.getString("seller"));
+        int price = tag.getInt("price").orElseThrow();
+        long timeLeft = tag.getLong("time").orElseThrow();
+        UUID sellerId = UUID.fromString(tag.getString("seller").orElseThrow());
         return new AuctionItem(id, stack, price, timeLeft, sellerId);
     }
 

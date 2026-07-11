@@ -1,10 +1,11 @@
 package dev.ultreon.devices.programs.gitweb.component.container;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
@@ -24,12 +25,12 @@ public class FurnaceBox extends ContainerBox {
         slots.add(new Slot(26, 8, input));
         slots.add(new Slot(26, 44, fuel));
         slots.add(new Slot(85, 26, result));
-        this.fuelTime = OmnixerioDevicesMod.getInstance().getBurnTime(fuel, RecipeType.SMELTING);
-    }
-
-    @Deprecated
-    private static int getBurnTime(ItemStack stack, RecipeType<?> type) {
-        return OmnixerioDevicesMod.getInstance().getBurnTime(stack, type);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            fuelTime = 0;
+            return;
+        }
+        this.fuelTime = OmnixerioDevices.getInstance().getBurnTime(fuel, RecipeType.SMELTING, level.registryAccess());
     }
 
     @Override
@@ -43,16 +44,14 @@ public class FurnaceBox extends ContainerBox {
     }
 
     @Override
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
-        super.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
-
-        RenderSystem.setShaderTexture(0, CONTAINER_BOXES_TEXTURE);
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+        super.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 
         int burnProgress = this.getBurnLeftScaled(13);
-        graphics.blit(CONTAINER_BOXES_TEXTURE, x + 26, y + 52 - burnProgress, 128, 238 - burnProgress, 14, burnProgress + 1);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CONTAINER_BOXES_TEXTURE, x + 26, y + 52 - burnProgress, 128, 238 - burnProgress, 14, burnProgress + 1, 256, 256);
 
         int cookProgress = this.getCookProgressScaled(24);
-        graphics.blit(CONTAINER_BOXES_TEXTURE, x + 49, y + 37, 128, 239, cookProgress + 1, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CONTAINER_BOXES_TEXTURE, x + 49, y + 37, 128, 239, cookProgress + 1, 16, 256, 256);
     }
 
     private int getCookProgressScaled(int pixels) {

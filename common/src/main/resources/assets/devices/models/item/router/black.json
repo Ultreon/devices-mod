@@ -1,6 +1,0 @@
-{
-    "parent": "devices:item/router",
-    "textures": {
-        "1": "block/black_wool"
-    }
-}

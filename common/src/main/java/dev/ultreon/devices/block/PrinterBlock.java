@@ -7,7 +7,7 @@ import dev.ultreon.devices.util.Colored;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -25,6 +25,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author MrCrayfish
@@ -81,7 +82,7 @@ public class PrinterBlock extends DeviceBlock.Colored implements Colored {
     private final DyeColor color;
 
     public PrinterBlock(Properties properties, DyeColor color) {
-        super(Properties.of().mapColor(color).strength(6f).sound(SoundType.METAL), color, ModDeviceTypes.PRINTER);
+        super(properties.mapColor(color).strength(6f).sound(SoundType.METAL), color, ModDeviceTypes.PRINTER);
         this.color = color;
         this.registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
     }
@@ -99,13 +100,13 @@ public class PrinterBlock extends DeviceBlock.Colored implements Colored {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        ItemStack heldItem = player.getItemInHand(interactionHand);
-        BlockEntity tileEntity = level.getChunkAt(blockPos).getBlockEntity(blockPos, LevelChunk.EntityCreationType.IMMEDIATE);
+    protected @NonNull InteractionResult useItemOn(@NonNull ItemStack itemStack, @NonNull BlockState state, Level level, @NonNull BlockPos pos, Player player, @NonNull InteractionHand hand, @NonNull BlockHitResult hitResult) {
+        ItemStack heldItem = player.getItemInHand(hand);
+        BlockEntity tileEntity = level.getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
         if (heldItem.is(Items.PAPER) && tileEntity instanceof PrinterBlockEntity printer) {
-            return printer.addPaper(heldItem, player.isCrouching()) ? ItemInteractionResult.SUCCESS : ItemInteractionResult.FAIL;
+            return printer.addPaper(heldItem, player.isCrouching()) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override

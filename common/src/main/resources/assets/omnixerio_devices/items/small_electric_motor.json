@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/small_electric_motor",
+    "type": "minecraft:model"
+  }
+}

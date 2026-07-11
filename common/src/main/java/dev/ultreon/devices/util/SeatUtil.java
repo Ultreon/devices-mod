@@ -4,6 +4,7 @@ import dev.ultreon.devices.debug.DebugLog;
 import dev.ultreon.devices.entity.SeatEntity;
 import dev.ultreon.devices.init.ModEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -19,7 +20,7 @@ public class SeatUtil {
                 playerIn.startRiding(seat);
             }
         } else {
-            SeatEntity seat = ModEntities.SEAT.get().create(worldIn);// new SeatEntity(worldIn, pos, yOffset);
+            SeatEntity seat = ModEntities.SEAT.get().create(worldIn, EntitySpawnReason.TRIGGERED);// new SeatEntity(worldIn, pos, yOffset);
             assert seat != null;
             seat.setYOffset(yOffset);
             seat.setViaYOffset(pos);

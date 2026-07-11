@@ -24,16 +24,17 @@ import dev.ultreon.devices.programs.system.object.ColorScheme;
 import dev.ultreon.devices.util.GLHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.function.Predicate;
+
+import static net.minecraft.network.chat.Component.literal;
 
 public abstract class Dialog extends Wrappable {
     protected final Layout defaultLayout;
@@ -79,10 +80,10 @@ public abstract class Dialog extends Wrappable {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
-        GLHelper.pushScissor(x, y, width, height);
-        customLayout.render(graphics, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
-        GLHelper.popScissor();
+    public void render(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
+        GLHelper.pushScissor(graphics, x, y, width, height);
+        customLayout.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
+        GLHelper.popScissor(graphics);
 
         customLayout.renderOverlay(graphics, laptop, mc, mouseX, mouseY, active);
 
@@ -202,7 +203,7 @@ public abstract class Dialog extends Wrappable {
         public void init(@Nullable CompoundTag intent) {
             super.init(intent);
 
-            int textHeight = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
+            int textHeight = Minecraft.getInstance().font.wordWrapHeight(literal(messageText), getWidth() - 10);
             defaultLayout.height += textHeight;
 
             super.init(intent);
@@ -258,7 +259,7 @@ public abstract class Dialog extends Wrappable {
         public void init(@Nullable CompoundTag intent) {
             super.init(intent);
 
-            int lines = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
+            int lines = Minecraft.getInstance().font.wordWrapHeight(literal(messageText), getWidth() - 10);
             defaultLayout.height += (lines - 1) ;
 
             super.init(intent);
@@ -360,7 +361,7 @@ public abstract class Dialog extends Wrappable {
             int offset = 0;
 
             if (messageText != null) {
-                int lines = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
+                int lines = Minecraft.getInstance().font.wordWrapHeight(literal(messageText), getWidth() - 10);
                 defaultLayout.height += lines * 9 + 10;
                 offset += lines * 9 + 5;
             }
@@ -783,10 +784,10 @@ public abstract class Dialog extends Wrappable {
             itemListPrinters = new ItemList<>(5, 18, 140, 5);
             itemListPrinters.setListItemRenderer(new ListItemRenderer<>(16) {
                 @Override
-                public void render(GuiGraphics graphics, NetworkDevice networkDevice, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+                public void render(GuiGraphicsExtractor graphics, NetworkDevice networkDevice, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                     ColorScheme colorScheme = Laptop.getSystem().getSettings().getColorScheme();
                     graphics.fill(x, y, x + width, y + height, selected ? colorScheme.getItemHighlightColor() : colorScheme.getItemBackgroundColor());
-                    Icons.PRINTER.draw(graphics, mc, x + 3, y + 3);
+                    Icons.PRINTER.draw(graphics, mc, x + 3, y + 3, 0xffffffff);
                     RenderUtil.drawStringClipped(graphics, networkDevice.getName(), x + 18, y + 4, 118, Laptop.getSystem().getSettings().getColorScheme().getTextColor(), true);
                 }
             });
@@ -866,13 +867,15 @@ public abstract class Dialog extends Wrappable {
             task.setCallback((tag, success) -> {
                 if (success) {
                     assert tag != null;
-                    ListTag list = tag.getList("network_devices", Tag.TAG_COMPOUND);
+                    ListTag list = tag.getListOrEmpty("network_devices");
                     for (int i = 0; i < list.size(); i++) {
-                        itemList.addItem(NetworkDevice.fromTag(list.getCompound(i)));
+                        NetworkDevice e = NetworkDevice.fromTag(list.getCompoundOrEmpty(i));
+                        if (e == null) continue;
+                        itemList.addItem(e);
                     }
                     itemList.setLoading(false);
                 } else {
-                    String reason = tag == null ? "${null}" : tag.getString("reason");
+                    String reason = tag == null ? "${null}" : tag.getStringOr("reason", "Unknown reason");
                     openDialog(new Message("Failed to load printers: " + reason));
                 }
             });

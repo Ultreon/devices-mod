@@ -1,6 +1,0 @@
-{
-  "parent": "devices:block/office_chair_full",
-  "textures": {
-    "chair_color": "minecraft:block/yellow_wool"
-  }
-}

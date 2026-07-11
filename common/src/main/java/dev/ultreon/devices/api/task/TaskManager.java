@@ -1,7 +1,7 @@
 package dev.ultreon.devices.api.task;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.network.serverbound.C2SRequestPacket;
 import net.minecraft.client.Minecraft;
 
@@ -29,7 +29,7 @@ public final class TaskManager {
     public static void registerTask(Supplier<Task> clazz) {
         var task = clazz.get();
         try {
-            OmnixerioDevicesMod.LOGGER.info("Registering task '" + task.getName() + "'");
+            OmnixerioDevices.LOGGER.info("Registering task '" + task.getName() + "'");
             get().registeredRequests.put(task.getName(), task);
         } catch (Exception e) {
             e.printStackTrace();

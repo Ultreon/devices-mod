@@ -7,19 +7,20 @@ import dev.ultreon.devices.object.tiles.Tile;
 import dev.ultreon.devices.util.KeyboardHelper;
 import dev.ultreon.devices.util.Vec2d;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.entity.BoatRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.entity.vehicle.boat.Boat;
 import org.joml.Quaternionf;
 
 import java.util.Objects;
 
 public class Player {
-    private static final ResourceLocation boatTextures = ResourceLocation.withDefaultNamespace("textures/entity/boat/oak.png");
+    private static final Identifier boatTextures = Identifier.withDefaultNamespace("textures/entity/boat/oak.png");
     boolean canMove = false;
     private final Game game;
     private double posX, posY;
@@ -28,28 +29,28 @@ public class Player {
     private int rotation, rotationPrev;
     private final Vec2d direction;
     private final Vec2d velocity;
-    private final BoatRenderer boatModel;
+//    private final BoatRenderer boatModel;
     //private final ModelDummyPlayer playerModel;
     private Boat boat;
 
-    public static EntityRendererProvider.Context createEntityRendererContext() {
-        Minecraft mc = Minecraft.getInstance();
-        EntityRenderDispatcher erd = mc.getEntityRenderDispatcher();
-        return new EntityRendererProvider.Context(
-                erd, mc.getItemRenderer(), mc.getBlockRenderer(),
-                erd.getItemInHandRenderer(), mc.getResourceManager(),
-                mc.getEntityModels(), mc.font);
-    }
+//    public static EntityRendererProvider.Context createEntityRendererContext() {
+//        Minecraft mc = Minecraft.getInstance();
+//        EntityRenderDispatcher erd = mc.getEntityRenderDispatcher();
+//        return new EntityRendererProvider.Context(
+//                erd, mc.getBlgetItemModelResolver(), mc.getBlockRenderer(),
+//                erd.getItemInHandRenderer(), mc.getResourceManager(),
+//                mc.getEntityModels(), mc.font);
+//    }
 
     public Player(Game game) {
         this.game = game;
         this.direction = new Vec2d(0, 0);
         this.velocity = new Vec2d(0, 0);
-        this.boatModel = new BoatRenderer(createEntityRendererContext(), false);
+//        this.boatModel = new BoatRenderer(createEntityRendererContext(), false);
 		assert Minecraft.getInstance().player != null;
-		boolean slim = Minecraft.getInstance().player.getSkin().model().equals(PlayerSkin.Model.SLIM);
+		boolean slim = Minecraft.getInstance().player.getSkin().model().equals(PlayerModelType.SLIM);
         if (!Laptop.isWorldLess()) {
-            boat = new Boat(Objects.requireNonNull(Minecraft.getInstance().level), 0, 0, 0);
+//            boat = new Boat(Objects.requireNonNull(Minecraft.getInstance().level), 0, 0, 0);
         }
 //        this.playerModel = new ModelDummyPlayer(0f, slim);
 //        this.playerModel.isRiding = true;
@@ -115,39 +116,39 @@ public class Player {
         return (int) (posY / Tile.HEIGHT);
     }
 
-    public void render(GuiGraphics graphics, int x, int y, float partialTicks) {
+    public void render(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
         float scale = 0.5f;
         double px = x + posXPrev + (posX - posXPrev) * partialTicks;
         double py = y + posYPrev + (posY - posYPrev) * partialTicks;
         float rot = rotationPrev + (rotation - rotationPrev) * partialTicks;
 
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) px, (float) py, 3f);
-        graphics.pose().scale(-scale, -scale, -scale);
-        graphics.pose().mulPose(new Quaternionf(180f, 0f, 0f, 1f)); //Flips boat up
-        graphics.pose().mulPose(new Quaternionf(90, 1, 0, 0));
-        graphics.pose().translate(0f, -3d, 0f);
-        graphics.pose().mulPose(new Quaternionf(-90, 1f, 0f, 0f));
-        graphics.pose().mulPose(new Quaternionf(rot, 0f, 1f, 0f));
-        RenderSystem.setShaderTexture(0, boatTextures);
-        EntityRenderDispatcher entityRender = Minecraft.getInstance().getEntityRenderDispatcher();
-        entityRender.render(this.boat, 0, 0, 0, 0f, partialTicks, graphics.pose(), graphics.bufferSource(), 1);
-//        boatModel.render(boat, 0f, 0f, pose, Minecraft.getInstance().renderBuffers().bufferSource(), 1);
-        graphics.pose().popPose();
-
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) px, (float) py, 3f);
-        graphics.pose().scale(-scale, scale, scale);
-        // //Flips boat up
-        graphics.pose().mulPose(new Quaternionf(90, 1, 0, 0));
-        graphics.pose().translate(0f, 5f, 0f);
-        graphics.pose().mulPose(new Quaternionf(90, 1f, 0f, 0f));
-        graphics.pose().mulPose(new Quaternionf(180f, 0f, 0f, 1f));
-        graphics.pose().mulPose(new Quaternionf(rot - 90, 0f, 1f, 0f));
-        graphics.pose().translate(0f, -12f, 5f);
-//        Minecraft.getMinecraft().getTextureManager().bindTexture(Minecraft.getMinecraft().player.getLocationSkin());
-        //playerModel.render(null, 0f, 0f, 0f, 0f, 0f, 1f);
-        graphics.pose().popPose();
+//        graphics.pose().pushMatrix();
+//        graphics.pose().translate((float) px, (float) py, 3f);
+//        graphics.pose().scale(-scale, -scale, -scale);
+//        graphics.pose().mulPose(new Quaternionf(180f, 0f, 0f, 1f)); //Flips boat up
+//        graphics.pose().mulPose(new Quaternionf(90, 1, 0, 0));
+//        graphics.pose().translate(0f, -3d, 0f);
+//        graphics.pose().mulPose(new Quaternionf(-90, 1f, 0f, 0f));
+//        graphics.pose().mulPose(new Quaternionf(rot, 0f, 1f, 0f));
+//        RenderSystem.setShaderTexture(0, boatTextures);
+//        EntityRenderDispatcher entityRender = Minecraft.getInstance().getEntityRenderDispatcher();
+//        entityRender.render(this.boat, 0, 0, 0, 0f, partialTicks, graphics.pose(), graphics.bufferSource(), 1);
+////        boatModel.render(boat, 0f, 0f, pose, Minecraft.getInstance().renderBuffers().bufferSource(), 1);
+//        graphics.pose().popMatrix();
+//
+//        graphics.pose().pushMatrix();
+//        graphics.pose().translate((float) px, (float) py, 3f);
+//        graphics.pose().scale(-scale, scale, scale);
+//        // //Flips boat up
+//        graphics.pose().mulPose(new Quaternionf(90, 1, 0, 0));
+//        graphics.pose().translate(0f, 5f, 0f);
+//        graphics.pose().mulPose(new Quaternionf(90, 1f, 0f, 0f));
+//        graphics.pose().mulPose(new Quaternionf(180f, 0f, 0f, 1f));
+//        graphics.pose().mulPose(new Quaternionf(rot - 90, 0f, 1f, 0f));
+//        graphics.pose().translate(0f, -12f, 5f);
+////        Minecraft.getMinecraft().getTextureManager().bindTexture(Minecraft.getMinecraft().player.getLocationSkin());
+//        //playerModel.render(null, 0f, 0f, 0f, 0f, 0f, 1f);
+//        graphics.pose().popMatrix();
     }
 
 //    public static class ModelDummyPlayer extends PlayerModel<net.minecraft.world.entity.player.Player> {

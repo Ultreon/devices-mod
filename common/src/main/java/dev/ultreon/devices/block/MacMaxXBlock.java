@@ -226,9 +226,9 @@ public class MacMaxXBlock extends ComputerBlock {
 
     @Override
     public @NotNull MutableComponent getName() {
-        MutableComponent normalName = Component.translatable("block.devices.mac_max_x");
+        MutableComponent normalName = Component.translatable("block.omnixerio_devices.mac_max_x");
         if (Platform.isModLoaded("emojiful")) {
-            return Component.translatable("block.devices.mac_max_x_emoji");
+            return Component.translatable("block.omnixerio_devices.mac_max_x_emoji");
         }
         return normalName;
     }

@@ -10,6 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
+
 /**
  * @author MrCrayfish
  */
@@ -32,7 +34,10 @@ public class TaskWithdraw extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        int amount = tag.getInt("amount");
+        Optional<Integer> optAmount = tag.getInt("amount");
+        if (optAmount.isEmpty()) return;
+        int amount = optAmount.get();
+
         Account account = BankUtil.INSTANCE.getAccount(player);
         if (account.withdraw(amount)) {
             int stacks = amount / 64;

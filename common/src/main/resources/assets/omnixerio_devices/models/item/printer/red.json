@@ -1,0 +1,6 @@
+{
+    "parent": "omnixerio_devices:item/printer",
+    "textures": {
+        "2": "block/red_wool"
+    }
+}

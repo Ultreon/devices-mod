@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class TaskUpdateApplicationData extends Task {
     private int x, y, z;
     private String appId;
@@ -30,18 +32,20 @@ public class TaskUpdateApplicationData extends Task {
 
     @Override
     public void prepareRequest(CompoundTag tag) {
-        tag.putInt("posX", this.x);
-        tag.putInt("posY", this.y);
-        tag.putInt("posZ", this.z);
+        tag.store("Pos", BlockPos.CODEC, new BlockPos(this.x, this.y, this.z));
         tag.putString("appId", this.appId);
         tag.put("appData", this.data);
     }
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockEntity tileEntity = level.getBlockEntity(new BlockPos(tag.getInt("posX"), tag.getInt("posY"), tag.getInt("posZ")));
+        Optional<BlockPos> pos = tag.read("Pos", BlockPos.CODEC);
+        Optional<String> appId = tag.getString("appId");
+        Optional<CompoundTag> appData = tag.read("appData", CompoundTag.CODEC);
+        if (pos.isEmpty() || appId.isEmpty() || appData.isEmpty()) return;
+        BlockEntity tileEntity = level.getBlockEntity(pos.get());
         if (tileEntity instanceof ComputerBlockEntity laptop) {
-            laptop.setApplicationData(tag.getString("appId"), tag.getCompound("appData"));
+            laptop.setApplicationData(appId.get(), appData.get());
         }
         this.setSuccessful();
     }

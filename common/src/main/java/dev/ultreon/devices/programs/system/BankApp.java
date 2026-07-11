@@ -1,7 +1,7 @@
 package dev.ultreon.devices.programs.system;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import com.google.common.base.Suppliers;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Application;
 import dev.ultreon.devices.api.app.Dialog;
 import dev.ultreon.devices.api.app.Layout;
@@ -18,27 +18,32 @@ import dev.ultreon.devices.programs.system.task.TaskWithdraw;
 import dev.ultreon.devices.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.npc.VillagerData;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.npc.VillagerType;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.npc.villager.VillagerData;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 
 import java.awt.*;
+import java.util.function.Supplier;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class BankApp extends Application {//The bank is not a system application
-    private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
-    private static final ResourceLocation BANK_ASSETS = OmnixerioDevicesMod.id("textures/gui/bank.png");
-    //    private static final ResourceLocation villagerTextures = new ResourceLocation("textures/entity/villager/villager.png");
-//    private static final VillagerModel<Villager> villagerModel = new VillagerModel<Villager>();
+public class BankApp extends Application {
+    private static final Supplier<ItemStack> EMERALD = Suppliers.memoize(() -> new ItemStack(Items.EMERALD));
+    private static final Identifier BANK_ASSETS = OmnixerioDevices.id("textures/gui/bank.png");
     private Layout layoutStart;
     private Label labelTeller;
     private Text textWelcome;
@@ -65,12 +70,9 @@ public class BankApp extends Application {//The bank is not a system application
     private Label labelInventory;
     private int emeraldAmount;
     private int rotation;
-
-    {
-    }
+    private net.minecraft.world.entity.npc.villager.Villager villager;
 
     public BankApp() {
-        //super(Reference.MOD_ID + "Bank", "The Emerald Bank");
     }
 
     @Override
@@ -84,52 +86,29 @@ public class BankApp extends Application {//The bank is not a system application
 
     @Override
     public void init(@Nullable CompoundTag intent) {
+        if (Minecraft.getInstance().level != null) {
+            villager = EntityTypes.VILLAGER.create(Minecraft.getInstance().level, EntitySpawnReason.TRIGGERED);
+            if (villager != null) {
+                villager.setVillagerData(new VillagerData(BuiltInRegistries.VILLAGER_TYPE.getOrThrow(VillagerType.PLAINS), BuiltInRegistries.VILLAGER_PROFESSION.getOrThrow(VillagerProfession.NITWIT), 1));
+            }
+        }
+
         layoutStart = new Layout();
         layoutStart.setBackground((graphics, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
-            assert Minecraft.getInstance().level != null;
-            // TODO: get villager to render without instant game crash
-            graphics.pose().pushPose();
-            {
-                RenderSystem.enableDepthTest();
-                graphics.pose().translate(x + 25, y + 33, 15);
-                graphics.pose().scale((float) -2.5, (float) -2.5, (float) -2.5);
-                // Todo: do rotations
-                graphics.pose().mulPose(new Quaternionf(1, 0, 0, -mouseX+mouseY));
-                graphics.pose().mulPose(new Quaternionf(0, 0, 1, mouseX+mouseY));
-                graphics.pose().mulPose(new Quaternionf(0, 1, 0, -mouseX+mouseY));
-                float scaleX = (mouseX - x - 25) / (float) width;
-                float scaleY = (mouseY - y - 20) / (float) height;
-
-                var villager = EntityType.VILLAGER.create(Minecraft.getInstance().level);
-                if (villager == null) {
-                    OmnixerioDevicesMod.LOGGER.error("Could not create villager");
-                    return;
-                }
-                villager.setVillagerData(new VillagerData(VillagerType.PLAINS, VillagerProfession.NITWIT, 1));
-                villager.getVillagerData().setProfession(VillagerProfession.NITWIT);
-                graphics.pose().pushPose();
-                graphics.pose().scale(scaleX, scaleY, 1F);
-
-                EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-                entityrenderdispatcher.setRenderShadow(false);
-                RenderSystem.runAsFancy(() -> entityrenderdispatcher.render(villager, 0.0, 0.0, 0.0, 0.0F, 1.0F, graphics.pose(), graphics.bufferSource(), 15728880));
-
-                graphics.pose().popPose();
-
-
-                RenderSystem.disableDepthTest();
+            if (villager != null) {
+                InventoryScreen.extractEntityInInventoryFollowsMouse(graphics, x + 2, y + 2, x + 48, y + 78, 30, 0.0625F, mouseX, mouseY, villager);
             }
-            graphics.pose().popPose();
 
-            RenderSystem.setShaderTexture(0, BANK_ASSETS);
-            RenderUtil.drawRectWithTexture(BANK_ASSETS, graphics, x + 46, y + 19, 0, 0, 146, 52, 146, 52);
+            RenderUtil.drawRectWithTexture3(BANK_ASSETS, graphics, x + 46, y + 19, 0, 0, 146, 52, 146, 52);
         });
 
         labelTeller = new Label(ChatFormatting.YELLOW + "Casey The Teller", 60, 7);
         layoutStart.addComponent(labelTeller);
 
-        assert Minecraft.getInstance().level == null || Minecraft.getInstance().player != null;
-        textWelcome = new Text(ChatFormatting.BLACK + "Hello " + Minecraft.getInstance().player.getGameProfile().getName() + ", welcome to The Emerald Bank! How can I help you?", 62, 25, 125);
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            textWelcome = new Text(ChatFormatting.BLACK + "Hello " + player.getGameProfile().name() + ", welcome to The Emerald Bank! How can I help you?", 62, 25, 125);
+        }
         layoutStart.addComponent(textWelcome);
 
         btnDepositWithdraw = new Button(54, 74, "View Account");
@@ -153,7 +132,7 @@ public class BankApp extends Application {//The bank is not a system application
             @Override
             public void handleTick() {
                 super.handleTick();
-                int amount = InventoryUtil.getItemAmount(Minecraft.getInstance().player, Items.EMERALD);
+                int amount = InventoryUtil.getItemAmount(player, Items.EMERALD);
                 labelEmeraldAmount.setText("x " + amount);
             }
         };
@@ -163,7 +142,7 @@ public class BankApp extends Application {//The bank is not a system application
             graphics.fill(x + 62, y + 103, x + 115, y + 138, Color.BLACK.getRGB());
             graphics.fill(x + 63, y + 104, x + 114, y + 113, Color.DARK_GRAY.getRGB());
             graphics.fill(x + 63, y + 114, x + 114, y + 137, Color.GRAY.getRGB());
-            RenderUtil.renderItem(graphics, x + 65, y + 118, EMERALD, false);
+            RenderUtil.renderItem(graphics, x + 65, y + 118, EMERALD.get(), false);
         });
 
         labelBalance = new Label("Balance", 60, 5);
@@ -217,7 +196,7 @@ public class BankApp extends Application {//The bank is not a system application
                     deposit(amount, (tag, success) -> {
                         if (success) {
                             assert tag != null;
-                            int balance = tag.getInt("balance");
+                            int balance = tag.getIntOr("balance", 0);
                             labelAmount.setText("$" + balance);
                             amountField.setText("0");
                         }
@@ -243,7 +222,7 @@ public class BankApp extends Application {//The bank is not a system application
                     withdraw(amount, (tag, success) -> {
                         if (success) {
                             assert tag != null;
-                            int balance = tag.getInt("balance");
+                            int balance = tag.getIntOr("balance", 0);
                             labelAmount.setText("$" + balance);
                             amountField.setText("0");
                         }
@@ -266,7 +245,7 @@ public class BankApp extends Application {//The bank is not a system application
         BankUtil.getBalance((tag, success) -> {
             if (success) {
                 assert tag != null;
-                int balance = tag.getInt("balance");
+                int balance = tag.getIntOr("balance", 0);
                 labelAmount.setText("$" + balance);
             }
         });
@@ -289,6 +268,15 @@ public class BankApp extends Application {//The bank is not a system application
 
     private void withdraw(int amount, Callback<CompoundTag> callback) {
         TaskManager.sendTask(new TaskWithdraw(amount).setCallback(callback));
+    }
+
+    private static EntityRenderState extractRenderState(LivingEntity entity) {
+        EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        EntityRenderer<? super LivingEntity, ?> renderer = entityRenderDispatcher.getRenderer(entity);
+        EntityRenderState renderState = renderer.createRenderState(entity, 1.0F);
+        renderState.shadowPieces.clear();
+        renderState.outlineColor = 0;
+        return renderState;
     }
 
     @Override

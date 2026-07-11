@@ -1,0 +1,6 @@
+{
+  "parent": "omnixerio_devices:block/clock",
+  "textures": {
+    "1": "minecraft:block/black_wool"
+  }
+}

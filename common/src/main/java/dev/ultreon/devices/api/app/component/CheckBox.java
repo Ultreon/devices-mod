@@ -1,12 +1,13 @@
 package dev.ultreon.devices.api.app.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.listener.ClickListener;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
+import net.minecraft.client.renderer.RenderPipelines;
 
 import java.awt.*;
 
@@ -56,7 +57,7 @@ public class CheckBox extends Component implements RadioGroup.Item {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             if (group == null) {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor());
@@ -69,11 +70,9 @@ public class CheckBox extends Component implements RadioGroup.Item {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
                 float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
                 bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1f));
-                RenderSystem.setShaderColor(bgColor.getRed() / 255f, bgColor.getGreen() / 255f, bgColor.getBlue() / 255f, 1f);
-                RenderSystem.setShaderTexture(0, COMPONENTS_GUI);
-                graphics.blit(COMPONENTS_GUI, x, y, checked ? 10 : 0, 60, 10, 10);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, COMPONENTS_GUI, x, y, checked ? 10 : 0, 60, 10, 10, 256, 256, 0xff00000 | bgColor.getRGB());
             }
-            graphics.drawString(mc.font, name, x + 12, y + 1, color(textColor, getColorScheme().getTextColor()));
+            graphics.textRenderer().accept(TextAlignment.LEFT, x + 12, y + 1, net.minecraft.network.chat.Component.literal(name).withColor(color(textColor, getColorScheme().getTextColor())));
         }
     }
 

@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
+
 public class TaskRemove extends Task {
     private int amount;
 
@@ -26,7 +28,9 @@ public class TaskRemove extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        this.amount = tag.getInt("amount");
+        Optional<Integer> optAmount = tag.getInt("amount");
+        if (optAmount.isEmpty()) return;
+        this.amount = optAmount.get();
         Account sender = BankUtil.INSTANCE.getAccount(player);
         if (sender.hasAmount(amount)) {
             sender.remove(amount);

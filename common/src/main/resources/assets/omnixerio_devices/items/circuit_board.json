@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/circuit_board",
+    "type": "minecraft:model"
+  }
+}

@@ -1,11 +1,11 @@
 package dev.ultreon.devices.core;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.TrayItemAdder;
 import dev.ultreon.devices.api.app.Application;
 import dev.ultreon.devices.api.event.LaptopEvent;
 import dev.ultreon.devices.api.utils.RenderUtil;
+import dev.ultreon.devices.client.OmnixerioDevicesClient;
 import dev.ultreon.devices.core.network.TrayItemWifi;
 import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.object.TrayItem;
@@ -14,23 +14,26 @@ import dev.ultreon.devices.programs.system.FileBrowserApp;
 import dev.ultreon.devices.programs.system.SettingsApp;
 import dev.ultreon.devices.programs.system.SystemApp;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class TaskBar {
-    public static final ResourceLocation APP_BAR_GUI = OmnixerioDevicesMod.id("textures/gui/application_bar.png");
+    public static final Identifier APP_BAR_GUI = OmnixerioDevices.id("textures/gui/application_bar.png");
     public static final int BAR_HEIGHT = 18;
-    private static final int APPS_DISPLAYED = OmnixerioDevicesMod.DEVELOPER_MODE ? 18 : 10;
+    private static final int APPS_DISPLAYED = OmnixerioDevices.DEVELOPER_MODE ? 18 : 10;
 
     private final CompoundTag tag;
 
@@ -53,7 +56,8 @@ public class TaskBar {
         this.laptop = laptop;
         this.tag = tag;
 
-        var trayItemsTag = tag.getCompound("TrayItems");
+        Optional<CompoundTag> optionalTrayItemsTag = tag.getCompound("TrayItems");
+        CompoundTag trayItemsTag = optionalTrayItemsTag.orElseGet(CompoundTag::new);
 
         addTrayItem(new FileBrowserApp.FileBrowserTrayItem(), trayItemsTag);
         addTrayItem(new SettingsApp.SettingsTrayItem(), trayItemsTag);
@@ -67,10 +71,8 @@ public class TaskBar {
     public void addTrayItem(TrayItem trayItem, CompoundTag tag) {
         this.trayItems.add(trayItem);
         String strId = trayItem.getId().toString();
-        if (tag.contains(strId, Tag.TAG_COMPOUND)) {
-            CompoundTag trayTag = tag.getCompound(strId);
-            trayItem.deserialize(trayTag);
-        }
+        Optional<CompoundTag> optionalTrayTag = tag.getCompound(strId);
+        optionalTrayTag.ifPresent(trayItem::deserialize);
     }
 
     public void init() {
@@ -82,12 +84,12 @@ public class TaskBar {
             if (app instanceof SystemApp) {
                 return true;
             }
-            if (OmnixerioDevicesMod.hasAllowedApplications()) {
-                if (OmnixerioDevicesMod.getAllowedApplications().contains(app.getInfo())) {
-                    return !OmnixerioDevicesMod.DEVELOPER_MODE || Settings.isShowAllApps();
+            if (OmnixerioDevicesClient.hasAllowedApplications()) {
+                if (OmnixerioDevicesClient.getAllowedApplications().contains(app.getInfo())) {
+                    return !OmnixerioDevices.DEVELOPER_MODE || Settings.isShowAllApps();
                 }
                 return false;
-            } else if (OmnixerioDevicesMod.DEVELOPER_MODE) {
+            } else if (OmnixerioDevices.DEVELOPER_MODE) {
                 return Settings.isShowAllApps();
             }
             return true;
@@ -102,37 +104,29 @@ public class TaskBar {
         trayItems.forEach(TrayItem::tick);
     }
 
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 0.75f);
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, APP_BAR_GUI);
-
+    public void render(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // r=217,g=230,b=255
         Color bgColor = new Color(laptop.getSettings().getColorScheme().getBackgroundColor());//.brighter().brighter();
         float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
         bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
-        RenderSystem.setShaderColor(bgColor.getRed() / 255f, bgColor.getGreen() / 255f, bgColor.getBlue() / 255f, 1f);
 
         int trayItemsWidth = trayItems.size() * 14;
-        graphics.blit(APP_BAR_GUI, x, y, 1, 18, 0, 0, 1, 18, 256, 256);
-        graphics.blit(APP_BAR_GUI, x + 1, y, Laptop.getScreenWidth() - 36 - trayItemsWidth, 18, 1, 0, 1, 18, 256, 256);
-        graphics.blit(APP_BAR_GUI, x + Laptop.getScreenWidth() - 35 - trayItemsWidth, y, 35 + trayItemsWidth, 18, 2, 0, 1, 18, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x, y, 1, 18, 0, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
+        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + 1, y, Laptop.getScreenWidth() - 36 - trayItemsWidth, 18, 1, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
+        graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + Laptop.getScreenWidth() - 35 - trayItemsWidth, y, 35 + trayItemsWidth, 18, 2, 0, 1, 18, 256, 256, 0xff000000 | bgColor.getRGB());
 
-        RenderSystem.disableBlend();
-
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         for (int i = 0; i < APPS_DISPLAYED && i < laptop.installedApps.size(); i++) {
             AppInfo info = laptop.installedApps.get(i + offset);
             RenderUtil.drawApplicationIcon(graphics, info, x + 2 + i * 16, y + 2);
             if (laptop.isApplicationRunning(info)) {
-                RenderSystem.setShaderTexture(0, APP_BAR_GUI);
-                graphics.blit(APP_BAR_GUI, x + 1 + i * 16, y + 1, 35, 0, 16, 16);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + 1 + i * 16, y + 1, 35, 0, 16, 16, 256, 256);
             }
         }
 
         assert mc.level == null || mc.player != null;
        // assert mc.level != null; //can no longer assume
-        graphics.drawString(mc.font, timeToString(mc.level != null ? mc.level.getDayTime() : 0), x + Laptop.getScreenWidth() - 31, y + 5, Color.WHITE.getRGB(), true);
+        MutableComponent timeString = Component.literal(timeToString(mc.level != null ? mc.level.getOverworldClockTime() : 0));
+        graphics.textRenderer().accept(TextAlignment.LEFT, x + Laptop.getScreenWidth() - 31, y + 5, timeString);
 
         /* Settings App */
         int startX = x + Laptop.getScreenWidth() - 48;
@@ -141,26 +135,22 @@ public class TaskBar {
             if (isMouseInside(mouseX, mouseY, posX, y + 2, posX + 13, y + 15)) {
                 graphics.fill(posX, y + 2, posX + 14, y + 16, new Color(1f, 1f, 1f, 0.1f).getRGB());
             }
-            trayItems.get(i).getIcon().draw(graphics, mc, posX + 2, y + 4);
+            trayItems.get(i).getIcon().draw(graphics, mc, posX + 2, y + 4, 0xffffffff);
         }
-
-        RenderSystem.setShaderTexture(0, APP_BAR_GUI);
 
         /* Other Apps */
         if (isMouseInside(mouseX, mouseY, x + 1, y + 1, x + 236, y + 16)) {
             int appIndex = (mouseX - x - 1) / 16;
             if (appIndex >= 0 && appIndex < offset + APPS_DISPLAYED && appIndex < laptop.installedApps.size()) {
-                graphics.blit(APP_BAR_GUI, x + appIndex * 16 + 1, y + 1, 35, 0, 16, 16);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, APP_BAR_GUI, x + appIndex * 16 + 1, y + 1, 35, 0, 16, 16, 256, 256);
                 laptop.renderComponentTooltip(graphics, List.of(Component.literal(laptop.installedApps.get(appIndex).getName())), mouseX, mouseY);
             }
         }
-
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
     public void handleClick(Laptop laptop, int x, int y, int mouseX, int mouseY, int mouseButton) {
         if (isMouseInside(mouseX, mouseY, x + 1, y + 1, x + 236, y + 16)) {
-            OmnixerioDevicesMod.LOGGER.debug(MARKER, "Clicked on task bar");
+            OmnixerioDevices.LOGGER.debug(MARKER, "Clicked on task bar");
             int appIndex = (mouseX - x - 1) / 16;
             if (appIndex >= 0 && appIndex <= offset + APPS_DISPLAYED && appIndex < laptop.installedApps.size()) {
                 laptop.openApplication(laptop.installedApps.get(appIndex));
@@ -174,7 +164,7 @@ public class TaskBar {
             if (isMouseInside(mouseX, mouseY, posX, y + 2, posX + 13, y + 15)) {
                 TrayItem trayItem = trayItems.get(i);
                 trayItem.handleClick(mouseX, mouseY, mouseButton);
-                OmnixerioDevicesMod.LOGGER.debug(MARKER, "Clicked on tray item (%d): %s".formatted(i, trayItem.getClass().getSimpleName()));
+                OmnixerioDevices.LOGGER.debug(MARKER, "Clicked on tray item (%d): %s".formatted(i, trayItem.getClass().getSimpleName()));
                 break;
             }
         }

@@ -1,6 +1,0 @@
-{
-    "parent": "devices:item/laptop",
-    "textures": {
-        "2": "block/light_gray_wool"
-    }
-}

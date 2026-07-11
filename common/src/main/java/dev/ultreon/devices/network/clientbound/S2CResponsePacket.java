@@ -1,6 +1,6 @@
 package dev.ultreon.devices.network.clientbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.task.Task;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,7 @@ public record S2CResponsePacket(
         String taskName,
         CompoundTag responseData
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<S2CResponsePacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("clientbound/response"));
+    public static final CustomPacketPayload.Type<S2CResponsePacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("clientbound/response"));
     public static final StreamCodec<FriendlyByteBuf, S2CResponsePacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, S2CResponsePacket::id,
             ByteBufCodecs.BOOL, S2CResponsePacket::successful,

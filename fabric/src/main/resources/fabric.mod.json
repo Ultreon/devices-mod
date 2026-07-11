@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "devices",
+  "id": "omnixerio_devices",
   "version": "${version}",
   "name": "Omnixerio Devices",
   "description": "Adds working electronic devices into Minecraft!\nCurseForge: https://curseforge.com/minecraft/mc-mods/devices-mod\nModrinth: https://modrinth.com/mod/devices-mod\nSource Code: https://github.com/omnixerio/devices-mod\n\nOriginal mod made by MrCrayfish called \"MrCrayfish's Device Mod\".\nAvailable at: https://mrcrayfish.com/mods/cdm\nSource Code: https://github.com/MrCrayfish/MrCrayfishDeviceMod",
@@ -36,9 +36,9 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.ultreon.devices.fabric.OmnixerioDevicesModFabric"
+      "dev.ultreon.devices.fabric.OmnixerioDevicesFabric"
     ],
-    "devices:application_registration": [
+    "omnixerio_devices:application_registration": [
       "dev.ultreon.devices.fabric.BuiltinAppsRegistration"
     ],
     "fabric-datagen": [
@@ -50,9 +50,9 @@
     "omnixerio-devices-common.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.17",
-    "minecraft": ["1.21.1"],
-    "architectury": ">=13 <14",
+    "fabricloader": ">=0.19",
+    "minecraft": ["26.2"],
+    "architectury": ">=21 <22",
     "forgeconfigapiport": "*"
   },
   "custom": {

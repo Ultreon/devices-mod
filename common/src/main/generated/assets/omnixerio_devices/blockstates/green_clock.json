@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "omnixerio_devices:block/green_clock",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "omnixerio_devices:block/green_clock",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "omnixerio_devices:block/green_clock"
+    },
+    "facing=west": {
+      "model": "omnixerio_devices:block/green_clock",
+      "y": 90
+    }
+  }
+}

@@ -400,16 +400,16 @@ public class MacMaxXBlockPart extends HorizontalDirectionalBlock {
 
     @Override
     public @NotNull MutableComponent getName() {
-        MutableComponent normalName = Component.translatable("block.devices.mac_max_x");
+        MutableComponent normalName = Component.translatable("block.omnixerio_devices.mac_max_x");
         if (Platform.isModLoaded("emojiful")) {
-            return Component.translatable("block.devices.mac_max_x_emoji");
+            return Component.translatable("block.omnixerio_devices.mac_max_x_emoji");
         }
         return normalName;
     }
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.INVISIBLE;
     }
 
     @Override

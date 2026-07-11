@@ -3,7 +3,8 @@ package dev.ultreon.devices;
 import dev.architectury.platform.Platform;
 
 public class Reference {
-    public static final String MOD_ID = "devices";
+    public static final String MOD_ID = "omnixerio_devices";
+    public static final String MOD_NAME = "Omnixerio Devices";
     public static final String VERSION;
     private static String[] verInfo;
     static {
@@ -11,7 +12,7 @@ public class Reference {
     }
 
     public static String getVersion() {
-        return Platform.getMod(OmnixerioDevicesMod.MOD_ID).getVersion();
+        return Platform.getMod(OmnixerioDevices.MOD_ID).getVersion();
     }
 
     public static String[] getVerInfo() {

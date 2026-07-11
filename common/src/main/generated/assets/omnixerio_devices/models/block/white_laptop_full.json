@@ -1,0 +1,9 @@
+{
+  "parent": "omnixerio_devices:block/laptop_full",
+  "textures": {
+    "0": "omnixerio_devices:block/laptop1",
+    "1": "omnixerio_devices:block/laptop2",
+    "2": "block/white_wool",
+    "particle": "omnixerio_devices:block/laptop1"
+  }
+}

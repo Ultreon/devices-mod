@@ -1,13 +1,13 @@
 package dev.ultreon.devices.network.clientbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.object.AppInfo;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -17,19 +17,19 @@ import java.util.List;
  * @author MrCrayfish
  */
 public record S2CSyncApplicationsPacket(
-        List<ResourceLocation> allowedApps
+        List<Identifier> allowedApps
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<S2CSyncApplicationsPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("clientbound/sync_applications"));
+    public static final CustomPacketPayload.Type<S2CSyncApplicationsPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("clientbound/sync_applications"));
     public static final StreamCodec<ByteBuf, S2CSyncApplicationsPacket> CODEC = StreamCodec.of((buf, packet) -> {
         ByteBufCodecs.VAR_INT.encode(buf, packet.allowedApps.size());
-        for (ResourceLocation allowedApp : packet.allowedApps) {
-            ResourceLocation.STREAM_CODEC.encode(buf, allowedApp);
+        for (Identifier allowedApp : packet.allowedApps) {
+            Identifier.STREAM_CODEC.encode(buf, allowedApp);
         }
     }, buf -> {
-        List<ResourceLocation> allowedApps = new ArrayList<>();
+        List<Identifier> allowedApps = new ArrayList<>();
         int size = ByteBufCodecs.VAR_INT.decode(buf);
         for (int i = 0; i < size; i++) {
-            allowedApps.add(ResourceLocation.STREAM_CODEC.decode(buf));
+            allowedApps.add(Identifier.STREAM_CODEC.decode(buf));
         }
         return new S2CSyncApplicationsPacket(allowedApps);
     });
@@ -45,12 +45,12 @@ public record S2CSyncApplicationsPacket(
 
     public List<AppInfo> getAllowedApps() {
         List<AppInfo> list = new ArrayList<>();
-        for (ResourceLocation appId : allowedApps) {
+        for (Identifier appId : allowedApps) {
             AppInfo application = ApplicationManager.getApplication(appId);
             if (application != null) {
                 list.add(application);
             } else {
-                OmnixerioDevicesMod.LOGGER.warn("Application {} not found!", appId);
+                OmnixerioDevices.LOGGER.warn("Application {} not found!", appId);
             }
         }
         return list;

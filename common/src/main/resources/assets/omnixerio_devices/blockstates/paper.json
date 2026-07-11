@@ -1,0 +1,16 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "omnixerio_devices:block/paper"
+        },
+        "facing=east": {
+            "model": "omnixerio_devices:block/paper"
+        },
+        "facing=south": {
+            "model": "omnixerio_devices:block/paper"
+        },
+        "facing=west": {
+            "model": "omnixerio_devices:block/paper"
+        }
+    }
+}

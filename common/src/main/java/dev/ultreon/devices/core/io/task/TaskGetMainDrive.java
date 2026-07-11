@@ -38,7 +38,7 @@ public class TaskGetMainDrive extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockEntity tileEntity = level.getBlockEntity(BlockPos.of(tag.getLong("pos")));
+        BlockEntity tileEntity = level.getBlockEntity(BlockPos.of(tag.getLong("pos").orElseThrow()));
         if (tileEntity instanceof ComputerBlockEntity laptop) {
             FileSystem fileSystem = laptop.getFileSystem();
             mainDrive = fileSystem.getMainDrive();
@@ -61,9 +61,9 @@ public class TaskGetMainDrive extends Task {
     @Override
     public void processResponse(CompoundTag tag) {
         if (this.isSucessful()) {
-            if (Minecraft.getInstance().screen instanceof Laptop) {
-                CompoundTag structureTag = tag.getCompound("structure");
-                Drive drive = new Drive(tag.getCompound("main_drive"));
+            if (Minecraft.getInstance().gui.screen() instanceof Laptop) {
+                CompoundTag structureTag = tag.getCompound("structure").orElseThrow();
+                Drive drive = new Drive(tag.getCompound("main_drive").orElseThrow());
                 drive.syncRoot(Folder.fromTag(FileSystem.LAPTOP_DRIVE_NAME, structureTag));
                 drive.getRoot().validate();
 

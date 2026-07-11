@@ -1,6 +1,6 @@
 package dev.ultreon.devices.network.serverbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.task.Task;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,7 +14,7 @@ public record C2SRequestPacket(
         String taskName,
         CompoundTag requestData
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<C2SRequestPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("serverbound/request"));
+    public static final CustomPacketPayload.Type<C2SRequestPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("serverbound/request"));
     public static final StreamCodec<RegistryFriendlyByteBuf, C2SRequestPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, C2SRequestPacket::id,
             ByteBufCodecs.STRING_UTF8, C2SRequestPacket::taskName,

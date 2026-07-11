@@ -13,13 +13,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
@@ -52,17 +52,19 @@ public class Folder extends File {
     public static Folder fromTag(String name, CompoundTag folderTag) {
         Folder folder = new Folder(name);
 
-        if (folderTag.contains("protected", Tag.TAG_BYTE)) folder.protect = folderTag.getBoolean("protected");
+        if (folderTag.contains("protected")) folder.protect = folderTag.getBooleanOr("protected", false);
 
-        CompoundTag fileList = folderTag.getCompound("files");
-        for (String fileName : fileList.getAllKeys()) {
-            CompoundTag fileTag = fileList.getCompound(fileName);
+        CompoundTag fileList = folderTag.getCompoundOrEmpty("files");
+        for (String fileName : fileList.keySet()) {
+            CompoundTag fileTag = fileList.getCompound(fileName).orElse(null);
+            if (fileTag == null) continue;
             if (fileTag.contains("files")) {
                 File file = Folder.fromTag(fileName, fileTag);
                 file.parent = folder;
                 folder.files.add(file);
             } else {
                 File file = File.fromTag(fileName, fileTag);
+                if (file == null) continue;
                 file.parent = folder;
                 folder.files.add(file);
             }
@@ -442,8 +444,12 @@ public class Folder extends File {
     public void syncFiles(ListTag list) {
         files.removeIf(f -> !f.isFolder());
         for (int i = 0; i < list.size(); i++) {
-            CompoundTag fileTag = list.getCompound(i);
-            File file = File.fromTag(fileTag.getString("file_name"), fileTag.getCompound("data"));
+            Optional<CompoundTag> fileTag = list.getCompound(i);
+            if (fileTag.isEmpty()) continue;
+            Optional<String> string = fileTag.get().getString("file_name");
+            if (string.isEmpty()) continue;
+            File file = File.fromTag(string.get(), fileTag.get().getCompoundOrEmpty("data"));
+            if (file == null) continue;
             file.drive = drive;
             file.valid = true;
             file.parent = this;
@@ -466,8 +472,8 @@ public class Folder extends File {
 
             Task task = new TaskGetFiles(this, pos);
             task.setCallback((tag, success) -> {
-                if (success && Objects.requireNonNull(tag).contains("files", Tag.TAG_LIST)) {
-                    ListTag files = tag.getList("files", Tag.TAG_COMPOUND);
+                if (success && Objects.requireNonNull(tag).contains("files")) {
+                    ListTag files = tag.getListOrEmpty("files");
                     syncFiles(files);
                     if (callback != null) {
                         callback.execute(this, true);

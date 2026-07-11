@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "b": {
+      "item": "minecraft:iron_block"
+    },
+    "c": {
+      "item": "omnixerio_devices:motherboard_full"
+    },
+    "d": {
+      "item": "omnixerio_devices:solid_state_drive"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "s": {
+      "item": "omnixerio_devices:screen"
+    }
+  },
+  "pattern": [
+    "iii",
+    "ssd",
+    "bcb"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:mac_max_x"
+  }
+}

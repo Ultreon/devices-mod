@@ -1,5 +1,7 @@
 package dev.ultreon.devices.api.io;
 
+import com.mojang.serialization.Codec;
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.core.io.FileSystem;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
@@ -16,9 +18,9 @@ public class Drive {
     private boolean synced = false;
 
     public Drive(CompoundTag driveTag) {
-        this.name = driveTag.getString("name");
-        this.uuid = UUID.fromString(driveTag.getString("uuid"));
-        this.type = Type.fromString(driveTag.getString("type"));
+        this.name = driveTag.getString("name").orElse("Nameless Drive");
+        this.uuid = driveTag.read("uuid", MoreCodecs.UUID).orElse(UUID.randomUUID());
+        this.type = driveTag.read("type", Type.CODEC).orElse(Type.UNKNOWN);
     }
 
     /**
@@ -40,7 +42,7 @@ public class Drive {
     }
 
     /**
-     * Gets the {@link Type} of the Drive. This is either internal, external or network. Used for
+     * Gets the {@link Type} of the Drive. This is either internal, external, or network. Used for
      * determining the icon.
      *
      * @return the drive type
@@ -75,14 +77,14 @@ public class Drive {
     /**
      * Do not use! Checks if the drive structure is synced
      *
-     * @return is drive structure synced
+     * @return is drive structure synced?
      */
     public boolean isSynced() {
         return synced;
     }
 
     /**
-     * Gets a folder in the file system. To get sub folders, simply use a
+     * Gets a folder in the file system. To get subfolders, use an
      * '/' between each folder name. If the folder does not exist, it will
      * return null.
      *
@@ -119,6 +121,8 @@ public class Drive {
 
     public enum Type {
         INTERNAL, EXTERNAL, NETWORK, UNKNOWN;
+
+        public static final Codec<Type> CODEC = Codec.STRING.xmap(Type::fromString, Type::toString);
 
         public static Type fromString(String type) {
             for (Type t : values()) {

@@ -2,21 +2,22 @@ package dev.ultreon.devices.init;
 
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.block.*;
 import dev.ultreon.devices.util.DyeableRegistration;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ModBlocks {
-    private static final Registrar<Block> REGISTER = OmnixerioDevicesMod.REGISTRIES.get().get(Registries.BLOCK);
+    private static final Registrar<Block> REGISTER = OmnixerioDevices.REGISTRIES.get().get(Registries.BLOCK);
 
     public static void register() {
     }
@@ -24,7 +25,7 @@ public class ModBlocks {
     public static final DyeableRegistration<Block> LAPTOPS = new DyeableRegistration<>() {
         @Override
         public RegistrySupplier<Block> register(Registrar<Block> registrar, DyeColor color) {
-            return registrar.register(OmnixerioDevicesMod.id(color.getName() + "_laptop"), () -> new LaptopBlock(color));
+            return ModBlocks.register(color.getName() + "_laptop", Properties.of(), properties -> new LaptopBlock(properties, color));
         }
 
         @Override
@@ -87,8 +88,9 @@ public class ModBlocks {
 
     public static final RegistrySupplier<PaperBlock> PAPER = register("paper", Properties.of(), PaperBlock::new);
 
-    private static <T extends Block> RegistrySupplier<T> register(String id, Properties properties, Function<Properties, T> blockSupplier) {
-        return REGISTER.register(OmnixerioDevicesMod.id(id), () -> blockSupplier.apply(properties));
+    private static <T extends Block> RegistrySupplier<T> register(String name, Properties properties, Function<Properties, T> blockSupplier) {
+        Identifier id = OmnixerioDevices.id(name);
+        return REGISTER.register(id, () -> blockSupplier.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id))));
     }
 
     public static Stream<Block> getAllBlocks() {

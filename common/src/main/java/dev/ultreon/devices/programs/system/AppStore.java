@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.Icons;
@@ -67,7 +67,7 @@ public class AppStore extends SystemApp {
         });
 
         Image imageBanner = new Image(0, 0, LAYOUT_WIDTH, 60);
-        imageBanner.setImage(OmnixerioDevicesMod.id("textures/gui/app_market_background.png"));
+        imageBanner.setImage(OmnixerioDevices.id("textures/gui/app_market_background.png"));
         imageBanner.setDrawFull(true);
         homePageLayout.addComponent(imageBanner);
 
@@ -111,7 +111,7 @@ public class AppStore extends SystemApp {
                     try {
                         certifiedApps.addAll(parseJson(response));
                     } catch (Exception e) {
-                        OmnixerioDevicesMod.LOGGER.error("Failed to parse certified apps JSON", e);
+                        OmnixerioDevices.LOGGER.error("Failed to parse certified apps JSON", e);
                     }
                     if (certifiedApps.isEmpty()) {
                         DebugLog.log("certifiedApps is empty after parse");
@@ -126,7 +126,7 @@ public class AppStore extends SystemApp {
                     }
                     markForLayoutUpdate();
                 } else {
-                    OmnixerioDevicesMod.LOGGER.error("Failed to load certified apps (success=false)");
+                    OmnixerioDevices.LOGGER.error("Failed to load certified apps (success=false)");
                     Label errorLabel = new Label(ChatFormatting.RED + "Failed to load certified apps", 10, 86);
                     homePageLayout.addComponent(errorLabel);
                     markForLayoutUpdate();
@@ -204,12 +204,12 @@ public class AppStore extends SystemApp {
 
     public static class StoreTrayItem extends TrayItem {
         public StoreTrayItem() {
-            super(Icons.SHOP, OmnixerioDevicesMod.id("app_store"));
+            super(Icons.SHOP, OmnixerioDevices.id("app_store"));
         }
 
         @Override
         public void handleClick(int mouseX, int mouseY, int mouseButton) {
-            AppInfo info = ApplicationManager.getApplication(OmnixerioDevicesMod.id("app_store"));
+            AppInfo info = ApplicationManager.getApplication(OmnixerioDevices.id("app_store"));
             if (info != null) {
                 Laptop.getSystem().openApplication(info);
             }

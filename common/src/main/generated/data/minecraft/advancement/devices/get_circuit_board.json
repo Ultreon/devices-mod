@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:omnixerio_devices/root",
+  "criteria": {
+    "got_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": "omnixerio_devices:circuit_board"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "omnixerio_devices:textures/gui/advancement_background.png",
+    "description": "Create a circuit board",
+    "icon": {
+      "count": 1,
+      "id": "omnixerio_devices:circuit_board"
+    },
+    "title": "It Was All His Fault"
+  },
+  "requirements": [
+    [
+      "got_circuit_board"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

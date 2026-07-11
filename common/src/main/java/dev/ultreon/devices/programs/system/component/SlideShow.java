@@ -8,9 +8,9 @@ import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.programs.system.object.ImageEntry;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 
 /**
@@ -58,9 +58,9 @@ public class SlideShow extends Component {
     }
 
     @Override
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (!this.visible) return;
-        image.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+        image.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 
         if (currentImage > 0) {
             if (GuiHelper.isMouseWithin(mouseX, mouseY, x, y, 15, height)) {
@@ -68,7 +68,7 @@ public class SlideShow extends Component {
             } else {
                 graphics.fill(x, y, x + 15, y + height, OVERLAY.getRGB());
             }
-            Icons.CHEVRON_LEFT.draw(graphics, mc, x + 2, y + (height - 10) / 2);
+            Icons.CHEVRON_LEFT.draw(graphics, mc, x + 2, y + (height - 10) / 2, 0xffffffff);
         }
 
         if (currentImage < IMAGES.size() - 1) {
@@ -77,7 +77,7 @@ public class SlideShow extends Component {
             } else {
                 graphics.fill(x + width - 15, y, x + width, y + height, OVERLAY.getRGB());
             }
-            Icons.CHEVRON_RIGHT.draw(graphics, mc, x + 3 + width - 15, y + (height - 10) / 2);
+            Icons.CHEVRON_RIGHT.draw(graphics, mc, x + 3 + width - 15, y + (height - 10) / 2, 0xffffffff);
         }
     }
 
@@ -98,7 +98,7 @@ public class SlideShow extends Component {
         }
     }
 
-    public void addImage(ResourceLocation resource) {
+    public void addImage(Identifier resource) {
         IMAGES.add(new ImageEntry(resource));
         if (currentImage == -1) {
             this.setImage(0);

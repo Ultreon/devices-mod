@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.metadata.language.LanguageMetadataSection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
@@ -59,7 +59,7 @@ public class ClientInit implements ClientModInitializer {
             }
 
             @Override
-            public ResourceLocation getFabricId() {
+            public Identifier getFabricId() {
                 return null;
             }
         };
@@ -99,7 +99,7 @@ public class ClientInit implements ClientModInitializer {
             JsonObject gg = new JsonObject();
             for (String string3 : resourceManager.getNamespaces()) {
                 try {
-                    ResourceLocation resourceLocation = new ResourceLocation(string3, string2);
+                    Identifier resourceLocation = new Identifier(string3, string2);
                     //ClientLanguage.appendFrom(string, resourceManager.getResourceStack(resourceLocation), map);
                     var q = resourceManager.getResourceStack(resourceLocation);
                     for (Resource resource : q) {

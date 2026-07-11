@@ -1,9 +1,10 @@
 package dev.ultreon.devices.api;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Application;
+import dev.ultreon.devices.client.OmnixerioDevicesClient;
 import dev.ultreon.devices.object.AppInfo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -17,7 +18,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class ApplicationManager {
-    private static final Map<ResourceLocation, AppInfo> APP_INFO = new HashMap<>();
+    private static final Map<Identifier, AppInfo> APP_INFO = new HashMap<>();
     private static final Marker MARKER = MarkerFactory.getMarker("ApplicationManager");
 
     private ApplicationManager() {
@@ -28,17 +29,17 @@ public final class ApplicationManager {
      * <p>
      * The identifier parameter is simply just an id for the application.
      * <p>
-     * Example: {@code new ResourceLocation("modid:appid");}
+     * Example: {@code new Identifier("modid:appid");}
      *
      * @param identifier the
      * @param app      a supplier that provides an application
      * @param isSystem whether the application is a SystemApp (required as on the server, "Application" cannot instantiate)
      */
     @Nullable
-    public static Application registerApplication(ResourceLocation identifier, Supplier<Supplier<Application>> app, boolean isSystem) {
-        OmnixerioDevicesMod.LOGGER.debug(MARKER, "Registering application {}", identifier);
-        @SuppressWarnings("deprecation")
-        Application application = OmnixerioDevicesMod.getInstance().registerApplication(identifier, new OmnixerioDevicesMod.ApplicationSupplier() {
+    public static Application registerApplication(Identifier identifier, Supplier<Supplier<Application>> app, boolean isSystem) {
+        OmnixerioDevices.LOGGER.debug(MARKER, "Registering application {}", identifier);
+
+        Application application = OmnixerioDevicesClient.getInstance().registerApplication(identifier, new OmnixerioDevices.ApplicationSupplier() {
             @Override
             public Supplier<Application> get() {
                 return app.get();
@@ -64,7 +65,7 @@ public final class ApplicationManager {
      * @return the application list
      */
     public static List<AppInfo> getAvailableApplications() {
-        final Predicate<AppInfo> FILTER = info -> !info.isSystemApp() && (!OmnixerioDevicesMod.hasAllowedApplications() || OmnixerioDevicesMod.getAllowedApplications().contains(info));
+        final Predicate<AppInfo> FILTER = info -> !info.isSystemApp() && (!OmnixerioDevices.hasAllowedApplications() || OmnixerioDevices.getAllowedApplications().contains(info));
         return APP_INFO.values().stream().filter(FILTER).collect(Collectors.toList());
     }
 
@@ -77,7 +78,7 @@ public final class ApplicationManager {
     }
 
     @Nullable
-    public static AppInfo getApplication(ResourceLocation appId) {
+    public static AppInfo getApplication(Identifier appId) {
         return APP_INFO.get(appId);
     }
 }

@@ -9,6 +9,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class RouterBlockEntity extends DeviceBlockEntity.Colored {
@@ -31,7 +35,7 @@ public class RouterBlockEntity extends DeviceBlockEntity.Colored {
 
     public void tick() {
         assert level != null;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             getRouter().tick(level);
         } else if (debugTimer > 0) {
             debugTimer--;
@@ -57,17 +61,21 @@ public class RouterBlockEntity extends DeviceBlockEntity.Colored {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
 
-        if (tag.contains("router", Tag.TAG_COMPOUND)) {
-            router = Router.fromTag(worldPosition, tag.getCompound("router"));
+        Optional<ValueInput> optionalRouter = tag.child("router");
+        if (optionalRouter.isPresent()) {
+            router = Router.load(worldPosition, optionalRouter.get());
         }
+
+        Optional<CompoundTag> router1 = tag.read("router", CompoundTag.CODEC);
+        router1.ifPresent(compoundTag -> router = Router.fromTag(worldPosition, compoundTag));
     }
 
     public void syncDevicesToClient() {

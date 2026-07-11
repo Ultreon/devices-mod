@@ -39,7 +39,7 @@ public class PaperBlock extends HorizontalDirectionalBlock implements EntityBloc
     private static final VoxelShape[] SELECTION_BOUNDING_BOX = {SELECTION_BOX_SOUTH, SELECTION_BOX_WEST, SELECTION_BOX_NORTH, SELECTION_BOX_EAST};
 
     public PaperBlock(Properties properties) {
-        super(properties.noCollission().instabreak().noOcclusion().noLootTable());
+        super(properties.noCollision().instabreak().noOcclusion().noLootTable());
 
         registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
     }
@@ -65,7 +65,7 @@ public class PaperBlock extends HorizontalDirectionalBlock implements EntityBloc
 
     @Override
     protected InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos pos, Player player, BlockHitResult blockHitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof PaperBlockEntity paper) {
                 paper.nextRotation();
@@ -85,7 +85,7 @@ public class PaperBlock extends HorizontalDirectionalBlock implements EntityBloc
             return super.playerWillDestroy(level, pos, state, player);
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BlockEntity tileEntity = level.getBlockEntity(pos);
             if (tileEntity instanceof PaperBlockEntity paper) {
                 ItemStack drop = IPrint.generateItem(paper.getPrint());

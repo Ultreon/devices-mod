@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
+
 public class TaskSendEmail extends Task {
     private Email email;
     private String to;
@@ -33,7 +35,9 @@ public class TaskSendEmail extends Task {
         if (name != null) {
             Email email = Email.readFromNBT(nbt);
             email.setAuthor(name);
-            if (EmailManager.INSTANCE.addEmailToInbox(email, nbt.getString("to"))) {
+            Optional<String> string = nbt.getString("to");
+            if (string.isEmpty()) return;
+            if (EmailManager.INSTANCE.addEmailToInbox(email, string.get())) {
                 this.setSuccessful();
             }
         }

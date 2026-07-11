@@ -1,0 +1,6 @@
+{
+    "parent": "omnixerio_devices:item/office_chair",
+    "textures": {
+        "chair_color": "block/purple_wool"
+    }
+}

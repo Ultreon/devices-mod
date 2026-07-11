@@ -1,7 +1,6 @@
 package dev.ultreon.devices.api.app.component;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.interfaces.IHighlight;
 import dev.ultreon.devices.api.app.listener.KeyListener;
@@ -13,15 +12,18 @@ import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.util.Mth;
 
 import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+
+import static net.minecraft.network.chat.Component.literal;
 
 @SuppressWarnings("unused")
 public class TextArea extends Component {
@@ -81,7 +83,7 @@ public class TextArea extends Component {
      */
     public TextArea(int left, int top, int width, int height) {
         super(left, top);
-        this.font = Laptop.getFont();
+        this.font = Laptop.getLaptopFont();
         this.width = width;
         this.height = height;
         this.visibleLines = (int) Math.floor((float) ((height - padding * 2 + 1) / font.lineHeight));
@@ -94,20 +96,17 @@ public class TextArea extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
             Color bgColor = new Color(backgroundColor);
             graphics.fill(x, y, x + width, y + height, bgColor.darker().darker().getRGB());
             graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, bgColor.getRGB());
 
-            if (!isFocused && placeholder != null && (lines.isEmpty() || (lines.size() == 1 && lines.get(0).isEmpty()))) {
-                RenderSystem.enableBlend();
+            if (!isFocused && placeholder != null && (lines.isEmpty() || (lines.size() == 1 && lines.getFirst().isEmpty()))) {
                 RenderUtil.drawStringClipped(graphics, placeholder, x + padding, y + padding, width - padding * 2, placeholderColor, false);
             }
 
-            GLHelper.pushScissor(x + padding, y + padding, width - padding * 2, height - padding * 2);
+            GLHelper.pushScissor(graphics, x + padding, y + padding, width - padding * 2, height - padding * 2);
             for (int i = 0; i < visibleLines && i + verticalScroll < lines.size(); i++) {
                 float scrollPercentage = (verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines);
                 float pixelsPerUnit = (float) maxLineWidth / (float) (width - padding * 2);
@@ -125,14 +124,14 @@ public class TextArea extends Component {
                         builder.append(word);
                         builder.append(ChatFormatting.RESET);
                     }
-                    graphics.drawString(mc.font, builder.toString(), x + padding - scrollX, y + padding + i * font.lineHeight, -1, false);
+                    graphics.textRenderer().accept(TextAlignment.LEFT, x + padding - scrollX, y + padding + i * font.lineHeight, literal(builder.toString()));
                 } else {
-                    graphics.drawString(mc.font, lines.get(lineY), x + padding - scrollX, y + padding + i * font.lineHeight, textColor, false);
+                    graphics.textRenderer().accept(TextAlignment.LEFT, x + padding - scrollX, y + padding + i * font.lineHeight, literal(lines.get(lineY)).withColor(textColor));
                 }
             }
-            GLHelper.popScissor();
+            GLHelper.popScissor(graphics);
 
-            GLHelper.pushScissor(x + padding, y + padding - 1, width - padding * 2 + 1, height - padding * 2 + 1);
+            GLHelper.pushScissor(graphics, x + padding, y + padding - 1, width - padding * 2 + 1, height - padding * 2 + 1);
             if (editable && isFocused) {
                 float linesPerUnit = (float) lines.size() / (float) visibleLines;
                 int scroll = Mth.clamp(verticalScroll + verticalOffset * (int) linesPerUnit, 0, Math.max(0, lines.size() - visibleLines));
@@ -148,7 +147,7 @@ public class TextArea extends Component {
                     }
                 }
             }
-            GLHelper.popScissor();
+            GLHelper.popScissor(graphics);
 
             if (scrollBarVisible) {
                 if (lines.size() > visibleLines) {
@@ -261,7 +260,7 @@ public class TextArea extends Component {
 
         DebugLog.log("TextArea.handleKeyPressed: keyCode = " + keyCode + ", scanCode = " + scanCode + ", modifiers = " + modifiers);
 
-        if (Screen.isPaste(keyCode)) {
+        if (isPaste(keyCode, modifiers)) {
             String[] lines = Minecraft.getInstance().keyboardHandler.getClipboard().split("\n");
             for (int i = 0; i < lines.length - 1; i++) {
                 writeText(lines[i] + "\n");
@@ -280,6 +279,11 @@ public class TextArea extends Component {
             }
         }
         updateScroll();
+    }
+
+    private boolean isPaste(int keyCode, int modifiers) {
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) return keyCode == InputConstants.KEY_V && (modifiers & InputConstants.MOD_SUPER) != 0;
+        return keyCode == InputConstants.KEY_V && (modifiers & InputConstants.MOD_CONTROL) != 0;
     }
 
     @Override
@@ -604,7 +608,7 @@ public class TextArea extends Component {
             cursorX = 0;
         }
         if (cursorY >= lines.size()) {
-            cursorX = lines.get(lines.size() - 1).length();
+            cursorX = lines.getLast().length();
             cursorY = lines.size() - 1;
         }
     }
@@ -635,17 +639,17 @@ public class TextArea extends Component {
                 for (int j = 0; j < split.size() - 1; j++) {
                     updatedLines.add(split.get(j));
                 }
-                if (split.size() > 0) {
-                    updatedLines.add(split.get(split.size() - 1) + "\n");
+                if (!split.isEmpty()) {
+                    updatedLines.add(split.getLast() + "\n");
                 }
             }
 
-            List<String> split = font.plainSubstrByWidth(lines.get(lines.size() - 1), width - padding * 2).lines().toList();
+            List<String> split = font.plainSubstrByWidth(lines.getLast(), width - padding * 2).lines().toList();
             for (int i = 0; i < split.size() - 1; i++) {
                 updatedLines.add(split.get(i));
             }
-            if (split.size() > 0) {
-                updatedLines.add(split.get(split.size() - 1));
+            if (!split.isEmpty()) {
+                updatedLines.add(split.getLast());
             }
 
             List<String> activeLine = font.plainSubstrByWidth(lines.get(cursorY), width - padding * 2).lines().toList();
@@ -707,9 +711,9 @@ public class TextArea extends Component {
         }
 
         if (cursorY < verticalScroll) {
-            verticalScroll = Math.min(Math.max(0, cursorY - 1), Math.max(0, lines.size() - visibleLines));
+            verticalScroll = Math.clamp(cursorY - 1, 0, Math.max(0, lines.size() - visibleLines));
         } else if (cursorY >= verticalScroll + visibleLines) {
-            verticalScroll = Math.max(0, Math.min(cursorY + 1 - (visibleLines - 1), lines.size() - visibleLines));
+            verticalScroll = Math.clamp(cursorY + 1 - (visibleLines - 1), 0, lines.size() - visibleLines);
         }
     }
 
@@ -764,7 +768,7 @@ public class TextArea extends Component {
         for (int i = 0; i < lines.size() - 1; i++) {
             builder.append(lines.get(i));
         }
-        builder.append(lines.get(lines.size() - 1));
+        builder.append(lines.getLast());
         return builder.toString();
     }
 

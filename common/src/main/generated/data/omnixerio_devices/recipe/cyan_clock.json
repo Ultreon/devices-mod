@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "omnixerio_devices:clock",
+  "key": {
+    "b": {
+      "item": "omnixerio_devices:battery"
+    },
+    "c": {
+      "item": "omnixerio_devices:circuit_board"
+    },
+    "d": {
+      "item": "minecraft:cyan_dye"
+    },
+    "p": {
+      "item": "omnixerio_devices:plastic_frame"
+    },
+    "s": {
+      "item": "omnixerio_devices:screen"
+    }
+  },
+  "pattern": [
+    "psp",
+    "dcd",
+    "pbp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:cyan_clock"
+  }
+}

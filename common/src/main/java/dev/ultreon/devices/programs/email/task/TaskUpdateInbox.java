@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TaskUpdateInbox extends Task {
     private List<Email> emails;
@@ -44,8 +45,9 @@ public class TaskUpdateInbox extends Task {
         EmailManager.INSTANCE.getInbox().clear();
         ListTag emails = (ListTag) nbt.get("emails");
         for (int i = 0; i < emails.size(); i++) {
-            CompoundTag emailTag = emails.getCompound(i);
-            Email email = Email.readFromNBT(emailTag);
+            Optional<CompoundTag> optionalEmailTag = emails.getCompound(i);
+            if (optionalEmailTag.isEmpty()) continue;
+            Email email = Email.readFromNBT(optionalEmailTag.get());
             EmailManager.INSTANCE.getInbox().add(email);
         }
     }

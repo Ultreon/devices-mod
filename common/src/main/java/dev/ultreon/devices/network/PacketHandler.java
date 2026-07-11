@@ -5,11 +5,9 @@ import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.ultreon.devices.api.task.TaskManager;
 import dev.ultreon.devices.block.entity.RouterBlockEntity;
-import dev.ultreon.devices.core.laptop.server.ServerLaptop;
 import dev.ultreon.devices.network.clientbound.*;
 import dev.ultreon.devices.network.serverbound.C2SRequestPacket;
 import dev.ultreon.devices.network.serverbound.C2SSyncBlockPacket;
-import dev.ultreon.devices.network.serverbound.C2SUpdatePacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -34,7 +32,6 @@ public class PacketHandler {
 
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, C2SRequestPacket.TYPE, C2SRequestPacket.CODEC, PacketHandler::onRequestPacket);
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, C2SSyncBlockPacket.TYPE, C2SSyncBlockPacket.CODEC, PacketHandler::onSyncBlockPacket);
-        NetworkManager.registerReceiver(NetworkManager.Side.C2S, C2SUpdatePacket.TYPE, C2SUpdatePacket.CODEC, PacketHandler::onUpdatePacket);
     }
 
     @Environment(EnvType.CLIENT)
@@ -66,9 +63,4 @@ public class PacketHandler {
         }
     }
 
-    private static void onUpdatePacket(C2SUpdatePacket value, NetworkManager.PacketContext context) {
-        if (context.getEnv().equals(EnvType.SERVER)) {
-            ServerLaptop.laptops.get(value.laptop()).handlePacket(context.getPlayer(), value.typeName(), value.data());
-        }
-    }
 }

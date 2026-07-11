@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:omnixerio_devices/get_motherboard",
+  "criteria": {
+    "got_mac_max": {
+      "conditions": {
+        "items": [
+          {
+            "items": "omnixerio_devices:mac_max_x"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "omnixerio_devices:textures/gui/advancement_background.png",
+    "description": "Build your first Mac Max X",
+    "icon": {
+      "count": 1,
+      "id": "omnixerio_devices:red_laptop"
+    },
+    "title": "Mac Max X What?"
+  },
+  "requirements": [
+    [
+      "got_mac_max"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:omnixerio_devices/get_motherboard",
+  "criteria": {
+    "got_laptop": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#omnixerio_devices:laptops"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "omnixerio_devices:textures/gui/advancement_background.png",
+    "description": "Build your first laptop",
+    "icon": {
+      "count": 1,
+      "id": "omnixerio_devices:red_laptop"
+    },
+    "title": "Portable Computing"
+  },
+  "requirements": [
+    [
+      "got_laptop"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

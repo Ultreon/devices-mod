@@ -1,7 +1,7 @@
 package dev.ultreon.devices.datagen;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 
@@ -27,7 +27,7 @@ public class DyeUtils {
         final Block block;
         final DyeColor dyeColor;
         WoolColor(String block, DyeColor dyeColor) {
-            this.block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(block)); // accessing registry directly is fine as this class isn't used with forge at all
+            this.block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(block)); // accessing registry directly is fine as this class isn't used with forge at all
             this.dyeColor = dyeColor;
         }
     }

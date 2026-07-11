@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TaskDeleteEmail extends Task {
 
@@ -31,12 +32,15 @@ public class TaskDeleteEmail extends Task {
 	public void processRequest(CompoundTag nbt, Level level, Player player) {
 		List<Email> emails = EmailManager.INSTANCE.getEmailsForAccount(player);
 		if (emails != null) {
-			int index = nbt.getInt("Index");
-			if (index >= 0 && index < emails.size()) {
-				emails.remove(index);
-				this.setSuccessful();
-			}
-		}
+			Optional<Integer> optionalIndex = nbt.getInt("Index");
+            if (optionalIndex.isPresent()) {
+				int index = optionalIndex.get();
+                if (index >= 0 && index < emails.size()) {
+                    emails.remove(index);
+                    this.setSuccessful();
+                }
+            }
+        }
 	}
 
 	@Override

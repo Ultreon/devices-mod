@@ -1,7 +1,7 @@
 package dev.ultreon.devices.core.network;
 
 import dev.ultreon.devices.DeviceConfig;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Icons;
 import dev.ultreon.devices.api.app.Layout;
 import dev.ultreon.devices.api.app.component.Button;
@@ -17,7 +17,7 @@ import dev.ultreon.devices.core.network.task.TaskConnect;
 import dev.ultreon.devices.core.network.task.TaskPing;
 import dev.ultreon.devices.object.TrayItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -36,7 +36,7 @@ public class TrayItemWifi extends TrayItem {
     private Strength strength = Strength.NONE;
 
     public TrayItemWifi() {
-        super(Icons.WIFI_NONE, OmnixerioDevicesMod.id("wifi"));
+        super(Icons.WIFI_NONE, OmnixerioDevices.id("wifi"));
     }
 
     private static Layout createWifiMenu(TrayItem item) {
@@ -47,7 +47,7 @@ public class TrayItemWifi extends TrayItem {
         itemListRouters.setItems(getRouters());
         itemListRouters.setListItemRenderer(new ListItemRenderer<>(16) {
             @Override
-            public void render(GuiGraphics graphics, Device device, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, Device device, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 graphics.fill(x, y, x + width, y + height, selected ? Color.DARK_GRAY.getRGB() : Color.GRAY.getRGB());
                 RenderUtil.drawStringClipped(graphics, device.getName(), x + 16, y + 4, 70, Color.WHITE.getRGB(), false);
 
@@ -57,11 +57,11 @@ public class TrayItemWifi extends TrayItem {
                 assert laptopPos != null;
                 double distance = Math.sqrt(device.getPos().distToCenterSqr(laptopPos.getX() + 0.5, laptopPos.getY() + 0.5, laptopPos.getZ() + 0.5));
                 if (distance > 20) {
-                    Icons.WIFI_LOW.draw(graphics, mc, x + 3, y + 3);
+                    Icons.WIFI_LOW.draw(graphics, mc, x + 3, y + 3, 0xffffffff);
                 } else if (distance > 10) {
-                    Icons.WIFI_MED.draw(graphics, mc, x + 3, y + 3);
+                    Icons.WIFI_MED.draw(graphics, mc, x + 3, y + 3, 0xffffffff);
                 } else {
-                    Icons.WIFI_HIGH.draw(graphics, mc, x + 3, y + 3);
+                    Icons.WIFI_HIGH.draw(graphics, mc, x + 3, y + 3, 0xffffffff);
                 }
             }
         });
@@ -149,7 +149,7 @@ public class TrayItemWifi extends TrayItem {
         task.setCallback((tag, success) -> {
             if (success) {
                 assert tag != null;
-                int strength = tag.getInt("strength");
+                int strength = tag.getInt("strength").orElseThrow();
                 switch (strength) {
                     case 2 -> {
                         this.strength = Strength.LOW;
@@ -178,8 +178,8 @@ public class TrayItemWifi extends TrayItem {
     @Override
     public void deserialize(CompoundTag tag) {
         super.deserialize(tag);
-        this.pingTimer = tag.getInt("pingTimer");
-        this.strength = EnumUtils.getEnum(Strength.class, tag.getString("strength"), Strength.NONE);
+        this.pingTimer = tag.getInt("pingTimer").orElseThrow();
+        this.strength = EnumUtils.getEnum(Strength.class, tag.getString("strength").orElseThrow(), Strength.NONE);
         switch (strength) {
             case LOW -> setIcon(Icons.WIFI_LOW);
             case MED -> setIcon(Icons.WIFI_MED);

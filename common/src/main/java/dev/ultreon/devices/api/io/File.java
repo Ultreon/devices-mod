@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class File {
@@ -455,7 +456,10 @@ public class File {
      * @return a file instance
      */
     public static File fromTag(String name, CompoundTag tag) {
-        return new File(name, tag.getString("openingApp"), tag.getCompound("data"));
+        Optional<String> openingApp = tag.getString("openingApp");
+        if (openingApp.isEmpty()) return null;
+        Optional<CompoundTag> data1 = tag.getCompound("data");
+        return data1.map(compoundTag -> new File(name, openingApp.get(), compoundTag)).orElse(null);
     }
 
     @Override

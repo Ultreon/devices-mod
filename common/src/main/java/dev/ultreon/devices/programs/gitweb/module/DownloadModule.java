@@ -13,7 +13,7 @@ import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.programs.gitweb.component.GitWebFrame;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.awt.*;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class DownloadModule extends Module {
     @Override
     public void generate(GitWebFrame frame, Layout layout, int width, Map<String, String> data) {
         int height = calculateHeight(data, width) - 5;
-        AppInfo info = ApplicationManager.getApplication(ResourceLocation.tryParse(data.get("file-app")));
+        AppInfo info = ApplicationManager.getApplication(Identifier.tryParse(data.get("file-app")));
         layout.setBackground((graphics, mc, x, y, width1, height1, mouseX, mouseY, windowActive) -> {
             int section = layout.width / 6;
             int subWidth = section * 4;
@@ -49,7 +49,6 @@ public class DownloadModule extends Module {
             graphics.fill(posX, posY, posX + subWidth, posY + height - 5, Color.BLACK.getRGB());
             graphics.fill(posX + 1, posY + 1, posX + subWidth - 1, posY + height - 5 - 1, Color.DARK_GRAY.getRGB());
 
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 //            int iconU = 0, iconV = 0;
 //            if (info != null) {
 //                iconU = info.getIconU();
@@ -73,7 +72,7 @@ public class DownloadModule extends Module {
         button.setSize(70, height - 15);
         button.setClickListener((mouseX, mouseY, mouseButton) -> {
             try {
-                CompoundTag tag = TagParser.parseTag(data.get("file-data"));
+                CompoundTag tag = TagParser.parseCompoundFully(data.get("file-data"));
                 File file = new File(data.getOrDefault("file-name", ""), data.get("file-app"), tag);
                 Dialog dialog = new Dialog.SaveFile(frame.getApp(), file);
                 frame.getApp().openDialog(dialog);

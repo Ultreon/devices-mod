@@ -1,21 +1,22 @@
 package dev.ultreon.devices.api.print;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.init.ModBlockEntities;
 import dev.ultreon.devices.init.ModBlocks;
-import dev.ultreon.devices.init.ModItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Optional;
 
 //printing somethings takes makes ink cartridge take damage. cartridge can only stack to one
 
@@ -23,20 +24,45 @@ import org.jetbrains.annotations.Nullable;
  * @author MrCrayfish
  */
 public interface IPrint {
-    static CompoundTag save(IPrint print) {
+    static void store(IPrint print, ValueOutput child) {
+        child.putString("type", PrintingManager.getPrintIdentifier(print));
+        print.store(child.child("data"));
+    }
+
+    static CompoundTag save(IPrint pritn) {
         CompoundTag tag = new CompoundTag();
-        tag.putString("type", PrintingManager.getPrintIdentifier(print));
-        tag.put("data", print.toTag());
+        tag.putString("type", PrintingManager.getPrintIdentifier(pritn));
+        CompoundTag data = new CompoundTag();
+        pritn.saveTag(data);
+        tag.put("data", data);
         return tag;
     }
 
     @Nullable
-    static IPrint load(CompoundTag tag) {
-        IPrint print = PrintingManager.getPrint(tag.getString("type"));
+    static IPrint readInput(@UnknownNullability ValueInput tag) {
+        Optional<String> string = tag.getString("type");
+        if (string.isEmpty()) return null;
+        IPrint print = PrintingManager.getPrint(string.get());
         if (print != null) {
-            print.fromTag(tag.getCompound("data"));
+            Optional<ValueInput> data = tag.child("data");
+            if (data.isEmpty()) return null;
+            print.read(data.get());
             return print;
         }
+        return null;
+    }
+
+    static IPrint load(CompoundTag tag) {
+        Optional<String> string = tag.getString("type");
+        if (string.isEmpty()) return null;
+        IPrint print = PrintingManager.getPrint(string.get());
+        if (print != null) {
+            Optional<CompoundTag> data = tag.getCompound("data");
+            if (data.isEmpty()) return null;
+            print.loadTag(data.get());
+            return print;
+        }
+
         return null;
     }
 
@@ -44,15 +70,8 @@ public interface IPrint {
         CompoundTag blockEntityTag = new CompoundTag();
         blockEntityTag.put("print", save(print));
 
-        ResourceLocation resourceLocation = BlockEntityType.getKey(ModBlockEntities.PAPER.get());
-        if (resourceLocation == null) {
-            OmnixerioDevicesMod.LOGGER.error("Failed to generate item for print: {}", print.getName());
-            return new ItemStack(ModItems.PAPER.get());
-        }
-        blockEntityTag.putString("id", resourceLocation.toString());
-
         ItemStack stack = new ItemStack(ModBlocks.PAPER.get());
-        stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntityTag));
+        stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(ModBlockEntities.PAPER.get(), blockEntityTag));
 
         if (print.getName() != null && !print.getName().isEmpty()) {
             stack.set(DataComponents.CUSTOM_NAME, Component.literal(print.getName()));
@@ -78,21 +97,30 @@ public interface IPrint {
 
     /**
      * Converts print into an NBT tag compound. Used for the renderer.
-     *
-     * @return nbt form of print
      */
-    CompoundTag toTag();
+    void store(ValueOutput data);
 
-    void fromTag(CompoundTag tag);
+    void read(ValueInput tag);
+
+    void saveTag(CompoundTag tag);
+
+    void loadTag(CompoundTag tag);
+
+    int[] getPixels();
+
+    void setPixels(int[] pixels);
+
+    int getResolution();
+
+    void setResolution(int resolution);
 
     @Environment(EnvType.CLIENT)
     Class<? extends Renderer> getRenderer();
 
     interface Renderer {
-        default boolean render(PoseStack pose, CompoundTag data) {
-            return render(pose, data, 0, 0, Direction.NORTH);
-        }
 
-        boolean render(PoseStack pose, CompoundTag data, int packedLight, int packedOverlay, Direction direction);
+        boolean render(GuiGraphicsExtractor pose, CompoundTag data, int packedLight, int packedOverlay, Direction direction);
+
+        void delete();
     }
 }

@@ -7,12 +7,12 @@ import dev.ultreon.devices.init.ModItems;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 
-import static dev.ultreon.devices.OmnixerioDevicesMod.id;
+import static dev.ultreon.devices.OmnixerioDevices.id;
 
 public class DeviceTab {
     @SuppressWarnings("UnstableApiUsage")
     public static DeferredSupplier<CreativeModeTab> create() {
-        OmnixerioDevicesMod.LOGGER.info("Creating Creative Tab...");
+        OmnixerioDevices.LOGGER.info("Creating Creative Tab...");
         DeferredSupplier<CreativeModeTab> devicesTabDevice = CreativeTabRegistry.defer(id("devices_tab_device")); //TODO () -> new ItemStack(DeviceBlocks.LAPTOPS.of(DyeColor.RED).get()
         CreativeTabRegistry.modify(devicesTabDevice, (flags, output, canUseGameMasterBlocks) -> {
             for (RegistrySupplier<Item> laptop : ModItems.LAPTOPS) {

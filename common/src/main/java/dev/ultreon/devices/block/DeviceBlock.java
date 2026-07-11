@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -89,7 +89,7 @@ public abstract class DeviceBlock extends HorizontalDirectionalBlock implements 
                 } else {
                     drop = new ItemStack(this);
                 }
-                drop.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
+                drop.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(blockEntity.getType(), tag));
 
                 if (device.hasCustomName()) {
                     drop.set(DataComponents.CUSTOM_NAME, Component.literal(device.getCustomName()));

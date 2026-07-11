@@ -1,6 +1,5 @@
 package dev.ultreon.devices.api.app.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.Layout;
 import dev.ultreon.devices.api.app.listener.ChangeListener;
@@ -10,7 +9,7 @@ import dev.ultreon.devices.api.utils.RenderUtil;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.awt.*;
@@ -52,42 +51,33 @@ public abstract class ComboBox<T> extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
-            RenderSystem.setShaderTexture(0, Component.COMPONENTS_GUI);
-
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(770, 771, 1, 0);
-            RenderSystem.blendFunc(770, 771);
-
             Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
             float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
             bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1f));
-            RenderSystem.setShaderColor(bgColor.getRed() / 255f, bgColor.getGreen() / 255f, bgColor.getBlue() / 255f, 1f);
 
             this.hovered = isInside(mouseX, mouseY) && windowActive;
             int i = this.getHoverState(this.hovered);
             int xOffset = width - height;
 
             /* Corners */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y, 96 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y, 99 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + xOffset, y, 96 + i * 5, 12, 2, 2, 2, 2, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y, 99 + i * 5, 12, 2, 2, 2, 2, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + height - 2, 99 + i * 5, 15, 2, 2, 2, 2, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + xOffset, y + height - 2, 96 + i * 5, 15, 2, 2, 2, 2, 0xff000000 | bgColor.getRGB());
 
             /* Middles */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y, 98 + i * 5, 12, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset, y + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y, 98 + i * 5, 12, height - 4, 2, 1, 2, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + height - 2 + xOffset, y + 2, 99 + i * 5, 14, 2, height - 4, 2, 1, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2, 0xff000000 | bgColor.getRGB());
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + xOffset, y + 2, 96 + i * 5, 14, 2, height - 4, 2, 1, 0xff000000 | bgColor.getRGB());
 
             /* Center */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1);
-
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + 2 + xOffset, y + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1, 0xff000000 | bgColor.getRGB());
 
             /* Icons */
-            RenderUtil.drawRectWithTexture(Component.COMPONENTS_GUI, graphics, x + xOffset + 3, y + 5, 111, 12, 8, 5, 8, 5);
+            RenderUtil.drawRectWithTexture3(Component.COMPONENTS_GUI, graphics, x + xOffset + 3, y + 5, 111, 12, 8, 5, 8, 5);
 
             Color boxColor = new Color(getColorScheme().getBackgroundColor());
             Color borderColor = boxColor.darker().darker();
@@ -103,8 +93,6 @@ public abstract class ComboBox<T> extends Component {
             } else if (value != null) {
                 RenderUtil.drawStringClipped(graphics, value.toString(), x + 3, y + 3, width - 15, Color.WHITE.getRGB(), true);
             }
-
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         }
     }
 
@@ -185,7 +173,7 @@ public abstract class ComboBox<T> extends Component {
         }
 
         private static int getListHeight(ItemList<?> list) {
-            int size = Math.max(1, Math.min(list.visibleItems, list.getItems().size()));
+            int size = Math.clamp(list.visibleItems, 1, list.getItems().size());
             return (list.renderer != null ? list.renderer.getHeight() : 13) * size + size + 1;
         }
 

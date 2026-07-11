@@ -18,11 +18,11 @@ import dev.ultreon.devices.programs.system.object.LocalEntry;
 import dev.ultreon.devices.programs.system.object.RemoteEntry;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.awt.*;
 
@@ -62,14 +62,14 @@ public class LayoutAppPage extends Layout {
             graphics.fill(x, y + 60, x + width, y + 61, color.darker().getRGB());
         });
 
-        ResourceLocation resource = ResourceLocation.parse(entry.id());
+        Identifier resource = Identifier.parse(entry.id());
 
         imageBanner = new Image(0, 0, 250, 40);
         imageBanner.setDrawFull(true);
         imageBanner.setBorderVisible(true);
         imageBanner.setBorderThickness(0);
         if (entry instanceof LocalEntry) {
-            imageBanner.setImage(ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), "textures/app/banner/" + resource.getPath() + ".png"));
+            imageBanner.setImage(Identifier.fromNamespaceAndPath(resource.getNamespace(), "textures/app/banner/" + resource.getPath() + ".png"));
         } else if (entry instanceof RemoteEntry) {
             imageBanner.setImage(AppStore.CERTIFICATES_BASE_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/banner.png");
         }
@@ -86,7 +86,7 @@ public class LayoutAppPage extends Layout {
         this.addComponent(imageIcon);
 
         if (store.certifiedApps.contains(entry)) {
-            int width = Laptop.getFont().width(entry.name()) * 2;
+            int width = Laptop.getLaptopFont().width(entry.name()) * 2;
             Image certifiedIcon = new Image(38 + width + 3, 29, 20, 20, Icons.VERIFIED);
             this.addComponent(certifiedIcon);
         }
@@ -109,7 +109,7 @@ public class LayoutAppPage extends Layout {
                     if (image.startsWith("http://") || image.startsWith("https://")) {
                         slideShow.addImage(image);
                     } else {
-                        slideShow.addImage(ResourceLocation.parse(image));
+                        slideShow.addImage(Identifier.parse(image));
                     }
                 }
             }
@@ -164,10 +164,10 @@ public class LayoutAppPage extends Layout {
     }
 
     @Override
-    public void renderOverlay(GuiGraphics graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
+    public void renderOverlay(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
         super.renderOverlay(graphics, laptop, mc, mouseX, mouseY, windowActive);
         if (store.certifiedApps.contains(entry)) {
-            int width = Laptop.getFont().width(entry.name()) * 2;
+            int width = Laptop.getLaptopFont().width(entry.name()) * 2;
             if (GuiHelper.isMouseWithin(mouseX, mouseY, xPosition + 38 + width + 3, yPosition + 29, 20, 20)) {
                 laptop.renderComponentTooltip(graphics, Lists.newArrayList(Component.literal("Certified App").withStyle(ChatFormatting.GREEN)), mouseX, mouseY);
             }

@@ -3,14 +3,12 @@ package dev.ultreon.devices.programs.gitweb.component.container;
 import com.mojang.blaze3d.platform.Lighting;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BannerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.model.object.banner.BannerFlagModel;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -21,7 +19,7 @@ import java.util.List;
 public class LoomBox extends ContainerBox {
     public static final int HEIGHT = 84;
     private final ItemStack result;
-    private final ModelPart flag;
+    private final BannerFlagModel flag;
     private final BannerPatternLayers bannerPatternLayers;
 
     public LoomBox(ItemStack banner, ItemStack dye, ItemStack pattern, ItemStack result) {
@@ -37,28 +35,17 @@ public class LoomBox extends ContainerBox {
         } else {
             bannerPatternLayers = new BannerPatternLayers(List.of());
         }
-        this.flag = Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.BANNER).getChild("flag");
+        ModelPart modelPart = Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.STANDING_BANNER_FLAG);
+        this.flag = new BannerFlagModel(modelPart);
     }
 
     @Override
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
-        super.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+        super.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
         int topPos = y + 12;
         if (result.isEmpty()) return;
-        Lighting.setupForFlatItems();
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-        graphics.pose().pushPose();
-        //pose.translate((double)(i + 139), (double)(j + 52), 0.0D);
-        graphics.pose().translate(x + 90d, topPos + 52d, 0.0D);
-        graphics.pose().scale(24.0F, -24.0F, 1.0F);
-        graphics.pose().translate(0.5D, 0.5D, 0.5D);
-
-        float scale = 2 / 3f;
-        graphics.pose().scale(scale, -scale, -scale);
-        this.flag.xRot = 0.0F;
-        this.flag.y = -32.0F;
-        BannerRenderer.renderPatterns(graphics.pose(), bufferSource, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, bannerPatternLayers);
-        graphics.pose().popPose();
-        bufferSource.endBatch();
+        DyeColor baseColor = ((BannerItem) result.getItem()).getColor();
+        graphics.bannerPattern(this.flag, baseColor, this.bannerPatternLayers, x + 70, topPos + 20, x + 90, topPos + 60);
+        Minecraft.getInstance().gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_3D);
     }
 }

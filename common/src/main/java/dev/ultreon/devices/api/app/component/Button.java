@@ -1,6 +1,5 @@
 package dev.ultreon.devices.api.app.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.IIcon;
 import dev.ultreon.devices.api.app.listener.ClickListener;
@@ -10,18 +9,22 @@ import dev.ultreon.devices.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 
 import java.awt.*;
 import java.util.Arrays;
 
+import static net.minecraft.network.chat.Component.literal;
+
 @SuppressWarnings("unused")
 public class Button extends Component {
-    protected static final ResourceLocation BUTTON_TEXTURES = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png");
+    protected static final Identifier BUTTON_TEXTURES = Identifier.withDefaultNamespace("textures/gui/widgets.png");
 
     protected static final int TOOLTIP_DELAY = 20;
 
@@ -34,7 +37,7 @@ public class Button extends Component {
     protected int width, height;
     protected boolean explicitSize = false;
 
-    protected ResourceLocation iconResource;
+    protected Identifier iconResource;
     protected int iconU, iconV;
     protected int iconWidth, iconHeight;
     protected int iconSourceWidth;
@@ -147,7 +150,7 @@ public class Button extends Component {
      * @param left how many pixels from the left
      * @param top  how many pixels from the top
      */
-    public Button(int left, int top, ResourceLocation iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
+    public Button(int left, int top, Identifier iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
         super(left, top);
         this.padding = 3;
         this.setIcon(iconResource, iconU, iconV, iconWidth, iconHeight);
@@ -159,7 +162,7 @@ public class Button extends Component {
      * @param left how many pixels from the left
      * @param top  how many pixels from the top
      */
-    public Button(int left, int top, int buttonWidth, int buttonHeight, ResourceLocation iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
+    public Button(int left, int top, int buttonWidth, int buttonHeight, Identifier iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
         super(left, top);
         this.explicitSize = true;
         this.width = buttonWidth;
@@ -173,7 +176,7 @@ public class Button extends Component {
      * @param left how many pixels from the left
      * @param top  how many pixels from the top
      */
-    public Button(int left, int top, String text, ResourceLocation iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
+    public Button(int left, int top, String text, Identifier iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
         super(left, top);
         this.text = text;
         this.setIcon(iconResource, iconU, iconV, iconWidth, iconHeight);
@@ -185,7 +188,7 @@ public class Button extends Component {
      * @param left how many pixels from the left
      * @param top  how many pixels from the top
      */
-    public Button(int left, int top, int buttonWidth, int buttonHeight, String text, ResourceLocation iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
+    public Button(int left, int top, int buttonWidth, int buttonHeight, String text, Identifier iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
         super(left, top);
         this.text = text;
         this.explicitSize = true;
@@ -209,40 +212,29 @@ public class Button extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
-            RenderSystem.setShaderTexture(0, Component.COMPONENTS_GUI);
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getButtonColor());
-            RenderSystem.setShaderColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 1);
 
             this.hovered = GuiHelper.isMouseWithin(mouseX, mouseY, x, y, width, height) && windowActive;
             int i = this.getHoverState(this.hovered);
-
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(770, 771, 1, 0);
-            RenderSystem.blendFunc(770, 771);
-
             /* Corners */
-            graphics.blit(Component.COMPONENTS_GUI, x, y, 2, 2, 96 + i * 5, 12, 2, 2, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x + width - 2, y, 2, 2, 99 + i * 5, 12, 2, 2, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x + width - 2, y + height - 2, 2, 2, 99 + i * 5, 15, 2, 2, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x, y + height - 2, 2, 2, 96 + i * 5, 15, 2, 2, 256, 256);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y, 2, 2, 96 + i * 5, 12, 2, 2, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y, 2, 2, 99 + i * 5, 12, 2, 2, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y + height - 2, 2, 2, 99 + i * 5, 15, 2, 2, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y + height - 2, 2, 2, 96 + i * 5, 15, 2, 2, 256, 256, 0xff000000 | color.getRGB());
 
             /* Middles */
-            graphics.blit(Component.COMPONENTS_GUI, x + 2, y, width - 4, 2, 98 + i * 5, 12, 1, 2, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x + width - 2, y + 2, 2, height - 4, 99 + i * 5, 14, 2, 1, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x + 2, y + height - 2, width - 4, 2, 98 + i * 5, 15, 1, 2, 256, 256);
-            graphics.blit(Component.COMPONENTS_GUI, x, y + 2, 2, height - 4, 96 + i * 5, 14, 2, 1, 256, 256);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y, width - 4, 2, 98 + i * 5, 12, 1, 2, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + width - 2, y + 2, 2, height - 4, 99 + i * 5, 14, 2, 1, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y + height - 2, width - 4, 2, 98 + i * 5, 15, 1, 2, 256, 256, 0xff000000 | color.getRGB());
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x, y + 2, 2, height - 4, 96 + i * 5, 14, 2, 1, 256, 256, 0xff000000 | color.getRGB());
 
             /* Center */
-            graphics.blit(Component.COMPONENTS_GUI, x + 2, y + 2, width - 4, height - 4, 98 + i * 5, 14, 1, 1, 256, 256);
-
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, Component.COMPONENTS_GUI, x + 2, y + 2, width - 4, height - 4, 98 + i * 5, 14, 1, 1, 256, 256, 0xff000000 | color.getRGB());
 
             if (this.hovered) {
-                graphics.renderOutline(x, y, width, height, Laptop.getSystem().getSettings().getColorScheme().getButtonOutlineColor());
+                graphics.outline(x, y, width, height, Laptop.getSystem().getSettings().getColorScheme().getButtonOutlineColor());
             }
 
             int contentWidth = (iconResource != null ? iconWidth : 0) + getTextWidth(text);
@@ -251,23 +243,22 @@ public class Button extends Component {
 
             if (iconResource != null) {
                 int iconY = (height - iconHeight) / 2;
-                RenderSystem.setShaderTexture(0, iconResource);
-                graphics.blit(iconResource, x + contentX, y + iconY, iconWidth, iconHeight, iconU, iconV, iconVWidth, iconUHeight, iconSourceWidth, iconSourceHeight);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, iconResource, x + contentX, y + iconY, iconWidth, iconHeight, iconU, iconV, iconVWidth, iconUHeight, iconSourceWidth, iconSourceHeight);
             }
 
             if (!StringUtils.isNullOrEmpty(text)) {
                 int textY = (height - mc.font.lineHeight) / 2 + 1;
                 int textOffsetX = iconResource != null ? iconWidth + 3 : 0;
                 int textColor = !Button.this.enabled ? 0xa0a0a0 : 0xe0e0e0;
-                graphics.drawString(mc.font, text, x + contentX + textOffsetX, y + textY, textColor);
+                graphics.textRenderer().accept(TextAlignment.LEFT, x + contentX + textOffsetX, y + textY, literal(text).withColor(textColor));
             }
         }
     }
 
     @Override
-    public void renderOverlay(GuiGraphics graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
+    public void renderOverlay(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
         if (this.hovered && this.toolTip != null && toolTipTick >= TOOLTIP_DELAY) {
-            laptop.renderComponentTooltip(graphics, Arrays.asList(net.minecraft.network.chat.Component.literal(this.toolTipTitle).withStyle(ChatFormatting.GOLD), net.minecraft.network.chat.Component.literal(this.toolTip)), mouseX, mouseY);
+            laptop.renderComponentTooltip(graphics, Arrays.asList(literal(this.toolTipTitle).withStyle(ChatFormatting.GOLD), literal(this.toolTip)), mouseX, mouseY);
         }
     }
 
@@ -358,7 +349,7 @@ public class Button extends Component {
         return height;
     }
 
-    public void setIcon(ResourceLocation iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
+    public void setIcon(Identifier iconResource, int iconU, int iconV, int iconWidth, int iconHeight) {
         this.iconU = iconU;
         this.iconV = iconV;
         this.iconResource = iconResource;

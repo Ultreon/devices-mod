@@ -5,11 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "plugin": "dev.ultreon.devices.mixin.common.MixinPlugin",
   "mixins": [
-    "accessors.ItemEntityAccessor"
+    "LevelChunkMixin"
   ],
   "client": [
-    "MinecraftMixin",
-    "accessors.ItemPropertiesAccessor"
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

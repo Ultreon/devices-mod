@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "omnixerio_devices:office_chair",
+  "key": {
+    "c": {
+      "item": "minecraft:gray_concrete"
+    },
+    "d": {
+      "item": "minecraft:magenta_wool"
+    },
+    "f": {
+      "item": "minecraft:cobblestone_wall"
+    },
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "w": {
+      "item": "omnixerio_devices:wheel"
+    }
+  },
+  "pattern": [
+    "cdc",
+    "clc",
+    "wfw"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:magenta_office_chair"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "omnixerio_devices:item/battery_cell_empty",
+      "predicate": {
+        "omnixerio_devices:charge": 0.0,
+        "omnixerio_devices:empty": 1.0,
+        "omnixerio_devices:overcharged": 0.0
+      }
+    },
+    {
+      "model": "omnixerio_devices:item/battery_cell_low",
+      "predicate": {
+        "omnixerio_devices:charge": 0.000000000000000000000000000000000000011754944,
+        "omnixerio_devices:empty": 0.0,
+        "omnixerio_devices:overcharged": 0.0
+      }
+    },
+    {
+      "model": "omnixerio_devices:item/battery_cell_warn",
+      "predicate": {
+        "omnixerio_devices:charge": 0.25,
+        "omnixerio_devices:empty": 0.0,
+        "omnixerio_devices:overcharged": 0.0
+      }
+    },
+    {
+      "model": "omnixerio_devices:item/battery_cell_normal",
+      "predicate": {
+        "omnixerio_devices:charge": 0.5,
+        "omnixerio_devices:empty": 0.0,
+        "omnixerio_devices:overcharged": 0.0
+      }
+    },
+    {
+      "model": "omnixerio_devices:item/battery_cell_overcharged",
+      "predicate": {
+        "omnixerio_devices:charge": 1.0,
+        "omnixerio_devices:empty": 0.0,
+        "omnixerio_devices:overcharged": 1.0
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "omnixerio_devices:item/battery_cell_empty"
+  }
+}

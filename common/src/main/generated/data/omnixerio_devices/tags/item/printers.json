@@ -1,0 +1,68 @@
+{
+  "values": [
+    {
+      "id": "omnixerio_devices:red_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:yellow_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:light_blue_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:blue_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:brown_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:magenta_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:light_gray_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:black_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:pink_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:orange_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:gray_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:purple_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:white_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:green_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:lime_printer",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:cyan_printer",
+      "required": false
+    }
+  ]
+}

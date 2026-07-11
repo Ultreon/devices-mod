@@ -1,7 +1,6 @@
 package dev.ultreon.devices.api.app;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.io.File;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.core.Window;
@@ -11,7 +10,7 @@ import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.util.DataHandler;
 import dev.ultreon.devices.util.GLHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
@@ -28,11 +27,7 @@ public abstract class Application extends Wrappable implements DataHandler {
     @SuppressWarnings("FieldMayBeFinal")
     protected AppInfo info = null;
     public void setInfo(AppInfo info) {
-        if (StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().equals(OmnixerioDevicesMod.class)) {
-            this.info = info;
-            return;
-        }
-        throw new IllegalStateException();
+        this.info = info;
     }
     private final Layout defaultLayout = new Layout();
     private BlockPos laptopPositon;
@@ -132,27 +127,12 @@ public abstract class Application extends Wrappable implements DataHandler {
      * @param partialTicks the render partial ticks.
      */
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
-//        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-        GLHelper.pushScissor(x, y, width, height);
-        currentLayout.render(graphics, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
-        GLHelper.popScissor();
-
-        // TODO Port this to 1.18.2 if possible
-//        if (!GLHelper.isScissorStackEmpty()) {
-//            MrCrayfishDeviceMod.getLogger().error("ERROR: A component is not popping it's scissor!");
-//        }
-//        GLHelper.clearScissorStack();
-
-//        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    public void render(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
+        GLHelper.pushScissor(graphics, x, y, width, height);
+        currentLayout.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
+        GLHelper.popScissor(graphics);
 
         currentLayout.renderOverlay(graphics, laptop, mc, mouseX, mouseY, active);
-
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-        // TODO Port this to 1.18.2 if possible
-//        Lighting.turnOff();
     }
 
     /**
@@ -200,7 +180,7 @@ public abstract class Application extends Wrappable implements DataHandler {
      *
      * @param mouseX    the x position of the mouse
      * @param mouseY    the y position of the mouse
-     * @param delta
+     * @param delta     the amount of scroll. 1 is 1 page up, -1 is 1 page down.
      * @param direction the direction of the scroll. true is up, false is down
      */
     @Override

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/orange_printer",
+    "type": "minecraft:model"
+  }
+}

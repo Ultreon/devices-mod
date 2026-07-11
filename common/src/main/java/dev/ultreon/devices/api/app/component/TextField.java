@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ultreon.devices.api.app.IIcon;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.awt.*;
 
@@ -25,15 +25,14 @@ public class TextField extends TextArea {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (icon != null) {
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             Color bgColor = new Color(color(backgroundColor, getColorScheme().getBackgroundColor()));
             graphics.fill(x, y, x + 15, y + 16, bgColor.darker().darker().getRGB());
             graphics.fill(x + 1, y + 1, x + 15, y + 15, bgColor.brighter().getRGB());
-            icon.draw(graphics, mc, x + 3, y + 3);
+            icon.draw(graphics, mc, x + 3, y + 3, 0xffffffff);
         }
-        super.render(graphics, laptop, mc, x + (icon != null ? 15 : 0), y, mouseX, mouseY, windowActive, partialTicks);
+        super.extractRenderState(graphics, laptop, mc, x + (icon != null ? 15 : 0), y, mouseX, mouseY, windowActive, partialTicks);
     }
 
     @Override

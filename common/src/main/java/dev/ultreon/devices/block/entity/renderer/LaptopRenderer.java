@@ -1,105 +1,103 @@
 package dev.ultreon.devices.block.entity.renderer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.ultreon.devices.block.LaptopBlock;
 import dev.ultreon.devices.block.entity.LaptopBlockEntity;
 import dev.ultreon.devices.init.ModItems;
-import dev.ultreon.devices.mixin.common.accessors.ItemEntityAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import dev.ultreon.devices.item.FlashDriveItem;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public class LaptopRenderer implements BlockEntityRenderer<LaptopBlockEntity> {
+import static net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
+
+public class LaptopRenderer implements BlockEntityRenderer<LaptopBlockEntity, LaptopRenderState> {
     private final BlockEntityRendererProvider.Context context;
-    private final Minecraft mc = Minecraft.getInstance();
+    private final ItemModelResolver itemModelResolver;
 
     public LaptopRenderer(BlockEntityRendererProvider.Context context) {
         this.context = context;
+        this.itemModelResolver = this.context.itemModelResolver();
     }
 
     @Override
-    public void render(LaptopBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-//        poseStack.pushPose();
-//        RenderSystem.depthMask(true);
-//        poseStack.scale(0.005f, 0.005f, -1.0f);
-//        poseStack.mulPose(Quaternion.fromXYZDegrees(new Vector3f(0, 180, 180)));
-//        var l = new ClientLaptop();
-//        l.render(poseStack, -999, -999, partialTick);
-//        RenderSystem.depthMask(true);
-//        poseStack.popPose();
-        var direction = blockEntity.getBlockState().getValue(LaptopBlock.FACING).getClockWise().toYRot();
+    public @NonNull LaptopRenderState createRenderState() {
+        return new LaptopRenderState();
+    }
 
-        ItemEntity entityItem = new ItemEntity(Minecraft.getInstance().level, 0, 0, 0, ItemStack.EMPTY) {
-            @Override
-            public float getSpin(float partialTicks) {
-                return ((float)this.getAge() + partialTicks) / 20.0f + 0;
+    @Override
+    public void extractRenderState(@NonNull LaptopBlockEntity blockEntity, @NonNull LaptopRenderState state, float partialTicks, @NonNull Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+
+        state.facing = blockEntity.getBlockState().getValue(LaptopBlock.FACING);
+        state.open = blockEntity.getBlockState().getValue(LaptopBlock.OPEN);
+        state.externalDriveAttached = blockEntity.isExternalDriveAttached();
+        state.externalDriveColor = blockEntity.getExternalDriveColor();
+        state.screenAngle = blockEntity.getScreenAngle(partialTicks);
+
+        int seed = (int)blockEntity.getBlockPos().asLong();
+
+        state.item = new ItemStackRenderState();
+        if (state.externalDriveAttached) {
+            if (state.externalDriveColor == null) {
+                state.externalDriveColor = DyeColor.WHITE;
             }
-        };
+            FlashDriveItem flashDriveByColor = ModItems.getFlashDriveByColor(state.externalDriveColor);
+            if (flashDriveByColor != null) {
+                this.itemModelResolver.updateForTopItem(state.item, new ItemStack(flashDriveByColor), ItemDisplayContext.FIXED, blockEntity.getLevel(), null, seed);
+            }
+        }
+        state.screen = new BlockModelRenderState();
+        context.blockModelResolver().update(state.screen, blockEntity.getBlock().defaultBlockState().setValue(LaptopBlock.TYPE, LaptopBlock.Type.SCREEN), BlockDisplayContext.create());
+    }
 
-        ((ItemEntityAccessor) entityItem).setBobOffs(0);
-        entityItem.setYRot(0);
-        BlockState state = blockEntity.getBlock().defaultBlockState().setValue(LaptopBlock.TYPE, LaptopBlock.Type.SCREEN);
+    @Override
+    public void submit(@NonNull LaptopRenderState state, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector submitNodeCollector, @NonNull CameraRenderState camera) {
 
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         poseStack.pushPose();
         {
-            if (blockEntity.isExternalDriveAttached()) {
+            if (state.externalDriveAttached) {
                 poseStack.pushPose();
                 {
                     poseStack.translate(0.5, 0, 0.5);
-                    poseStack.mulPose(blockEntity.getBlockState().getValue(LaptopBlock.FACING).getRotation());
+                    poseStack.mulPose(state.facing.getRotation());
                     poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(-90)));
                     poseStack.mulPose(new Quaternionf().rotateX((float) Math.toRadians(-90)));
                     poseStack.translate(-0.5, 0, -0.5);
                     poseStack.translate(0.595, -0.2075, -0.005);
-//                    poseStack.translate(0.1, 0, 0);
 
-                    entityItem.flyDist = 0.0F;
-                    assert ModItems.getFlashDriveByColor(blockEntity.getExternalDriveColor()) != null;
-                    entityItem.setItem(new ItemStack(ModItems.getFlashDriveByColor(blockEntity.getExternalDriveColor()), 1/*, blockEntity.getExternalDriveColor().*/));
-                    Minecraft.getInstance().getEntityRenderDispatcher().render(entityItem, 0, 0, 0, 0, 0, poseStack, bufferSource, packedLight);
+                    if (!state.item.isEmpty()) {
+                        state.item.submit(poseStack, submitNodeCollector, state.lightCoords, NO_OVERLAY, 0x00000000);
+                    }
                 }
                 poseStack.popPose();
             }
 
             poseStack.pushPose();
             {
+                var direction = state.facing.getClockWise().toYRot();
                 poseStack.translate(0.5, 0, 0.5);//west/east +90 north/south -90
-                poseStack.mulPose(Axis.YP.rotationDegrees(blockEntity.getBlockState().getValue(LaptopBlock.FACING) == Direction.EAST || blockEntity.getBlockState().getValue(LaptopBlock.FACING) == Direction.WEST ? direction + 90 : direction - 90));
+                poseStack.mulPose(Axis.YP.rotationDegrees(state.facing == Direction.EAST || state.facing == Direction.WEST ? direction + 90 : direction - 90));
                 poseStack.translate(-0.5, 0, -0.5);
                 poseStack.translate(0, 0.0625, 0.25);
-                poseStack.mulPose(Axis.XP.rotationDegrees(blockEntity.getScreenAngle(partialTick) + 180));
-                //poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
+                poseStack.mulPose(Axis.XP.rotationDegrees(state.screenAngle + 180));
                 poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                // Lighting.setupForFlatItems();
-                //      Tesselator tessellator = Tesselator.getInstance();
-                //BufferBuilder buffer = tessellator.getBuilder();
-                //buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-                //    poseStack.pushPose();
-                //poseStack.translate(-pos.getX(), -pos.getY(), -pos.getZ());
-
-                BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-                BakedModel ibakedmodel = mc.getBlockRenderer().getBlockModel(state);
-                poseStack.pushPose();
-                //poseStack.mulPose(Vector3f.ZP.rotationDegrees(180));
-                //poseStack.mulPose(Vector3f.XP.rotationDegrees(180));
-                //poseStack.mulPose(Vector3f.ZP.rotationDegrees(180));
-                dispatcher.renderSingleBlock(state, poseStack, bufferSource, packedLight, packedOverlay);//.renderModel(poseStack.last(), bufferSource.getBuffer(RenderType.cutout()), state, ibakedmodel, 1, 1, 1, packedLight, packedOverlay);
-                poseStack.popPose();
-                //poseStack.popPose();
-                //    tessellator.end();
-                //   Lighting.setupFor3DItems();
+                state.screen.submit(poseStack, submitNodeCollector, state.lightCoords, NO_OVERLAY, 0x00000000);
             }
             poseStack.popPose();
         }

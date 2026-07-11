@@ -1,6 +1,6 @@
 {
     "replace": false,
     "values": [
-        "devices:plastic"
+        "omnixerio_devices:plastic"
     ]
 }

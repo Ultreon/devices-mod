@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/wheel",
+    "type": "minecraft:model"
+  }
+}

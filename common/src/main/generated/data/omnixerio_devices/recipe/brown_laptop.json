@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "omnixerio_devices:laptop",
+  "key": {
+    "#": {
+      "item": "omnixerio_devices:screen"
+    },
+    "$": {
+      "item": "omnixerio_devices:battery"
+    },
+    "+": {
+      "item": "minecraft:brown_wool"
+    },
+    ".": {
+      "item": "minecraft:iron_nugget"
+    },
+    "/": {
+      "item": "minecraft:iron_ingot"
+    },
+    "@": {
+      "item": "omnixerio_devices:motherboard_full"
+    },
+    "O": {
+      "tag": "omnixerio_devices:internal_storage"
+    }
+  },
+  "pattern": [
+    "+#+",
+    ".@$",
+    "/O/"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:brown_laptop"
+  }
+}

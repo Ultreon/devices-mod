@@ -1,0 +1,6 @@
+{
+  "parent": "omnixerio_devices:block/printer",
+  "textures": {
+    "2": "minecraft:block/brown_wool"
+  }
+}

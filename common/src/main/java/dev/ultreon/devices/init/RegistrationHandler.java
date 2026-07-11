@@ -20,7 +20,6 @@ public class RegistrationHandler {
         ModItems.register();
         ModStats.register();
         ModSounds.register();
-        ModRecipeSerializers.register();
         EnvExecutor.runInEnv(EnvType.CLIENT, () -> ModEntityRenderers::register);
 
         // Tags

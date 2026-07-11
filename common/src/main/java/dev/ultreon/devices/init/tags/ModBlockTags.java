@@ -1,6 +1,6 @@
 package dev.ultreon.devices.init.tags;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -11,7 +11,7 @@ public final class ModBlockTags {
     public static final TagKey<Block> ROUTERS = create("routers");
 
     private static TagKey<Block> create(String name) {
-        return TagKey.create(Registries.BLOCK, OmnixerioDevicesMod.id(name));
+        return TagKey.create(Registries.BLOCK, OmnixerioDevices.id(name));
     }
 
     public static void init() {

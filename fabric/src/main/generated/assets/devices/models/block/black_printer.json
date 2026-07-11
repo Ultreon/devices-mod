@@ -1,6 +1,0 @@
-{
-  "parent": "devices:block/printer",
-  "textures": {
-    "2": "minecraft:block/black_wool"
-  }
-}

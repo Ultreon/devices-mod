@@ -2,6 +2,8 @@ package dev.ultreon.devices.api.io;
 
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.Optional;
+
 public record MimeType(String type, String subType) {
     public static final MimeType TEXT_PLAIN = new MimeType("text", "plain");
     public static final MimeType APPLICATION_JSON = new MimeType("application", "json");
@@ -11,7 +13,10 @@ public record MimeType(String type, String subType) {
     public static final MimeType IMAGE_MC_IMG = new MimeType("image", "mc-img");
 
     public static MimeType of(CompoundTag mimeType) {
-        return new MimeType(mimeType.getString("type"), mimeType.getString("subType"));
+        Optional<String> string = mimeType.getString("type");
+        Optional<String> string1 = mimeType.getString("subType");
+        if (string.isEmpty() || string1.isEmpty()) return new MimeType("application", "octet-stream");
+        return new MimeType(string.get(), string1.get());
     }
 
     public CompoundTag toNbt() {

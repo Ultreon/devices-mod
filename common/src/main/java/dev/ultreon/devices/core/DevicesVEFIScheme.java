@@ -2,7 +2,7 @@
 //
 //import dev.ultreon.devices.OmnixerioDevicesMod;
 //import net.minecraft.client.Minecraft;
-//import net.minecraft.resources.ResourceLocation;
+//import net.minecraft.resources.Identifier;
 //import net.minecraft.server.packs.resources.Resource;
 //import org.cef.callback.CefCallback;
 //import org.cef.handler.CefResourceHandler;
@@ -35,7 +35,7 @@
 //            String mod = this.removeSlashes(url.substring(0, pos));
 //            String loc = this.removeSlashes(url.substring(pos + 1));
 //            if (!mod.isEmpty() && !loc.isEmpty() && mod.charAt(0) != '.' && loc.charAt(0) != '.') {
-//                ResourceLocation resourceLocation = ResourceLocation.tryBuild(mod.toLowerCase(Locale.US), "html/" + loc);
+//                Identifier resourceLocation = Identifier.tryBuild(mod.toLowerCase(Locale.US), "html/" + loc);
 //                if (resourceLocation == null) {
 //                    OmnixerioDevicesMod.LOGGER.warn("Resource URL {} NOT found!", this.url);
 //                    cefCallback.cancel();

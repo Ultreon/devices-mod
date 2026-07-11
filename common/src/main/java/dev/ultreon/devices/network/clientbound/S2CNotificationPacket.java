@@ -1,6 +1,6 @@
 package dev.ultreon.devices.network.clientbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Notification;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public record S2CNotificationPacket(
         CompoundTag notificationTag
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<S2CNotificationPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("clientbound/notification"));
+    public static final CustomPacketPayload.Type<S2CNotificationPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("clientbound/notification"));
     public static final StreamCodec<FriendlyByteBuf, S2CNotificationPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.COMPOUND_TAG, S2CNotificationPacket::notificationTag,
             S2CNotificationPacket::new

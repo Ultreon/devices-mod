@@ -1,18 +1,18 @@
 package dev.ultreon.devices.datagen;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.init.ModItems;
 import dev.ultreon.devices.init.tags.ModItemTags;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
-    protected DevicesAdvancementsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected DevicesAdvancementsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(output, registryLookup);
     }
 
@@ -31,7 +31,7 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                         ModItems.LAPTOPS.of(DyeColor.WHITE).get(), // The display icon
                         Component.literal("Devices Mod"), // The title
                         Component.literal("Install Devices Mod"), // The description
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
                         AdvancementType.TASK, // TASK, CHALLENGE, or GOAL
                         false, // Show the toast when completing it
                         false, // Announce it to chat
@@ -39,14 +39,14 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                 )
                 .addCriterion("has_crafting_table", InventoryChangeTrigger.TriggerInstance.hasItems(Items.CRAFTING_TABLE))
                 // Give the advancement an id
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/root");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/root");
 
         Advancement.Builder.advancement()
                 .display(
                         ModItems.COMPONENT_CIRCUIT_BOARD.get(), // The display icon
                         Component.literal("It Was All His Fault"), // The title
                         Component.literal("Create a circuit board"), // The description
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
                         AdvancementType.TASK, // TASK, CHALLENGE, or GOAL
                         true, // Show the toast when completing it
                         true, // Announce it to chat
@@ -56,14 +56,14 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                 .addCriterion("got_circuit_board", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.COMPONENT_CIRCUIT_BOARD.get()))
                 .parent(root)
                 // Give the advancement an id
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_circuit_board");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_circuit_board");
 
         AdvancementHolder flash = Advancement.Builder.advancement()
                 .display(
                         ModItems.COMPONENT_FLASH_CHIP.get(), // The display icon
                         Component.literal("Flashy Chips"),
                         Component.literal("Create your first flash chip"), // The description
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"), // Background image for the tab in the advancements page, if this is a root advancement (has no parent)
                         AdvancementType.TASK, // TASK, CHALLENGE, or GOAL
                         true, // Show the toast when completing it
                         true, // Announce it to chat
@@ -73,14 +73,14 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                 .addCriterion("got_flash_chip", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.COMPONENT_FLASH_CHIP.get()))
                 .parent(root)
                 // Give the advancement an id
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_flash_chip");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_flash_chip");
 
         AdvancementHolder motherboard = Advancement.Builder.advancement()
                 .display(
                         ModItems.COMPONENT_MOTHERBOARD_FULL.get(),
                         Component.literal("Motherboard"),
                         Component.literal("Create your first motherboard"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
@@ -88,14 +88,14 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                 )
                 .addCriterion("got_motherboard", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.COMPONENT_MOTHERBOARD_FULL.get()))
                 .parent(root)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_motherboard");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_motherboard");
 
         AdvancementHolder screen = Advancement.Builder.advancement()
                 .display(
                         ModItems.COMPONENT_MOTHERBOARD_FULL.get(),
                         Component.literal("Motherboard"),
                         Component.literal("Create your first motherboard"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
@@ -103,66 +103,66 @@ public class DevicesAdvancementsProvider extends FabricAdvancementProvider {
                 )
                 .addCriterion("got_screen", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.COMPONENT_SCREEN.get()))
                 .parent(motherboard)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_motherboard");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_motherboard");
 
         Advancement.Builder.advancement()
                 .display(
                         ModItems.LAPTOPS.of(DyeColor.RED).get(),
                         Component.literal("Portable Computing"),
                         Component.literal("Build your first laptop"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
                         false
                 )
-                .addCriterion("got_laptop", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ModItemTags.LAPTOPS).build()))
+                .addCriterion("got_laptop", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemPredicate.Builder().of(registryLookup.lookupOrThrow(Registries.ITEM), ModItemTags.LAPTOPS).build()))
                 .parent(screen)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_laptop");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_laptop");
 
         Advancement.Builder.advancement()
                 .display(
                         ModItems.LAPTOPS.of(DyeColor.RED).get(),
                         Component.literal("Mac Max X What?"),
                         Component.literal("Build your first Mac Max X"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
                         false
                 )
-                .addCriterion("got_mac_max", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ModItems.MAC_MAX_X.get()).build()))
+                .addCriterion("got_mac_max", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(registryLookup.lookupOrThrow(Registries.ITEM), ModItems.MAC_MAX_X.get()).build()))
                 .parent(screen)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_mac_max");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_mac_max");
 
         Advancement.Builder.advancement()
                 .display(
                         ModItems.ROUTERS.of(DyeColor.RED).get(),
                         Component.literal("The World Wide Web"),
                         Component.literal("Build your first router"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
                         false
                 )
-                .addCriterion("got_router", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ModItemTags.ROUTERS).build()))
+                .addCriterion("got_router", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(registryLookup.lookupOrThrow(Registries.ITEM), ModItemTags.ROUTERS).build()))
                 .parent(root)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_router");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_router");
 
         Advancement.Builder.advancement()
                 .display(
                         ModItems.FLASH_DRIVE.of(DyeColor.RED).get(),
                         Component.literal("Portable Storage"),
                         Component.literal("Build your first flash drive"),
-                        OmnixerioDevicesMod.id("textures/gui/advancement_background.png"),
+                        OmnixerioDevices.id("textures/gui/advancement_background.png"),
                         AdvancementType.TASK,
                         true,
                         true,
                         false
                 )
-                .addCriterion("got_flash_drive", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ModItemTags.FLASH_DRIVES).build()))
+                .addCriterion("got_flash_drive", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(registryLookup.lookupOrThrow(Registries.ITEM), ModItemTags.FLASH_DRIVES).build()))
                 .parent(flash)
-                .save(consumer, OmnixerioDevicesMod.MOD_ID + "/get_flash_drive");
+                .save(consumer, OmnixerioDevices.MOD_ID + "/get_flash_drive");
     }
 }

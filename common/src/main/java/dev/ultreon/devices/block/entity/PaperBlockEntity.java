@@ -3,15 +3,19 @@ package dev.ultreon.devices.block.entity;
 import dev.ultreon.devices.api.print.IPrint;
 import dev.ultreon.devices.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
+import java.util.Optional;
 
 /**
  * @author MrCrayfish
@@ -44,21 +48,18 @@ public class PaperBlockEntity extends SyncBlockEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("print", Tag.TAG_COMPOUND)) {
-            print = IPrint.load(tag.getCompound("print"));
-        }
-        if (tag.contains("rotation", Tag.TAG_BYTE)) {
-            rotation = tag.getByte("rotation");
-        }
+    public void loadAdditional(@NonNull ValueInput tag) {
+        super.loadAdditional(tag);
+        Optional<ValueInput> optionalPrint = tag.child("print");
+        optionalPrint.ifPresent(print -> this.print = IPrint.readInput(print));
+        this.rotation = tag.getByteOr("rotation", (byte) 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(@NonNull ValueOutput tag) {
+        super.saveAdditional(tag);
         if (print != null) {
-            tag.put("print", IPrint.save(print));
+            IPrint.store(print, tag.child("print"));
         }
         tag.putByte("rotation", rotation);
     }
@@ -67,13 +68,17 @@ public class PaperBlockEntity extends SyncBlockEntity {
     public CompoundTag saveSyncTag() {
         CompoundTag tag = new CompoundTag();
         if (print != null) {
-            tag.put("print", IPrint.save(print));
+            CompoundTag printTag = IPrint.save(print);
+            tag.put("print", printTag);
         }
         tag.putByte("rotation", rotation);
         return tag;
     }
 
     private void playSound(SoundEvent sound) {
-        level.playSound(null, worldPosition, sound, SoundSource.BLOCKS, 1f, 1f);
+        Level lvl = level;
+        if (lvl != null) {
+            lvl.playSound(null, worldPosition, sound, SoundSource.BLOCKS, 1f, 1f);
+        }
     }
 }

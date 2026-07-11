@@ -13,6 +13,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -35,16 +37,15 @@ public class OfficeChairBlockEntity extends SyncBlockEntity implements Colorable
     }
 
     @Override
-    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
-        super.loadAdditional(compound, provider);
-        if (compound.contains("color", Tag.TAG_BYTE)) {
-            color = DyeColor.byId(compound.getByte("color"));
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        byte color = input.getByteOr("color", (byte) 0);
+        this.color = DyeColor.byId(color > 15 || color < 0 ? 0 : color);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putByte("color", (byte) color.getId());
     }
 

@@ -61,8 +61,8 @@ public class Settings {
         //showAllApps = requestData.getBoolean("showAllApps");
 
         Settings settings = new Settings();
-        settings.colorScheme = ColorScheme.fromTag(tag.getCompound("colorScheme"));
-        settings.preset = tag.contains("preset", Tag.TAG_COMPOUND) ? Preset.fromTag(tag.getCompound("preset")) : null;
+        settings.colorScheme = ColorScheme.fromTag(tag.getCompoundOrEmpty("colorScheme"));
+        settings.preset = tag.contains("preset") ? Preset.fromTag(tag.getCompoundOrEmpty("preset")) : null;
 
         return settings;
     }

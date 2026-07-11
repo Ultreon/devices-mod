@@ -2,9 +2,8 @@ package dev.ultreon.devices.object;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.Reference;
-import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.core.Laptop;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -12,7 +11,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.ApiStatus;
@@ -30,7 +29,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
 public class AppInfo {
     public static final StreamCodec<ByteBuf, AppInfo> STREAM_CODEC = StreamCodec.of((buf, appInfo) -> {
-        ResourceLocation.STREAM_CODEC.encode(buf, appInfo.appId);
+        Identifier.STREAM_CODEC.encode(buf, appInfo.appId);
         ByteBufCodecs.STRING_UTF8.encode(buf, appInfo.name);
         ByteBufCodecs.<ByteBuf, String, List<String>>collection(ArrayList::new, ByteBufCodecs.STRING_UTF8).encode(buf, appInfo.getAuthors());
         ByteBufCodecs.STRING_UTF8.encode(buf, appInfo.description);
@@ -38,7 +37,7 @@ public class AppInfo {
         ByteBufCodecs.<ByteBuf, String, List<String>>collection(ArrayList::new, ByteBufCodecs.STRING_UTF8).encode(buf, appInfo.getScreenshots());
         Support.STREAM_CODEC.encode(buf, appInfo.support);
     }, buf -> new AppInfo(
-            ResourceLocation.STREAM_CODEC.decode(buf),
+            Identifier.STREAM_CODEC.decode(buf),
             ByteBufCodecs.STRING_UTF8.decode(buf),
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8).decode(buf),
             ByteBufCodecs.STRING_UTF8.decode(buf),
@@ -48,7 +47,7 @@ public class AppInfo {
     ));
     public static final Comparator<AppInfo> SORT_NAME = Comparator.comparing(AppInfo::getName);
 
-    private transient final ResourceLocation appId;
+    private transient final Identifier appId;
 
     private final transient boolean systemApp;
 
@@ -89,12 +88,12 @@ public class AppInfo {
     private String[] screenshots;
     private Support support;
 
-    public AppInfo(ResourceLocation identifier, boolean isSystemApp) {
+    public AppInfo(Identifier identifier, boolean isSystemApp) {
         this.appId = identifier;
         this.systemApp = isSystemApp;
     }
 
-    public AppInfo(ResourceLocation appId, String name, List<String> authors, String description, String version, List<String> screenshots, Support support) {
+    public AppInfo(Identifier appId, String name, List<String> authors, String description, String version, List<String> screenshots, Support support) {
         this(appId, false);
         this.name = name;
         this.authors = authors.toArray(new String[0]);
@@ -104,7 +103,7 @@ public class AppInfo {
         this.support = support;
     }
 
-    public AppInfo(ResourceLocation identifier) {
+    public AppInfo(Identifier identifier) {
         this(identifier, false);
     }
 
@@ -113,7 +112,7 @@ public class AppInfo {
      *
      * @return the app resource location
      */
-    public ResourceLocation getAppId() {
+    public Identifier getAppId() {
         return appId;
     }
 
@@ -190,20 +189,20 @@ public class AppInfo {
         Glyph overlay1;
 
         public static class Glyph {
-            private ResourceLocation resourceLocation;
+            private Identifier resourceLocation;
             private int u = -1;
             private int v = -1;
             private int type;
 
-            private Glyph(ResourceLocation res) {
+            private Glyph(Identifier res) {
                 this.resourceLocation = res;
             }
 
-            private static Glyph of(ResourceLocation res) {
+            private static Glyph of(Identifier res) {
                 return new Glyph(res);
             }
 
-            public ResourceLocation getResourceLocation() {
+            public Identifier getIdentifier() {
                 return resourceLocation;
             }
 
@@ -229,11 +228,11 @@ public class AppInfo {
         }
 
         private Icon(AppInfo info) {
-            this.base = Glyph.of(ResourceLocation.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/base/" + info.appId.getPath() + ".png"));
+            this.base = Glyph.of(Identifier.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/base/" + info.appId.getPath() + ".png"));
             this.base.type = 0;
-            this.overlay0 = Glyph.of(ResourceLocation.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay0/" + info.appId.getPath() + ".png"));
+            this.overlay0 = Glyph.of(Identifier.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay0/" + info.appId.getPath() + ".png"));
             this.overlay0.type = 1;
-            this.overlay1 = Glyph.of(ResourceLocation.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay1/" + info.appId.getPath() + ".png"));
+            this.overlay1 = Glyph.of(Identifier.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay1/" + info.appId.getPath() + ".png"));
             this.overlay1.type = 2;
         }
 
@@ -282,7 +281,7 @@ public class AppInfo {
         if (resourceManager == null) return;
         resetInfo();
         // TODO "Check if the resource manager can be used on client side."
-        Resource resource = resourceManager.getResource(ResourceLocation.fromNamespaceAndPath(appId.getNamespace(), "apps/" + appId.getPath() + ".json")).orElse(null);
+        Resource resource = resourceManager.getResource(Identifier.fromNamespaceAndPath(appId.getNamespace(), "apps/" + appId.getPath() + ".json")).orElse(null);
 
         if (resource == null)
             throw new RuntimeException("Missing app info json for '" + appId + "'");
@@ -351,7 +350,7 @@ public class AppInfo {
                             throw new RuntimeException("Schema " + getSchemaVersion(json) + " is not implemented in " + Reference.VERSION + "!");
                 }
             } catch (JsonParseException e) {
-                OmnixerioDevicesMod.LOGGER.error("Malformed app info json for '" + info.getFormattedId() + "'");
+                OmnixerioDevices.LOGGER.error("Malformed app info json for '" + info.getFormattedId() + "'");
             }
 
             return info;
@@ -370,11 +369,11 @@ public class AppInfo {
 
             if (json.getAsJsonObject().has("icon") && json.getAsJsonObject().get("icon").isJsonPrimitive()) {
                 info.icon = new Icon();
-                info.icon.base = Icon.Glyph.of(ResourceLocation.parse(json.getAsJsonObject().get("icon").getAsString()));
+                info.icon.base = Icon.Glyph.of(Identifier.parse(json.getAsJsonObject().get("icon").getAsString()));
                 info.icon.base.type = 0;
-                info.icon.overlay0 = Icon.Glyph.of(ResourceLocation.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay0/empty.png"));
+                info.icon.overlay0 = Icon.Glyph.of(Identifier.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay0/empty.png"));
                 info.icon.overlay0.type = 1;
-                info.icon.overlay1 = Icon.Glyph.of(ResourceLocation.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay1/empty.png"));
+                info.icon.overlay1 = Icon.Glyph.of(Identifier.fromNamespaceAndPath(info.appId.getNamespace(), "textures/app/icon/overlay1/empty.png"));
                 info.icon.overlay1.type = 2;
             }
 
@@ -423,7 +422,7 @@ public class AppInfo {
             }
 
             if (json.getAsJsonObject().has("icon") && json.getAsJsonObject().get("icon").isJsonPrimitive()) {
-                OmnixerioDevicesMod.LOGGER.warn("{} uses removed \"icon\"! Please advise {} to fix the icon!", info.name, info.authors[0]);
+                OmnixerioDevices.LOGGER.warn("{} uses removed \"icon\"! Please advise {} to fix the icon!", info.name, info.authors[0]);
             }
 
             if (json.getAsJsonObject().has("support") && json.getAsJsonObject().get("support").getAsJsonObject().size() > 0) {
@@ -483,7 +482,7 @@ public class AppInfo {
             if (json.getAsJsonObject().has("author") && json.getAsJsonObject().get("author").isJsonPrimitive()) {
                 if (info.authors == null) {
                     info.authors = new String[]{convertToLocal(json.getAsJsonObject().get("author").getAsString())};
-                    OmnixerioDevicesMod.LOGGER.warn("{} uses deprecated \"author\"!, Please advise {} to replace \"author\": \"{}\" with the \"authors\": [] format", info.name, info.authors[0], info.authors[0]);
+                    OmnixerioDevices.LOGGER.warn("{} uses deprecated \"author\"!, Please advise {} to replace \"author\": \"{}\" with the \"authors\": [] format", info.name, info.authors[0], info.authors[0]);
                 }
             }
 
@@ -495,7 +494,7 @@ public class AppInfo {
             }
 
             if (json.getAsJsonObject().has("icon") && json.getAsJsonObject().get("icon").isJsonPrimitive()) {
-                OmnixerioDevicesMod.LOGGER.warn("{} uses removed \"icon\"! Please advise {} to fix the icon!", info.name, info.authors[0]);
+                OmnixerioDevices.LOGGER.warn("{} uses removed \"icon\"! Please advise {} to fix the icon!", info.name, info.authors[0]);
             }
 
             if (d) info.authors = new String[0];

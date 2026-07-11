@@ -1,14 +1,17 @@
 package dev.ultreon.devices.core;
 
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.block.entity.DeviceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Device {
@@ -71,21 +74,61 @@ public class Device {
 
     public CompoundTag toTag(boolean includePos) {
         CompoundTag tag = new CompoundTag();
-        tag.putString("id", getId().toString());
+        tag.store("id", MoreCodecs.UUID, id);
         tag.putString("name", getName());
         if (includePos) {
-            tag.putLong("pos", pos.asLong());
+            tag.store("pos", BlockPos.CODEC, pos);
         }
         return tag;
     }
 
+    public void save(ValueOutput out) {
+        save(out, true);
+    }
+
+    public void save(ValueOutput out, boolean includePos) {
+        out.store("id", MoreCodecs.UUID, id);
+        out.putString("name", getName());
+        if (includePos) {
+            out.store("pos", BlockPos.CODEC, pos);
+        }
+    }
+
     public static Device fromTag(CompoundTag tag) {
         Device device = new Device();
-        device.id = UUID.fromString(tag.getString("id"));
-        device.name = tag.getString("name");
-        if (tag.contains("pos", Tag.TAG_LONG)) {
-            device.pos = BlockPos.of(tag.getLong("pos"));
-        }
+        Optional<UUID> optionalId = tag.read("id", MoreCodecs.UUID);
+        Optional<String> optionalName = tag.getString("name");
+        Optional<BlockPos> optionalPos = tag.read("pos", BlockPos.CODEC);
+
+        if (optionalId.isEmpty() || optionalName.isEmpty()) return null;
+
+        UUID id = optionalId.get();
+        String name = optionalName.get();
+
+        device.id = id;
+        device.name = name;
+
+        optionalPos.ifPresent(blockPos -> device.pos = blockPos);
+
+        return device;
+    }
+
+    public static Device load(ValueInput in) {
+        Device device = new Device();
+        Optional<UUID> optionalId = in.read("id", MoreCodecs.UUID);
+        Optional<String> optionalName = in.getString("name");
+        Optional<BlockPos> optionalPos = in.read("pos", BlockPos.CODEC);
+
+        if (optionalId.isEmpty() || optionalName.isEmpty()) return null;
+
+        UUID id = optionalId.get();
+        String name = optionalName.get();
+
+        device.id = id;
+        device.name = name;
+
+        optionalPos.ifPresent(tag -> device.pos = optionalPos.get());
+
         return device;
     }
 }

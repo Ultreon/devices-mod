@@ -8,7 +8,8 @@ import dev.ultreon.devices.api.app.renderer.ListItemRenderer;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.core.NonNullList;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import static net.minecraft.network.chat.Component.literal;
 
 
 public class ItemList<E> extends Component implements Iterable<E> {
@@ -97,7 +100,7 @@ public class ItemList<E> extends Component implements Iterable<E> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             int height = 13;
             if (renderer != null) {
@@ -127,7 +130,7 @@ public class ItemList<E> extends Component implements Iterable<E> {
                         drawHorizontalLine(graphics, x + 1, x + width - 1, y + (i * height) + i + height + 1, borderColor.getRGB());
                     } else {
                         graphics.fill(x + 1, y + (i * 14) + 1, x + width - 1, y + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
-                        graphics.drawString(mc.font, item.toString(), x + 3, y + 3 + (i * 14), textColor);
+                        graphics.textRenderer().accept(TextAlignment.LEFT, x + 3, y + 3 + (i * 14), literal(item.toString()).withColor(textColor));
                         drawHorizontalLine(graphics, x + 1, x + width - 2, y + (i * height) + i + height + 1, borderColor.getRGB());
                     }
                 }
@@ -141,7 +144,7 @@ public class ItemList<E> extends Component implements Iterable<E> {
                     drawHorizontalLine(graphics, x + 1, x + width - 1, y + (i * height) + i + height + 1, borderColor.getRGB());
                 } else {
                     graphics.fill(x + 1, y + (i * 14) + 1, x + width - 1, y + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
-                    graphics.drawString(Laptop.getFont(), item.toString(), x + 3, y + 3 + (i * 14), textColor);
+                    graphics.textRenderer().accept(TextAlignment.LEFT, x + 3, y + 3 + (i * 14), literal(item.toString()).withColor(textColor));
                 }
             }
 
@@ -198,7 +201,7 @@ public class ItemList<E> extends Component implements Iterable<E> {
 
     private int getSize() {
         if (showAll) return visibleItems;
-        return Math.max(1, Math.min(visibleItems, items.size()));
+        return Math.clamp(visibleItems, 1, items.size());
     }
 
     private void scrollUp() {

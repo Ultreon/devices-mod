@@ -7,12 +7,9 @@ import dev.ultreon.devices.network.PacketHandler;
 import dev.ultreon.devices.network.serverbound.C2SSyncBlockPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -78,13 +75,8 @@ public class RouterBlock extends DeviceBlock.Colored {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        return super.useItemOn(itemStack, blockState, level, blockPos, player, interactionHand, blockHitResult);
-    }
-
-    @Override
     protected @NotNull InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
-        if (level.isClientSide && player.isCreative()) {
+        if (level.isClientSide() && player.isCreative()) {
             BlockEntity blockEntity = level.getBlockEntity(blockPos);
             if (blockEntity instanceof RouterBlockEntity router) {
                 router.setDebug(true);

@@ -1,0 +1,6 @@
+{
+    "parent": "omnixerio_devices:item/router",
+    "textures": {
+        "1": "block/blue_wool"
+    }
+}

@@ -1,14 +1,14 @@
 package dev.ultreon.devices.datagen;
 
 import dev.ultreon.devices.init.ModBlocks;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 import net.minecraft.core.HolderLookup;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DevicesBlockLootTableGenerator extends FabricBlockLootTableProvider {
-    public DevicesBlockLootTableGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+public class DevicesBlockLootTableGenerator extends FabricBlockLootSubProvider {
+    public DevicesBlockLootTableGenerator(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(output, registryLookup);
     }
 

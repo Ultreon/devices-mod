@@ -14,21 +14,21 @@ import dev.ultreon.devices.programs.themes.ThemesApp;
 
 public class BuiltinApps {
     public static void registerBuiltinApps() {
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("diagnostics"), () -> DiagnosticsApp::new, true);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("settings"), () -> SettingsApp::new, true);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("file_browser"), () -> FileBrowserApp::new, true);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("gitweb"), () -> GitWebApp::new, false);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("note_stash"), () -> NoteStashApp::new, false);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("pixel_painter"), () -> PixelPainterApp::new, false);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("ender_mail"), () -> EmailApp::new, false);
-        ApplicationManager.registerApplication(OmnixerioDevicesMod.id("app_store"), () -> AppStore::new, true);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("diagnostics"), () -> DiagnosticsApp::new, true);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("settings"), () -> SettingsApp::new, true);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("file_browser"), () -> FileBrowserApp::new, true);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("gitweb"), () -> GitWebApp::new, false);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("note_stash"), () -> NoteStashApp::new, false);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("pixel_painter"), () -> PixelPainterApp::new, false);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("ender_mail"), () -> EmailApp::new, false);
+        ApplicationManager.registerApplication(OmnixerioDevices.id("app_store"), () -> AppStore::new, true);
 
-        if (Platform.isDevelopmentEnvironment() || OmnixerioDevicesMod.EARLY_CONFIG.enableBetaApps) {
-            ApplicationManager.registerApplication(OmnixerioDevicesMod.id("bank"), () -> BankApp::new, false);
-            ApplicationManager.registerApplication(OmnixerioDevicesMod.id("boat_racers"), () -> BoatRacersApp::new, false);
-            ApplicationManager.registerApplication(OmnixerioDevicesMod.id("mine_bay"), () -> MineBayApp::new, false);
-            ApplicationManager.registerApplication(OmnixerioDevicesMod.id("snake"), () -> SnakeApp::new, false);
-            ApplicationManager.registerApplication(OmnixerioDevicesMod.id("themes"), () -> ThemesApp::new, false);
+        if (Platform.isDevelopmentEnvironment() || OmnixerioDevices.EARLY_CONFIG.enableBetaApps) {
+            ApplicationManager.registerApplication(OmnixerioDevices.id("bank"), () -> BankApp::new, false);
+            ApplicationManager.registerApplication(OmnixerioDevices.id("boat_racers"), () -> BoatRacersApp::new, false);
+            ApplicationManager.registerApplication(OmnixerioDevices.id("mine_bay"), () -> MineBayApp::new, false);
+            ApplicationManager.registerApplication(OmnixerioDevices.id("snake"), () -> SnakeApp::new, false);
+            ApplicationManager.registerApplication(OmnixerioDevices.id("themes"), () -> ThemesApp::new, false);
         }
     }
 }

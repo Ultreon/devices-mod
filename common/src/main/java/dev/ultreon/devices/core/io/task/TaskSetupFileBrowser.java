@@ -44,10 +44,10 @@ public class TaskSetupFileBrowser extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("pos"))).getBlockEntity(BlockPos.of(tag.getLong("pos")), LevelChunk.EntityCreationType.IMMEDIATE);
+        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("pos").orElseThrow())).getBlockEntity(BlockPos.of(tag.getLong("pos").orElseThrow()), LevelChunk.EntityCreationType.IMMEDIATE);
         if (tileEntity instanceof ComputerBlockEntity laptop) {
             FileSystem fileSystem = laptop.getFileSystem();
-            if (tag.getBoolean("include_main")) {
+            if (tag.getBoolean("include_main").orElse(false)) {
                 mainDrive = fileSystem.getMainDrive();
             }
             availableDrives = fileSystem.getAvailableDrives(level, false);

@@ -1,5 +1,6 @@
 package dev.ultreon.devices.core.print.task;
 
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.api.print.IPrint;
 import dev.ultreon.devices.api.task.Task;
 import dev.ultreon.devices.block.entity.NetworkDeviceBlockEntity;
@@ -9,12 +10,12 @@ import dev.ultreon.devices.core.network.Router;
 import dev.ultreon.devices.init.ModStats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -40,19 +41,24 @@ public class TaskPrint extends Task {
     @Override
     public void prepareRequest(CompoundTag tag) {
         tag.putLong("devicePos", devicePos.asLong());
-        tag.putUUID("printerId", printerId);
+        tag.store("printerId", MoreCodecs.UUID, printerId);
         tag.put("print", IPrint.save(print));
     }
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("devicePos"))).getBlockEntity(BlockPos.of(tag.getLong("devicePos")), LevelChunk.EntityCreationType.IMMEDIATE);
+        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("devicePos").orElseThrow())).getBlockEntity(BlockPos.of(tag.getLong("devicePos").orElseThrow()), LevelChunk.EntityCreationType.IMMEDIATE);
         if (tileEntity instanceof NetworkDeviceBlockEntity device) {
             Router router = device.getRouter();
             if (router != null) {
-                NetworkDeviceBlockEntity printer = router.getDevice(level, tag.getUUID("printerId"));
+                NetworkDeviceBlockEntity printer = router.getDevice(level, tag.read("printerId", MoreCodecs.UUID).orElseThrow());
                 if (printer instanceof PrinterBlockEntity) {
-                    IPrint print = IPrint.load(tag.getCompound("print"));
+                    Optional<CompoundTag> compound = tag.getCompound("print");
+                    if (compound.isEmpty()) {
+                        this.reason = "Invalid print";
+                        return;
+                    }
+                    IPrint print = IPrint.load(compound.get());
                     ((PrinterBlockEntity) printer).addToQueue(print);
                     player.awardStat(ModStats.PICTURES_PRINTED.get());
                     this.setSuccessful();

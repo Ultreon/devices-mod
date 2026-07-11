@@ -1,0 +1,31 @@
+{
+    "result": {
+        "item": "omnixerio_devices:magenta_office_chair"
+    },
+    "pattern": [
+        "CDC",
+        "CLC",
+        "WFW"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "D": {
+            "item": "minecraft:magenta_wool",
+            "data": 2
+        },
+        "C": {
+            "item": "minecraft:concrete",
+            "data": 7
+        },
+        "L": {
+            "item": "minecraft:leather"
+        },
+        "W": {
+            "item": "omnixerio_devices:wheel"
+        },
+        "F": {
+            "item": "minecraft:cobblestone_wall",
+            "data": 0
+        }
+    }
+}

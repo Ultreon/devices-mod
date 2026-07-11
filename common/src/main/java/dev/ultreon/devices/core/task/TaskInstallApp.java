@@ -1,6 +1,6 @@
 package dev.ultreon.devices.core.task;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.task.Task;
 import dev.ultreon.devices.block.entity.ComputerBlockEntity;
 import dev.ultreon.devices.debug.DebugLog;
@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,19 +43,19 @@ public class TaskInstallApp extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        DebugLog.log("Proc message " + tag.getString("appId") + ", " +  BlockPos.of(tag.getLong("pos")) + ", " + tag.getBoolean("install"));
-        String appId = tag.getString("appId");
-        DebugLog.log(level.getBlockState(BlockPos.of(tag.getLong("pos"))).getBlock());
-        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("pos"))).getBlockEntity(BlockPos.of(tag.getLong("pos")), LevelChunk.EntityCreationType.IMMEDIATE);
+        DebugLog.log("Proc message " + tag.getString("appId") + ", " +  BlockPos.of(tag.getLong("pos").orElseThrow()) + ", " + tag.getBoolean("install"));
+        String appId = tag.getString("appId").orElseThrow();
+        DebugLog.log(level.getBlockState(BlockPos.of(tag.getLong("pos").orElseThrow())).getBlock());
+        BlockEntity tileEntity = level.getChunkAt(BlockPos.of(tag.getLong("pos").orElseThrow())).getBlockEntity(BlockPos.of(tag.getLong("pos").orElseThrow()), LevelChunk.EntityCreationType.IMMEDIATE);
         DebugLog.log(tileEntity);
         if (tileEntity instanceof ComputerBlockEntity laptop) {
             CompoundTag systemData = laptop.getSystemData();
-            ListTag list = systemData.getList("InstalledApps", Tag.TAG_STRING);
+            ListTag list = systemData.getList("InstalledApps").orElseThrow();
 
-            if (tag.getBoolean("install")) {
+            if (tag.getBoolean("install").orElseThrow()) {
                 for (int i = 0; i < list.size(); i++) {
                     if (list.getString(i).equals(appId)) {
-                        OmnixerioDevicesMod.LOGGER.warn("Found duplicate, noping out");
+                        OmnixerioDevices.LOGGER.warn("Found duplicate, noping out");
                         return;
                     }
                 }
@@ -64,7 +63,7 @@ public class TaskInstallApp extends Task {
                 this.setSuccessful();
             } else {
                 list.removeIf(appTag -> {
-                    if (appTag.getAsString().equals(appId)) {
+                    if (appTag.asString().orElseThrow().equals(appId)) {
                         this.setSuccessful();
                         return true;
                     } else {
@@ -75,7 +74,7 @@ public class TaskInstallApp extends Task {
             systemData.put("InstalledApps", list);
         }
         if (!this.isSucessful()) {
-            OmnixerioDevicesMod.LOGGER.info("Installing {} unsuccessful", appId);
+            OmnixerioDevices.LOGGER.info("Installing {} unsuccessful", appId);
         }
     }
 

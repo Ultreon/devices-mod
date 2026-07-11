@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TaskViewEmail extends Task {
     private int index;
@@ -30,9 +31,12 @@ public class TaskViewEmail extends Task {
     public void processRequest(CompoundTag nbt, Level world, Player player) {
         List<Email> emails = EmailManager.INSTANCE.getEmailsForAccount(player);
         if (emails != null) {
-            int index = nbt.getInt("Index");
-            if (index >= 0 && index < emails.size()) {
-                emails.get(index).setRead(true);
+            Optional<Integer> optIndex = nbt.getInt("Index");
+            if (optIndex.isPresent()) {
+                int index = optIndex.get();
+                if (index >= 0 && index < emails.size()) {
+                    emails.get(index).setRead(true);
+                }
             }
         }
     }

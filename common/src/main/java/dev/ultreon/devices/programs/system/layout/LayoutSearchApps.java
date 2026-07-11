@@ -14,7 +14,7 @@ import dev.ultreon.devices.programs.system.AppStore;
 import dev.ultreon.devices.programs.system.object.LocalEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
@@ -46,15 +46,14 @@ public class LayoutSearchApps extends StandardLayout {
         itemListResults.sortBy(Comparator.comparing(AppInfo::getName));
         itemListResults.setListItemRenderer(new ListItemRenderer<>(18) {
             @Override
-            public void render(GuiGraphics graphics, AppInfo info, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, AppInfo info, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 graphics.fill(x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
 
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
                 RenderUtil.drawApplicationIcon(graphics, info, x + 2, y + 2);
                 RenderUtil.drawStringClipped(graphics, info.getName() + ChatFormatting.GRAY + " - " + ChatFormatting.DARK_GRAY + info.getDescription(), x + 20, y + 5, itemListResults.getWidth() - 22, Color.WHITE.getRGB(), false);
             }
         });
-        itemListResults.setItemClickListener((info, index, mouseButton) -> {
+        itemListResults.setItemClickListener((info, _, mouseButton) -> {
             if (mouseButton == 0) {
                 if (System.currentTimeMillis() - this.lastClick <= 200) {
                     openApplication(info);
@@ -68,7 +67,7 @@ public class LayoutSearchApps extends StandardLayout {
         TextField textFieldSearch = new TextField(5, 26, AppStore.LAYOUT_WIDTH - 10);
         textFieldSearch.setIcon(Icons.SEARCH);
         textFieldSearch.setPlaceholder("...");
-        textFieldSearch.setKeyListener(c -> {
+        textFieldSearch.setKeyListener(_ -> {
             Predicate<AppInfo> FILTERED = info -> StringUtils.containsIgnoreCase(info.getName(), textFieldSearch.getText()) || StringUtils.containsIgnoreCase(info.getDescription(), textFieldSearch.getText());
             List<AppInfo> filteredItems = ApplicationManager.getAvailableApplications().stream().filter(FILTERED).collect(Collectors.toList());
             itemListResults.setItems(filteredItems);
@@ -81,7 +80,7 @@ public class LayoutSearchApps extends StandardLayout {
         Layout layout = new LayoutAppPage(appStore.getLaptop(), new LocalEntry(info), appStore);
         app.setCurrentLayout(layout);
         Button btnPrevious = new Button(2, 2, Icons.ARROW_LEFT);
-        btnPrevious.setClickListener((mouseX1, mouseY1, mouseButton1) -> app.setCurrentLayout(this));
+        btnPrevious.setClickListener((_, _, _) -> app.setCurrentLayout(this));
         layout.addComponent(btnPrevious);
     }
 }

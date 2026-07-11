@@ -1,7 +1,8 @@
 package dev.ultreon.devices.programs.email;
 
 import com.google.common.collect.HashBiMap;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.MoreCodecs;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.WorldSavedData;
 import dev.ultreon.devices.api.app.Icons;
 import dev.ultreon.devices.api.app.Notification;
@@ -15,8 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
-
-;
 
 /**
  * @author MrCrayfish
@@ -74,15 +73,21 @@ public class EmailManager implements WorldSavedData {
     public void load(CompoundTag nbt) {
         nameToInbox.clear();
 
-        ListTag inboxes = (ListTag) nbt.get("Inboxes");
+        Optional<ListTag> optionalInboxes = nbt.getList("Inboxes");
+        if (optionalInboxes.isEmpty()) return;
+        ListTag inboxes = optionalInboxes.get();
         for (int i = 0; i < inboxes.size(); i++) {
-            CompoundTag inbox = inboxes.getCompound(i);
-            String name = inbox.getString("Name");
+            Optional<CompoundTag> optionalInbox = inboxes.getCompound(i);
+            if (optionalInbox.isEmpty()) continue;
+            CompoundTag inbox = optionalInbox.get();
+            String name = inbox.getStringOr("Name", "Anonymous");
 
             List<Email> emails = new ArrayList<Email>();
             ListTag emailTagList = (ListTag) inbox.get("Emails");
             for (int j = 0; j < emailTagList.size(); j++) {
-                CompoundTag emailTag = emailTagList.getCompound(j);
+                Optional<CompoundTag> inboxEmailTag = emailTagList.getCompound(j);
+                if (inboxEmailTag.isEmpty()) continue;
+                CompoundTag emailTag = inboxEmailTag.get();
                 Email email = Email.readFromNBT(emailTag);
                 emails.add(email);
             }
@@ -93,9 +98,16 @@ public class EmailManager implements WorldSavedData {
 
         ListTag accounts = (ListTag) nbt.get("Accounts");
         for (int i = 0; i < accounts.size(); i++) {
-            CompoundTag account = accounts.getCompound(i);
-            UUID uuid = UUID.fromString(account.getString("UUID"));
-            String name = account.getString("Name");
+            Optional<CompoundTag> optionalAccount = accounts.getCompound(i);
+            if (optionalAccount.isEmpty()) continue;
+
+            CompoundTag account = optionalAccount.get();
+
+            Optional<UUID> optionalUUID = account.read("UUID", MoreCodecs.UUID);
+            Optional<String> optionalName = account.getString("Name");
+            if (optionalUUID.isEmpty() || optionalName.isEmpty()) continue;
+            UUID uuid = optionalUUID.get();
+            String name = optionalName.get();
             uuidToName.put(uuid, name);
         }
     }
@@ -121,7 +133,7 @@ public class EmailManager implements WorldSavedData {
         ListTag accounts = new ListTag();
         for (UUID key : uuidToName.keySet()) {
             CompoundTag account = new CompoundTag();
-            account.putString("UUID", key.toString());
+            account.store("UUID", MoreCodecs.UUID, key);
             account.putString("Name", Objects.requireNonNull(uuidToName.get(key)));
             accounts.add(account);
         }
@@ -135,7 +147,7 @@ public class EmailManager implements WorldSavedData {
     }
 
     private void sendNotification(String name, Email email) {
-        MinecraftServer server = OmnixerioDevicesMod.getServer();
+        MinecraftServer server = OmnixerioDevices.getServer();
         UUID id = uuidToName.inverse().get(name);
         if (id != null) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "p": {
+      "item": "omnixerio_devices:plastic"
+    }
+  },
+  "pattern": [
+    "pp",
+    "pp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:plastic_frame"
+  }
+}

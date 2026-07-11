@@ -1,13 +1,14 @@
 package dev.ultreon.devices.core.network;
 
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.block.entity.RouterBlockEntity;
 import dev.ultreon.devices.debug.DebugLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,27 +63,50 @@ public class Connection {
         return routerPos != null;
     }
 
+    public void save(ValueOutput out) {
+        out.store("id", MoreCodecs.UUID, routerId);
+        out.store("Pos", BlockPos.CODEC, routerPos);
+    }
+
+    public @Nullable Connection load(ValueInput in) {
+        Connection connection = new Connection();
+
+        Optional<UUID> optionalId = in.read("id", MoreCodecs.UUID);
+        Optional<BlockPos> optionalPos = in.read("Pos", BlockPos.CODEC);
+
+        if (optionalId.isEmpty()) return null;
+
+        if (optionalPos.isEmpty()) {
+            connection.routerId = null;
+            connection.routerPos = null;
+            return connection;
+        }
+
+        connection.routerId = optionalId.get();
+        connection.routerPos = optionalPos.get();
+        return connection;
+    }
+
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("id", routerId.toString());
-        if (routerPos != null) {
-            tag.put("Pos", NbtUtils.writeBlockPos(routerPos));
-        }
+        tag.store("id", MoreCodecs.UUID, routerId);
+        tag.store("Pos", BlockPos.CODEC, routerPos);
         return tag;
     }
 
-    public static Connection fromTag(CompoundTag tag) {
+    public static @Nullable Connection fromTag(CompoundTag tag) {
         Connection connection = new Connection();
-        connection.routerId = UUID.fromString(tag.getString("id"));
-        if (tag.contains("Pos", Tag.TAG_COMPOUND)) {
-            Optional<BlockPos> pos = NbtUtils.readBlockPos(tag, "Pos");
-            if (pos.isPresent())
-                connection.routerPos = pos.get();
-            else {
-                connection.routerId = null;
-                connection.routerPos = null;
-            }
+        Optional<UUID> optionalId = tag.read("id", MoreCodecs.UUID);
+        Optional<BlockPos> optionalPos = tag.read("Pos", BlockPos.CODEC);
+
+        if (optionalId.isEmpty()) return null;
+        if (optionalPos.isEmpty()) {
+            connection.routerId = null;
+            connection.routerPos = null;
+            return connection;
         }
+        connection.routerId = optionalId.get();
+        connection.routerPos = optionalPos.get();
         return connection;
     }
 }

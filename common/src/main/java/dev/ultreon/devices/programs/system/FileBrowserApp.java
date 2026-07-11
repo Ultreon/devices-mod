@@ -1,7 +1,7 @@
 package dev.ultreon.devices.programs.system;
 
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.api.app.Icons;
 import dev.ultreon.devices.core.Laptop;
@@ -40,12 +40,12 @@ public class FileBrowserApp extends SystemApp {
 
     public static class FileBrowserTrayItem extends TrayItem {
         public FileBrowserTrayItem() {
-            super(Icons.FOLDER, OmnixerioDevicesMod.id("file_browser"));
+            super(Icons.FOLDER, OmnixerioDevices.id("file_browser"));
         }
 
         @Override
         public void handleClick(int mouseX, int mouseY, int mouseButton) {
-            AppInfo info = ApplicationManager.getApplication(OmnixerioDevicesMod.id("file_browser"));
+            AppInfo info = ApplicationManager.getApplication(OmnixerioDevices.id("file_browser"));
             if (info != null) {
                 Laptop.getSystem().openApplication(info);
             }

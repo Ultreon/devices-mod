@@ -1,7 +1,7 @@
 package dev.ultreon.devices.item;
 
 import dev.ultreon.devices.DeviceConfig;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.block.entity.NetworkDeviceBlockEntity;
 import dev.ultreon.devices.block.entity.RouterBlockEntity;
 import dev.ultreon.devices.core.network.Router;
@@ -15,24 +15,24 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author MrCrayfish
  */
 public class EthernetCableItem extends Item {
     public EthernetCableItem(Properties properties) {
-        super(properties.arch$tab(OmnixerioDevicesMod.TAB_DEVICE).stacksTo(1));
+        super(properties.arch$tab(OmnixerioDevices.TAB_DEVICE).stacksTo(1));
     }
 
     private static double getDistance(BlockPos source, BlockPos target) {
@@ -46,14 +46,14 @@ public class EthernetCableItem extends Item {
         BlockPos pos = context.getClickedPos();
         InteractionHand hand = context.getHand();
 
-        if (!level.isClientSide && player != null) {
+        if (!level.isClientSide() && player != null) {
             ItemStack heldItem = player.getItemInHand(hand);
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
             if (blockEntity instanceof RouterBlockEntity routerBE) {
                 final EthernetConnection connection = heldItem.get(ModDataComponents.ETHERNET_CONNECTION.get());
                 if (connection == null) {
-                    sendGameInfoMessage(player, "message.devices.invalid_cable");
+                    sendGameInfoMessage(player, "message.omnixerio_devices.invalid_cable");
                     return InteractionResult.SUCCESS;
                 }
 
@@ -68,22 +68,22 @@ public class EthernetCableItem extends Item {
                             networkDeviceBlockEntity.connect(router);
                             heldItem.shrink(1);
                             if (getDistance(tileEntity1.getBlockPos(), routerBE.getBlockPos()) > DeviceConfig.SIGNAL_RANGE.get()) {
-                                sendGameInfoMessage(player, "message.devices.successful_registered");
+                                sendGameInfoMessage(player, "message.omnixerio_devices.successful_registered");
                             } else {
-                                sendGameInfoMessage(player, "message.devices.successful_connection");
+                                sendGameInfoMessage(player, "message.omnixerio_devices.successful_connection");
                             }
                         } else {
-                            sendGameInfoMessage(player, "message.devices.router_max_devices");
+                            sendGameInfoMessage(player, "message.omnixerio_devices.router_max_devices");
                         }
                     } else {
-                        sendGameInfoMessage(player, "message.devices.device_already_connected");
+                        sendGameInfoMessage(player, "message.omnixerio_devices.device_already_connected");
                     }
                 } else {
                     if (router.addDevice(connection.deviceUUID(), connection.deviceName())) {
                         heldItem.shrink(1);
-                        sendGameInfoMessage(player, "message.devices.successful_registered");
+                        sendGameInfoMessage(player, "message.omnixerio_devices.successful_registered");
                     } else {
-                        sendGameInfoMessage(player, "message.devices.router_max_devices");
+                        sendGameInfoMessage(player, "message.omnixerio_devices.router_max_devices");
                     }
                 }
                 return InteractionResult.SUCCESS;
@@ -96,7 +96,7 @@ public class EthernetCableItem extends Item {
                         networkDeviceBlockEntity.getCustomName()
                 ));
 
-                sendGameInfoMessage(player, "message.devices.select_router");
+                sendGameInfoMessage(player, "message.omnixerio_devices.select_router");
                 return InteractionResult.SUCCESS;
             }
         }
@@ -111,42 +111,42 @@ public class EthernetCableItem extends Item {
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
-        if (!level.isClientSide) {
+    public InteractionResult use(Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+        if (!level.isClientSide()) {
             ItemStack heldItem = player.getItemInHand(usedHand);
             if (player.isCrouching()) {
                 heldItem.remove(DataComponents.CUSTOM_NAME);
-                return new InteractionResultHolder<>(InteractionResult.SUCCESS, heldItem);
+                return InteractionResult.SUCCESS;
             }
         }
         return super.use(level, player, usedHand);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
-        EthernetConnection connection = stack.get(ModDataComponents.ETHERNET_CONNECTION.get());
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        EthernetConnection connection = itemStack.get(ModDataComponents.ETHERNET_CONNECTION.get());
         if (connection != null) {
-            tooltip.add(net.minecraft.network.chat.Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "ID: " + ChatFormatting.RESET + connection.deviceUUID()));
-            tooltip.add(net.minecraft.network.chat.Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "Device: " + ChatFormatting.RESET + connection.deviceName()));
+            builder.accept(Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "ID: " + ChatFormatting.RESET + connection.deviceUUID()));
+            builder.accept(Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "Device: " + ChatFormatting.RESET + connection.deviceName()));
 
             BlockPos devicePos = connection.devicePos();
             String text = ChatFormatting.RED.toString() + ChatFormatting.BOLD + "X: " + ChatFormatting.RESET + devicePos.getX() + " " +
                     ChatFormatting.RED + ChatFormatting.BOLD + "Y: " + ChatFormatting.RESET + devicePos.getY() + " " +
                     ChatFormatting.RED + ChatFormatting.BOLD + "Z: " + ChatFormatting.RESET + devicePos.getZ();
-            tooltip.add(net.minecraft.network.chat.Component.literal(text));
+            builder.accept(Component.literal(text));
         } else if (KeyboardHelper.isShiftDown()) {
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "Start by right clicking a"));
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "device with this cable"));
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "then right click the "));
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "router you want to"));
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "connect this device to."));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "Start by right clicking a"));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "device with this cable"));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "then right click the "));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "router you want to"));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "connect this device to."));
         } else {
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "Use this cable to connect"));
-            tooltip.add(Component.literal(ChatFormatting.GRAY + "a device to a router."));
-            tooltip.add(Component.literal(ChatFormatting.YELLOW + "Hold SHIFT for How-To"));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "Use this cable to connect"));
+            builder.accept(Component.literal(ChatFormatting.GRAY + "a device to a router."));
+            builder.accept(Component.literal(ChatFormatting.YELLOW + "Hold SHIFT for How-To"));
             return;
         }
-        super.appendHoverText(stack, context, tooltip, tooltipFlag);
+        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
     }
 
     @Override
@@ -158,7 +158,7 @@ public class EthernetCableItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         if (stack.has(ModDataComponents.ETHERNET_CONNECTION.get())) {
-            return super.getDescription().copy().withStyle(ChatFormatting.GRAY, ChatFormatting.BOLD);
+            return super.getName(stack).copy().withStyle(ChatFormatting.GRAY, ChatFormatting.BOLD);
         }
         return super.getName(stack);
     }

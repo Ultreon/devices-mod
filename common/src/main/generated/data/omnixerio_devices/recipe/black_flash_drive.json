@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "omnixerio_devices:laptop",
+  "key": {
+    "c": {
+      "item": "omnixerio_devices:circuit_board"
+    },
+    "d": {
+      "item": "minecraft:black_dye"
+    },
+    "f": {
+      "item": "omnixerio_devices:flash_chip"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "p": {
+      "item": "omnixerio_devices:plastic_frame"
+    }
+  },
+  "pattern": [
+    "did",
+    "pfp",
+    "pcp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:black_flash_drive"
+  }
+}

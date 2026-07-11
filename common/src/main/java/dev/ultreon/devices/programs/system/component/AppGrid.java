@@ -16,8 +16,8 @@ import dev.ultreon.devices.programs.system.object.LocalEntry;
 import dev.ultreon.devices.programs.system.object.RemoteEntry;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class AppGrid extends Component {
     }
 
     @Override
-    protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         renderX = x;
         renderY = y;
         int size = Math.min(entries.size(), verticalItems * horizontalItems);
@@ -110,7 +110,7 @@ public class AppGrid extends Component {
     }
 
     private AppEntry adjustEntry(AppEntry entry) {
-        AppInfo info = ApplicationManager.getApplication(ResourceLocation.tryParse(entry.id()));
+        AppInfo info = ApplicationManager.getApplication(Identifier.tryParse(entry.id()));
         if (info != null) {
             return new LocalEntry(info);
         }
@@ -131,7 +131,7 @@ public class AppGrid extends Component {
          //   dev.ultreon.devices.api.app.component.Image image = new dev.ultreon.devices.api.app.component.Image(iconOffset, padding, 14 * 3, 14 * 3, localEntry.info().getIconU(), localEntry.info().getIconV(), 14, 14, 224, 224, Laptop.ICON_TEXTURES);
             layout.addComponent(appImage);
         } else if (entry instanceof RemoteEntry remoteEntry) {
-            ResourceLocation resource = ResourceLocation.parse(remoteEntry.id);
+            Identifier resource = Identifier.parse(remoteEntry.id);
             Image image = new Image(iconOffset, padding, 14 * 3, 14 * 3, AppStore.CERTIFICATES_BASE_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/icon.png");
             layout.addComponent(image);
         }

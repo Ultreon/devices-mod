@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.5,
+  "ingredient": {
+    "item": "omnixerio_devices:plastic_unrefined"
+  },
+  "result": {
+    "id": "omnixerio_devices:plastic"
+  }
+}

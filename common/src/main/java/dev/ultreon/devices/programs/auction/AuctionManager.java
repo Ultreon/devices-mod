@@ -6,6 +6,7 @@ import net.minecraft.nbt.ListTag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -76,8 +77,9 @@ public class AuctionManager {
 
         ListTag tagList = (ListTag) tag.get("auctionItems");
         for (int i = 0; i < tagList.size(); i++) {
-            CompoundTag itemTag = tagList.getCompound(i);
-            AuctionItem item = AuctionItem.readFromNBT(itemTag);
+            Optional<CompoundTag> optionaItemTag = tagList.getCompound(i);
+            if (optionaItemTag.isEmpty()) continue;
+            AuctionItem item = AuctionItem.readFromNBT(optionaItemTag.get());
             items.add(item);
         }
     }

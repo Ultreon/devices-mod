@@ -13,8 +13,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.DataInput;
 
 public class LaptopBlockEntity extends ComputerBlockEntity {
     private static final int OPENED_ANGLE = 102;
@@ -35,11 +39,13 @@ public class LaptopBlockEntity extends ComputerBlockEntity {
     public void tick() {
         super.tick();
 
+        Level lvl = level;
+        if (lvl == null) return;
         if (getBlockState().getValue(LaptopBlock.OPEN) != open) {
-            level.setBlock(getBlockPos(), this.getBlockState().setValue(LaptopBlock.OPEN, open), 2);
+            lvl.setBlock(getBlockPos(), this.getBlockState().setValue(LaptopBlock.OPEN, open), 2);
         }
 
-        if (level.isClientSide) {
+        if (lvl.isClientSide()) {
             prevRotation = rotation;
             if (!open) {
                 if (rotation > 0) {
@@ -57,23 +63,21 @@ public class LaptopBlockEntity extends ComputerBlockEntity {
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
 
-        if (tag.contains("open")) {
-            this.open = tag.getBoolean("open");
-            Level level = getLevel();
-            if (level != null) {
-                level.setBlock(getBlockPos(), this.getBlockState().setValue(LaptopBlock.OPEN, open), 2);
-            }
+        this.open = in.getBooleanOr("open", false);
+        Level level = getLevel();
+        if (level != null) {
+            level.setBlock(getBlockPos(), this.getBlockState().setValue(LaptopBlock.OPEN, open), 2);
         }
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag compound, HolderLookup.Provider provider) {
-        super.saveAdditional(compound, provider);
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
 
-        compound.putBoolean("open", open);
+        out.putBoolean("open", open);
     }
 
     @Override

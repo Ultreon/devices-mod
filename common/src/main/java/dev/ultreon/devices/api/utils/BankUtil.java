@@ -1,5 +1,6 @@
 package dev.ultreon.devices.api.utils;
 
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.api.WorldSavedData;
 import dev.ultreon.devices.api.task.Callback;
 import dev.ultreon.devices.api.task.TaskManager;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,7 +32,7 @@ import java.util.UUID;
 public class BankUtil implements WorldSavedData {
     public static final BankUtil INSTANCE = new BankUtil();
 
-    private final Map<UUID, Account> uuidToAccount = new HashMap<UUID, Account>();
+    private final Map<UUID, Account> uuidToAccount = new HashMap<>();
 
     private BankUtil() {
     }
@@ -107,11 +109,21 @@ public class BankUtil implements WorldSavedData {
     }
 
     public void load(CompoundTag tag) {
-        ListTag accountList = (ListTag) tag.get("accounts");
+        Optional<ListTag> optionalAccountList = tag.getList("accounts");
+        if (optionalAccountList.isEmpty()) return;
+
+        ListTag accountList = optionalAccountList.get();
         for (int i = 0; i < accountList.size(); i++) {
-            CompoundTag accountTag = accountList.getCompound(i);
-            UUID uuid = UUID.fromString(accountTag.getString("uuid"));
-            Account account = new Account(accountTag.getInt("balance"));
+            Optional<CompoundTag> optionalAccountTag = accountList.getCompound(i);
+            if (optionalAccountTag.isEmpty()) continue;
+
+            CompoundTag accountTag = optionalAccountTag.get();
+
+            Optional<UUID> optionalUUID = accountTag.read("uuid", MoreCodecs.UUID);
+            if (optionalUUID.isEmpty()) continue;
+
+            UUID uuid = optionalUUID.get();
+            Account account = new Account(accountTag.getIntOr("balance", 0));
             uuidToAccount.put(uuid, account);
         }
     }

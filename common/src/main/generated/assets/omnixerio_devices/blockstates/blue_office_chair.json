@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,type=full": {
+      "model": "omnixerio_devices:block/blue_office_chair_full",
+      "y": 270
+    },
+    "facing=east,type=legs": {
+      "model": "omnixerio_devices:block/blue_office_chair_legs",
+      "y": 270
+    },
+    "facing=east,type=seat": {
+      "model": "omnixerio_devices:block/blue_office_chair_seat",
+      "y": 270
+    },
+    "facing=north,type=full": {
+      "model": "omnixerio_devices:block/blue_office_chair_full",
+      "y": 180
+    },
+    "facing=north,type=legs": {
+      "model": "omnixerio_devices:block/blue_office_chair_legs",
+      "y": 180
+    },
+    "facing=north,type=seat": {
+      "model": "omnixerio_devices:block/blue_office_chair_seat",
+      "y": 180
+    },
+    "facing=south,type=full": {
+      "model": "omnixerio_devices:block/blue_office_chair_full"
+    },
+    "facing=south,type=legs": {
+      "model": "omnixerio_devices:block/blue_office_chair_legs"
+    },
+    "facing=south,type=seat": {
+      "model": "omnixerio_devices:block/blue_office_chair_seat"
+    },
+    "facing=west,type=full": {
+      "model": "omnixerio_devices:block/blue_office_chair_full",
+      "y": 90
+    },
+    "facing=west,type=legs": {
+      "model": "omnixerio_devices:block/blue_office_chair_legs",
+      "y": 90
+    },
+    "facing=west,type=seat": {
+      "model": "omnixerio_devices:block/blue_office_chair_seat",
+      "y": 90
+    }
+  }
+}

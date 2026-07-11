@@ -4,12 +4,13 @@ import dev.architectury.platform.Platform;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.ultreon.devices.ModDeviceTypes;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.item.*;
 import dev.ultreon.devices.util.DyeableRegistration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -23,13 +24,13 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class ModItems {
-    private static final Registrar<Item> REGISTER = OmnixerioDevicesMod.REGISTRIES.get().get(Registries.ITEM);
+    private static final Registrar<Item> REGISTER = OmnixerioDevices.REGISTRIES.get().get(Registries.ITEM);
 
     // Laptops
     public static final DyeableRegistration<Item> LAPTOPS = new DyeableRegistration<>() {
         @Override
         public RegistrySupplier<Item> register(Registrar<Item> registrar, DyeColor color) {
-            return registrar.register(OmnixerioDevicesMod.id(color.getName() + "_laptop"), () -> new ColoredDeviceItem(ModBlocks.LAPTOPS.of(color).get(), new Item.Properties(), color, ModDeviceTypes.COMPUTER));
+            return ModItems.register(color.getName() + "_laptop", new Item.Properties(), properties -> new ColoredDeviceItem(ModBlocks.LAPTOPS.of(color).get(), properties, color, ModDeviceTypes.COMPUTER));
         }
 
         @Override
@@ -39,21 +40,15 @@ public class ModItems {
     };
 
     // Custom Computers
-    public static final RegistrySupplier<BlockItem> MAC_MAX_X = register("mac_max_x", new Item.Properties(), properties -> new DeviceItem(ModBlocks.MAC_MAX_X.get(), new Item.Properties(), ModDeviceTypes.COMPUTER) {
-        @NotNull
-        @Override
-        public Component getDescription() {
-            MutableComponent normalName = Component.translatable("block.devices.mac_max_x");
-            if (Platform.isModLoaded("emojiful")) {
-                return Component.translatable("block.devices.mac_max_x_emoji");
-            }
-            return normalName;
-        }
-
+    public static final RegistrySupplier<BlockItem> MAC_MAX_X = register("mac_max_x", new Item.Properties(), properties -> new DeviceItem(ModBlocks.MAC_MAX_X.get(), properties, ModDeviceTypes.COMPUTER) {
         @NotNull
         @Override
         public Component getName(@NotNull ItemStack stack) {
-            return getDescription();
+            MutableComponent normalName = Component.translatable("block.omnixerio_devices.mac_max_x");
+            if (Platform.isModLoaded("emojiful")) {
+                return Component.translatable("block.omnixerio_devices.mac_max_x_emoji");
+            }
+            return normalName;
         }
     });
 
@@ -148,11 +143,11 @@ public class ModItems {
     public static final RegistrySupplier<BatteryCellItem> BATTERY_CELL = register("battery_cell", new Item.Properties(), BatteryCellItem::new);
 
     public static final RegistrySupplier<EthernetCableItem> ETHERNET_CABLE = register("ethernet_cable", new Item.Properties(), EthernetCableItem::new);
-    
+
     private static <T extends Item> RegistrySupplier<T> register(String id, Item.Properties properties, Function<Item.Properties, T> factory) {
-        return REGISTER.register(OmnixerioDevicesMod.id(id), () -> factory.apply(properties));
+        return REGISTER.register(OmnixerioDevices.id(id), () -> factory.apply(properties.setId(ResourceKey.create(Registries.ITEM, OmnixerioDevices.id(id)))));
     }
-    
+
     public static Stream<Item> getAllItems() {
         return REGISTER.getIds().stream().map(REGISTER::get);
     }

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/magenta_printer",
+    "type": "minecraft:model"
+  }
+}

@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import java.util.Optional;
+
 public class TaskUpdateSystemData extends Task {
     private BlockPos pos;
     private CompoundTag data;
@@ -31,10 +33,16 @@ public class TaskUpdateSystemData extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        BlockPos pos = BlockPos.of(tag.getLong("pos"));
+        Optional<BlockPos> optPos = tag.read("Pos", BlockPos.CODEC);
+        Optional<CompoundTag> optData = tag.read("data", CompoundTag.CODEC);
+        if (optPos.isEmpty() || optData.isEmpty()) return;
+
+        BlockPos pos = optPos.get();
+        CompoundTag data = optData.get();
+
         BlockEntity tileEntity = level.getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
         if (tileEntity instanceof ComputerBlockEntity laptop)
-            laptop.setSystemData(tag.getCompound("data"));
+            laptop.setSystemData(data);
         this.setSuccessful();
     }
 

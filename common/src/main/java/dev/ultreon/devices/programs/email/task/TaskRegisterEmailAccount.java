@@ -6,6 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
+
 public class TaskRegisterEmailAccount extends Task {
     private String name;
 
@@ -25,7 +27,9 @@ public class TaskRegisterEmailAccount extends Task {
 
     @Override
     public void processRequest(CompoundTag nbt, Level level, Player player) {
-        if (EmailManager.INSTANCE.addAccount(player, nbt.getString("AccountName"))) {
+        Optional<String> string = nbt.getString("AccountName");
+        if (string.isEmpty()) return;
+        if (EmailManager.INSTANCE.addAccount(player, string.get())) {
             this.setSuccessful();
         }
     }

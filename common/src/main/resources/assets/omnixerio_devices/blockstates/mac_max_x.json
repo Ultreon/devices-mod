@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "omnixerio_devices:block/mac_max_x",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "omnixerio_devices:block/mac_max_x",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "omnixerio_devices:block/mac_max_x",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "omnixerio_devices:block/mac_max_x",
+            "y": 270
+        }
+    }
+}

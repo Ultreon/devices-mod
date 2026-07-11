@@ -1,6 +1,6 @@
 package dev.ultreon.devices.network.clientbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,7 +16,7 @@ public record S2CUpdatePacket(
         String typeName,
         CompoundTag nbt
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<S2CUpdatePacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("clientbound/update"));
+    public static final CustomPacketPayload.Type<S2CUpdatePacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("clientbound/update"));
     public static final StreamCodec<RegistryFriendlyByteBuf, S2CUpdatePacket> CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, S2CUpdatePacket::laptop,
             ByteBufCodecs.stringUtf8(64), S2CUpdatePacket::typeName,

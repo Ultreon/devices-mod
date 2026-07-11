@@ -8,12 +8,16 @@ import dev.ultreon.devices.api.app.listener.ClickListener;
 import dev.ultreon.devices.object.AppInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.Optional;
 
 public final class DiagnosticsApp extends SystemApp {
     private String messageText;
+    private MutableComponent messageComponent;
     private final AppInfo appInfo;
     private final Application application;
 
@@ -59,19 +63,22 @@ public final class DiagnosticsApp extends SystemApp {
 
     @Override
     public void init(@Nullable CompoundTag intent) {
-        String applicationName = null;
+        Optional<String> optionalApplicationName = Optional.empty();
         if (intent != null) {
-            applicationName = intent.getString("applicationName");
+            optionalApplicationName = intent.getString("applicationName");
         }
+
+        @Nullable String applicationName = optionalApplicationName.orElse(null);
 
         this.messageText = applicationName == null ? "App Crashed" : "App Crashed:\n" + applicationName;
 
         Layout layoutMain = new Layout(150, 40);
 
-        int textHeight = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
+        this.messageComponent = Component.literal(messageText);
+        int textHeight = Minecraft.getInstance().font.wordWrapHeight(messageComponent, getWidth() - 10);
         layoutMain.height += textHeight;
 
-        layoutMain.setBackground((graphics, mc, x, y, width, height, mouseX, mouseY, windowActive) -> graphics.fill(x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB()));
+        layoutMain.setBackground((graphics, _, x, y, width, height, _, _, _) -> graphics.fill(x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB()));
 
         Text message = new Text(messageText, 5, 5, getWidth() - 10);
         this.addComponent(message);

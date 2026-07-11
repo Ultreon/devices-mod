@@ -4,9 +4,12 @@ import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.debug.DebugFlags;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 
 import java.awt.*;
+
+import static net.minecraft.network.chat.Component.literal;
 
 @SuppressWarnings("unused")
 public class Label extends Component {
@@ -32,26 +35,23 @@ public class Label extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             if (DebugFlags.LABEL_BACKGROUND_DEBUG) {
                 graphics.fill(x - 1, y - 1, x + mc.font.width(text) + 1, y + mc.font.lineHeight + 1, new Color(0, 255, 0, 120).getRGB());
             }
-            graphics.pose().pushPose();
-            {
-                graphics.pose().translate(x, y, 0);
-                graphics.pose().scale((float) scale, (float) scale, (float) scale);
+            graphics.pose().pushMatrix();
+            try {
+                graphics.pose().translate(x, y);
+                graphics.pose().scale((float) scale, (float) scale);
                 if (alignment == ALIGN_RIGHT)
-                    graphics.pose().translate((int) -(mc.font.width(text) * scale), 0, 0);
+                    graphics.pose().translate((int) -(mc.font.width(text) * scale), 0);
                 if (alignment == ALIGN_CENTER)
-                    graphics.pose().translate((float) ((int) -(mc.font.width(text) * scale) / (int) (2 * scale)), 0, 0);
-                if (shadow) {
-                    graphics.drawString(mc.font, text, 0, 0, textColor);
-                } else {
-                    graphics.drawString(mc.font, text, 0, 0, textColor, false);
-                }
+                    graphics.pose().translate((float) ((int) -(mc.font.width(text) * scale) / (int) (2 * scale)), 0);
+                graphics.textRenderer().accept(TextAlignment.LEFT, 0, 0, literal(text).withColor(textColor));
+            } finally {
+                graphics.pose().popMatrix();
             }
-            graphics.pose().popPose();
         }
     }
 

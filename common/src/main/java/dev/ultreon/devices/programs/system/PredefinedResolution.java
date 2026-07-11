@@ -1,6 +1,7 @@
 package dev.ultreon.devices.programs.system;
 
 import dev.ultreon.devices.core.Laptop;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 
@@ -22,10 +23,13 @@ public enum PredefinedResolution implements DisplayResolution {
 
     private final int width;
     private final int height;
+    private Component displayName;
 
     PredefinedResolution(int width, int height) {
         this.width = width;
         this.height = height;
+
+        displayName = Component.literal(width + " × " + height);
     }
 
     @Override
@@ -48,7 +52,7 @@ public enum PredefinedResolution implements DisplayResolution {
         return resolutionList.toArray(new PredefinedResolution[0]);
     }
 
-    public String getDisplayName() {
-        return width + " × " + height;
+    public Component getDisplayName() {
+        return displayName;
     }
 }

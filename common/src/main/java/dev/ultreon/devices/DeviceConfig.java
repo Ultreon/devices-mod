@@ -2,7 +2,6 @@ package dev.ultreon.devices;
 
 import dev.architectury.platform.Platform;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class DeviceConfig {
@@ -61,8 +60,8 @@ public class DeviceConfig {
     // TODO *** Add read/write of synchronization tags of the config file if needed ***
 
     public static void readSyncTag(CompoundTag tag) {
-        if (tag.contains("pingRate", Tag.TAG_INT)) PING_RATE.set(tag.getInt("pingRate"));
-        if (tag.contains("signalRange", Tag.TAG_INT)) SIGNAL_RANGE.set(tag.getInt("signalRange"));
+        if (tag.contains("pingRate")) PING_RATE.set(tag.getInt("pingRate").orElse(PING_RATE.get()));
+        if (tag.contains("signalRange")) SIGNAL_RANGE.set(tag.getInt("signalRange").orElse(SIGNAL_RANGE.get()));
     }
 
     public static CompoundTag writeSyncTag() {

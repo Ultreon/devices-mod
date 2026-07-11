@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
+
 /**
  * @author MrCrayfish
  */
@@ -32,7 +34,9 @@ public class TaskDeposit extends Task {
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
         Account account = BankUtil.INSTANCE.getAccount(player);
-        int amount = tag.getInt("amount");
+        Optional<Integer> optAmount = tag.getInt("amount");
+        if (optAmount.isEmpty()) return;
+        int amount = optAmount.get();
         long value = account.getBalance() + amount;
         if (value < 0) {
             amount = Integer.MAX_VALUE - account.getBalance();

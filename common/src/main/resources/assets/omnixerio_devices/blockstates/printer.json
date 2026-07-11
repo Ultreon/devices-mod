@@ -1,0 +1,104 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "omnixerio_devices:block/printer"
+    },
+    "variants": {
+        "facing": {
+            "north": {
+                "y": 0
+            },
+            "east": {
+                "y": 90
+            },
+            "south": {
+                "y": 180
+            },
+            "west": {
+                "y": 270
+            }
+        },
+        "color": {
+            "white": {
+                "textures": {
+                    "2": "block/white_wool"
+                }
+            },
+            "orange": {
+                "textures": {
+                    "2": "block/orange_wool"
+                }
+            },
+            "magenta": {
+                "textures": {
+                    "2": "block/magenta_wool"
+                }
+            },
+            "light_blue": {
+                "textures": {
+                    "2": "block/light_blue_wool"
+                }
+            },
+            "yellow": {
+                "textures": {
+                    "2": "block/yellow_wool"
+                }
+            },
+            "lime": {
+                "textures": {
+                    "2": "block/lime_wool"
+                }
+            },
+            "pink": {
+                "textures": {
+                    "2": "block/pink_wool"
+                }
+            },
+            "gray": {
+                "textures": {
+                    "2": "block/gray_wool"
+                }
+            },
+            "silver": {
+                "textures": {
+                    "2": "block/silver_wool"
+                }
+            },
+            "cyan": {
+                "textures": {
+                    "2": "block/cyan_wool"
+                }
+            },
+            "purple": {
+                "textures": {
+                    "2": "block/purple_wool"
+                }
+            },
+            "blue": {
+                "textures": {
+                    "2": "block/blue_wool"
+                }
+            },
+            "brown": {
+                "textures": {
+                    "2": "block/brown_wool"
+                }
+            },
+            "green": {
+                "textures": {
+                    "2": "block/green_wool"
+                }
+            },
+            "red": {
+                "textures": {
+                    "2": "block/red_wool"
+                }
+            },
+            "black": {
+                "textures": {
+                    "2": "block/black_wool"
+                }
+            }
+        }
+    }
+}

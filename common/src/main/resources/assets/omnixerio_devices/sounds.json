@@ -1,0 +1,16 @@
+{
+    "printing_ink": {
+        "sounds": [
+            {
+                "name": "omnixerio_devices:printing_ink"
+            }
+        ]
+    },
+    "printing_paper": {
+        "sounds": [
+            {
+                "name": "omnixerio_devices:printing_paper"
+            }
+        ]
+    }
+}

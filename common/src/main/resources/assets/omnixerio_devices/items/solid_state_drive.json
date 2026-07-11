@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/solid_state_drive",
+    "type": "minecraft:model"
+  }
+}

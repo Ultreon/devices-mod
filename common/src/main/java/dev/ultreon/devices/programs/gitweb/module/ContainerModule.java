@@ -73,7 +73,7 @@ public abstract class ContainerModule extends Module {
     protected static ItemStack getItem(Map<String, String> data, String key) {
         if (data.containsKey(key)) {
             try {
-                return ItemStack.CODEC.decode(NbtOps.INSTANCE, TagParser.parseTag(data.get(key))).getOrThrow().getFirst();
+                return ItemStack.CODEC.decode(NbtOps.INSTANCE, TagParser.parseCompoundFully(data.get(key))).getOrThrow().getFirst();
             } catch (CommandSyntaxException e) {
                 return ItemStack.EMPTY;
             }

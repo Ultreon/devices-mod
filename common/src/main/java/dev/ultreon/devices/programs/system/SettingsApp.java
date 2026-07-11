@@ -1,7 +1,7 @@
 package dev.ultreon.devices.programs.system;
 
 import com.google.common.base.CaseFormat;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.Reference;
 import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.api.app.Dialog;
@@ -23,9 +23,11 @@ import dev.ultreon.devices.programs.system.object.ColorScheme;
 import dev.ultreon.devices.programs.system.object.ColorSchemePresetRegistry;
 import dev.ultreon.devices.programs.system.object.Preset;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,7 +67,7 @@ public class SettingsApp extends SystemApp {
     public void init(@Nullable CompoundTag intent) {
         backBtn = new Button(2, 2, Icons.ARROW_LEFT);
         backBtn.setVisible(false);
-        backBtn.setClickListener((mouseX, mouseY, mouseButton) ->
+        backBtn.setClickListener((_, _, mouseButton) ->
         {
             if (mouseButton == 0) {
                 if (!predecessor.isEmpty()) {
@@ -97,10 +99,10 @@ public class SettingsApp extends SystemApp {
         this.layoutColorSchemes = createColorSchemesLayout();
         this.layoutGeneral = createGeneralLayout();
 
-        Button buttonColorScheme = new Button(5, 26+20+4, "Personalise", Icons.EDIT);
+        Button buttonColorScheme = new Button(5, 26 + 20 + 4, "Personalise", Icons.EDIT);
         buttonColorScheme.setSize(90, 20);
         buttonColorScheme.setToolTip("Personalise", "Change the wallpaper, UI colors, and more!");
-        buttonColorScheme.setClickListener((mouseX, mouseY, mouseButton) -> {
+        buttonColorScheme.setClickListener((_, _, mouseButton) -> {
             if (mouseButton == 0) {
                 showMenu(layoutPersonalise);
             }
@@ -108,20 +110,20 @@ public class SettingsApp extends SystemApp {
 
         layoutMain.addComponent(buttonColorScheme);
 
-        Button buttonColorSchemes = new Button(5, 26+26+20+4, "Themes", Icons.WRENCH);
+        Button buttonColorSchemes = new Button(5, 26 + 26 + 20 + 4, "Themes", Icons.WRENCH);
         buttonColorSchemes.setSize(90, 20);
         buttonColorSchemes.setToolTip("Color Schemes", "Change the color scheme using presets or choose a custom one.");
-        buttonColorSchemes.setClickListener((mouseX, mouseY, mouseButton) -> {
+        buttonColorSchemes.setClickListener((_, _, mouseButton) -> {
             if (mouseButton == 0) {
                 showMenu(layoutColorSchemes);
             }
         });
         layoutMain.addComponent(buttonColorSchemes);
 
-        Button buttonGeneral = new Button(5, 26+26+26+20+4, "Advanced", Icons.WRENCH);
+        Button buttonGeneral = new Button(5, 26 + 26 + 26 + 20 + 4, "Advanced", Icons.WRENCH);
         buttonGeneral.setSize(90, 20);
         buttonGeneral.setToolTip("General", "General settings.");
-        buttonGeneral.setClickListener((mouseX, mouseY, mouseButton) -> {
+        buttonGeneral.setClickListener((_, _, mouseButton) -> {
             if (mouseButton == 0) {
                 showMenu(layoutGeneral);
             }
@@ -135,14 +137,14 @@ public class SettingsApp extends SystemApp {
     private Button createAboutButton(Menu layoutMain) {
         Button aboutButton = new Button(5, 26, "About", Icons.INFO);
         aboutButton.setSize(90, 20);
-        aboutButton.setClickListener((mouseX, mouseY, mouseButton) -> {
+        aboutButton.setClickListener((_, _, _) -> {
             var qq = new Menu("About");
             qq.addComponent(backBtn);
             var l = new ScrollableLayout(layoutMain.width, layoutMain.height, 124);
             l.top = 26;
             l = ScrollableLayout.create(0, 26, layoutMain.width, 124, MessageFormat.format("""
-                    Version: {0} ({1})
-                    """
+                            Version: {0} ({1})
+                            """
 //                    Model: CD1
 //                    STORAGE: 32MB
 //                    RAM: 512KB
@@ -157,7 +159,7 @@ public class SettingsApp extends SystemApp {
 //                    - alfff
 //                    - 6
 //                    - あ
-/*                    """*/, Reference.getVerInfo()[0], Reference.getVerInfo()[1]));
+                    /*                    """*/, Reference.getVerInfo()[0], Reference.getVerInfo()[1]));
             //l.height = 124;
             qq.addComponent(l);
             this.showMenu(qq);
@@ -177,11 +179,11 @@ public class SettingsApp extends SystemApp {
         comboDisplayResolutions = new ComboBox.List<>(5, 26 + 20 + 4, PredefinedResolution.getResolutionList());
         comboDisplayResolutions.setListItemRenderer(new ListItemRenderer<>(20) {
             @Override
-            public void render(GuiGraphics graphics, PredefinedResolution resolution, Minecraft mc, int x, int y, int width, int height, boolean selected) {
-                graphics.drawString(Minecraft.getInstance().font, resolution.getDisplayName(), x + 5, y + 5, 0xFFFFFF);
+            public void render(GuiGraphicsExtractor graphics, PredefinedResolution resolution, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+                graphics.textRenderer().accept(TextAlignment.LEFT, x + 5, y + 5, resolution.getDisplayName());
             }
         });
-        comboDisplayResolutions.setChangeListener((oldValue, newValue) -> {
+        comboDisplayResolutions.setChangeListener((_, newValue) -> {
             if (newValue != null) {
                 getLaptop().setDisplayResolution(newValue);
             }
@@ -239,7 +241,7 @@ public class SettingsApp extends SystemApp {
         final Layout layoutColorSchemes = new Menu("Themes");
         layoutColorSchemes.addComponent(backBtn);
 
-        Preset custom = new Preset(null, OmnixerioDevicesMod.id("custom"));
+        Preset custom = new Preset(null, OmnixerioDevices.id("custom"));
 
         ItemList<Preset> list = new ItemList<>(0, 21, layoutColorSchemes.width, layoutColorSchemes.height - 21);
         for (Preset colorScheme : ColorSchemePresetRegistry.getValues()) {
@@ -247,17 +249,18 @@ public class SettingsApp extends SystemApp {
         }
         list.addItem(custom);
 
-        list.setItemClickListener((preset, index, button) -> {
+        list.setItemClickListener((preset, _, _) -> {
             if (preset == custom) preset = null;
             Laptop.getSystem().getSettings().setPreset(preset);
         });
 
         list.setListItemRenderer(new ListItemRenderer<>(20) {
             @Override
-            public void render(GuiGraphics graphics, Preset scheme, Minecraft mc, int x, int y, int width, int height, boolean selected) {
-                ResourceLocation key = ColorSchemePresetRegistry.getKey(scheme);
-                if (key == null) key = OmnixerioDevicesMod.id("custom");
-                graphics.drawString(mc.font, CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, key.getPath()).replaceAll("[A-Z]", " $0").substring(1), x + 5, y + 5, Color.WHITE.getRGB());
+            public void render(GuiGraphicsExtractor graphics, Preset scheme, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+                Identifier key = ColorSchemePresetRegistry.getKey(scheme);
+                if (key == null) key = OmnixerioDevices.id("custom");
+                String substring = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, key.getPath()).replaceAll("[A-Z]", " $0").substring(1);
+                graphics.textRenderer().accept(TextAlignment.LEFT, x + 5, y + 5, Component.literal(substring));
             }
         });
 
@@ -306,7 +309,7 @@ public class SettingsApp extends SystemApp {
         buttonColorSchemeApply = new Button(5, 79, Icons.CHECK);
         buttonColorSchemeApply.setEnabled(false);
         buttonColorSchemeApply.setToolTip("Apply", "Set these colors as the new color scheme");
-        buttonColorSchemeApply.setClickListener((mouseX, mouseY, mouseButton) ->
+        buttonColorSchemeApply.setClickListener((_, _, mouseButton) ->
         {
             if (mouseButton == 0) {
                 ColorScheme colorScheme = Laptop.getSystem().getSettings().getColorScheme();
@@ -335,7 +338,7 @@ public class SettingsApp extends SystemApp {
         Layout wallpaperLayout = new Menu("Wallpaper");
 
         // Wallpaper image.
-        var image = new Image(6, 29, 6+122, 29+70);
+        var image = new Image(6, 29, 6 + 122, 29 + 70);
         image.setBorderThickness(1);
         image.setBorderVisible(true);
         image.setImage(Objects.requireNonNull(getLaptop()).getCurrentWallpaper());
@@ -344,7 +347,7 @@ public class SettingsApp extends SystemApp {
         // Previous wallpaper button.
         prevWallpaperBtn = new Button(135, 27, Icons.ARROW_LEFT);
         prevWallpaperBtn.setSize(25, 20);
-        prevWallpaperBtn.setClickListener((mouseX, mouseY, mouseButton) -> {
+        prevWallpaperBtn.setClickListener((_, _, mouseButton) -> {
             if (mouseButton != 0)
                 return;
 
@@ -360,7 +363,7 @@ public class SettingsApp extends SystemApp {
         // Next wallpaper button.
         nextWallpaperBtn = new Button(165, 27, Icons.ARROW_RIGHT);
         nextWallpaperBtn.setSize(25, 20);
-        nextWallpaperBtn.setClickListener((mouseX, mouseY, mouseButton) -> {
+        nextWallpaperBtn.setClickListener((_, _, mouseButton) -> {
             if (mouseButton != 0)
                 return;
 
@@ -375,7 +378,7 @@ public class SettingsApp extends SystemApp {
 
         // Reset wallpaper button.
         Button resetWallpaperBtn = new Button(6, 100, "Reset Wallpaper");
-        resetWallpaperBtn.setClickListener((mouseX, mouseY, mouseButton) -> {
+        resetWallpaperBtn.setClickListener((_, _, mouseButton) -> {
             if (mouseButton == 0) {
                 getLaptop().setWallpaper(0);
                 image.setImage(getLaptop().getCurrentWallpaper());
@@ -392,7 +395,7 @@ public class SettingsApp extends SystemApp {
         // Add wallpaper load from url button.
         urlWallpaperBtn = new Button(135, 52, "Load", Icons.EARTH);
         urlWallpaperBtn.setSize(55, 20);
-        urlWallpaperBtn.setClickListener((mouseX, mouseY, mouseButton) -> {
+        urlWallpaperBtn.setClickListener((_, _, mouseButton) -> {
             if (mouseButton != 0)
                 return;
 
@@ -413,7 +416,7 @@ public class SettingsApp extends SystemApp {
             openDialog(dialog);
         });
         wallpaperLayout.addComponent(urlWallpaperBtn);
-        var wallpaperText = new Text("Wallpaper", image.left+3, image.top+3, image.componentWidth-6);
+        var wallpaperText = new Text("Wallpaper", image.left + 3, image.top + 3, image.componentWidth - 6);
         wallpaperText.setShadow(true);
         wallpaperText.setTextColor(new Color(getLaptop().getSettings().getColorScheme().getTextColor()));
         wallpaperLayout.addComponent(wallpaperText);
@@ -471,12 +474,12 @@ public class SettingsApp extends SystemApp {
         }
 
         @Override
-        public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+        public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getHeaderColor());
             graphics.fill(x, y, x + width, y + 20, color.getRGB());
             graphics.fill(x, y + 20, x + width, y + 21, color.darker().getRGB());
-            graphics.drawString(mc.font, title, x + 22, y + 6, Color.WHITE.getRGB());
-            super.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+            graphics.textRenderer().accept(TextAlignment.LEFT, x + 22, y + 6, Component.literal(title));
+            super.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
         }
     }
 
@@ -485,14 +488,15 @@ public class SettingsApp extends SystemApp {
         colorPicker.setValue(Color.RED.getRGB());
         colorPicker.setItemRenderer(new ItemRenderer<>() {
             @Override
-            public void render(GuiGraphics graphics, Integer integer, Minecraft mc, int x, int y, int width, int height) {
+            public void render(GuiGraphicsExtractor graphics, Integer integer, Minecraft mc, int x, int y, int width, int height) {
                 if (integer != null) {
                     graphics.fill(x, y, x + width, y + height, integer);
                 }
             }
         });
-        colorPicker.setChangeListener((oldValue, newValue) ->
-        {if (buttonColorSchemeApply != null) buttonColorSchemeApply.setEnabled(true);});
+        colorPicker.setChangeListener((_, _) -> {
+            if (buttonColorSchemeApply != null) buttonColorSchemeApply.setEnabled(true);
+        });
 
         Palette palette = new Palette(5, 5, colorPicker);
         Layout layout = colorPicker.getLayout();
@@ -503,12 +507,12 @@ public class SettingsApp extends SystemApp {
 
     public static class SettingsTrayItem extends TrayItem {
         public SettingsTrayItem() {
-            super(Icons.WRENCH, OmnixerioDevicesMod.id("settings"));
+            super(Icons.WRENCH, OmnixerioDevices.id("settings"));
         }
 
         @Override
         public void handleClick(int mouseX, int mouseY, int mouseButton) {
-            AppInfo info = ApplicationManager.getApplication(OmnixerioDevicesMod.id("settings"));
+            AppInfo info = ApplicationManager.getApplication(OmnixerioDevices.id("settings"));
             if (info != null) {
                 Laptop.getSystem().openApplication(info);
             }

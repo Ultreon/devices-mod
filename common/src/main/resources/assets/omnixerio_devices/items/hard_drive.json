@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "omnixerio_devices:item/hard_drive",
+    "type": "minecraft:model"
+  }
+}

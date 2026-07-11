@@ -2,35 +2,24 @@ package dev.ultreon.devices.network;
 
 import dev.architectury.networking.NetworkManager;
 import dev.ultreon.devices.DeviceConfig;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.task.Task;
 import dev.ultreon.devices.api.task.TaskManager;
-import dev.ultreon.devices.core.laptop.client.ClientLaptop;
-import dev.ultreon.devices.debug.DebugLog;
+import dev.ultreon.devices.client.OmnixerioDevicesClient;
 import dev.ultreon.devices.network.clientbound.*;
-import net.fabricmc.api.EnvType;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class ClientPacketHandler {
     public static void init() {
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C, S2CUpdatePacket.TYPE, S2CUpdatePacket.CODEC, ClientPacketHandler::onUpdate);
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, S2CNotificationPacket.TYPE, S2CNotificationPacket.CODEC, ClientPacketHandler::onNotification);
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, S2CSyncConfigPacket.TYPE, S2CSyncConfigPacket.CODEC, ClientPacketHandler::onSyncConfig);
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, S2CSyncApplicationsPacket.TYPE, S2CSyncApplicationsPacket.CODEC, ClientPacketHandler::onSyncApplications);
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, S2CResponsePacket.TYPE, S2CResponsePacket.CODEC, ClientPacketHandler::onTaskResponse);
     }
 
-    private static void onUpdate(S2CUpdatePacket value, NetworkManager.PacketContext context) {
-        if (context.getEnv().equals(EnvType.CLIENT)) {
-            ClientLaptop.laptops.get(value.laptop()).handlePacket(value.typeName(), value.nbt());
-            DebugLog.log("SQUARE: " + Arrays.toString(ClientLaptop.laptops.get(value.laptop()).square));
-        }
-    }
-
     private static void onNotification(S2CNotificationPacket value, NetworkManager.PacketContext context) {
-        OmnixerioDevicesMod.showNotification(value.notificationTag());
+        OmnixerioDevices.showNotification(value.notificationTag());
     }
 
     private static void onSyncConfig(S2CSyncConfigPacket value, NetworkManager.PacketContext context) {
@@ -49,6 +38,6 @@ public class ClientPacketHandler {
     }
 
     private static void onSyncApplications(S2CSyncApplicationsPacket value, NetworkManager.PacketContext context) {
-        OmnixerioDevicesMod.setAllowedApps(value.getAllowedApps());
+        OmnixerioDevicesClient.setAllowedApps(value.getAllowedApps());
     }
 }

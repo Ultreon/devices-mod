@@ -9,14 +9,19 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 
 public class SeatEntity extends Entity {
     private double yOffset;
@@ -56,9 +61,15 @@ public class SeatEntity extends Entity {
 
     @Override
     public void tick() {
-        if (!this.level().isClientSide && (blockPos == null || !this.hasExactlyOnePlayerPassenger() || this.level().isEmptyBlock(blockPos))) {
-            this.kill();
+        Level level = level();
+        if (level instanceof ServerLevel serverLevel && (blockPos == null || !this.hasExactlyOnePlayerPassenger() || level.isEmptyBlock(blockPos))) {
+            this.kill(serverLevel);
         }
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        return false;
     }
 
 
@@ -73,17 +84,21 @@ public class SeatEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
-        if (compound.contains("DevicesChairX", Tag.TAG_INT) && compound.contains("DevicesChairY", Tag.TAG_INT) && compound.contains("DevicesChairZ", Tag.TAG_INT)) {
-            blockPos = new BlockPos(compound.getInt("DevicesChairX"), compound.getInt("DevicesChairY"), compound.getInt("DevicesChairZ"));
+    protected void readAdditionalSaveData(ValueInput input) {
+        Optional<Integer> optionalX = input.getInt("DevicesChairX");
+        Optional<Integer> optionalY = input.getInt("DevicesChairY");
+        Optional<Integer> optionalZ = input.getInt("DevicesChairZ");
+
+        if (optionalX.isPresent() && optionalY.isPresent() && optionalZ.isPresent()) {
+            blockPos = new BlockPos(optionalX.get(), optionalY.get(), optionalZ.get());
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(ValueOutput output) {
         if (blockPos == null) return;
-        compound.putInt("DevicesChairX", blockPos.getX());
-        compound.putInt("DevicesChairY", blockPos.getY());
-        compound.putInt("DevicesChairZ", blockPos.getZ());
+        output.putInt("DevicesChairX", blockPos.getX());
+        output.putInt("DevicesChairY", blockPos.getY());
+        output.putInt("DevicesChairZ", blockPos.getZ());
     }
 }

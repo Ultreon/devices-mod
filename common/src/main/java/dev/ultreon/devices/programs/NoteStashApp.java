@@ -1,6 +1,6 @@
 package dev.ultreon.devices.programs;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Application;
 import dev.ultreon.devices.api.app.Dialog;
 import dev.ultreon.devices.api.app.Layout;
@@ -8,7 +8,6 @@ import dev.ultreon.devices.api.app.component.*;
 import dev.ultreon.devices.api.io.File;
 import dev.ultreon.devices.core.io.FileSystem;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -20,8 +19,8 @@ import java.util.function.Predicate;
 public class NoteStashApp extends Application {
     @SuppressWarnings("ConstantConditions")
     private static final Predicate<File> PREDICATE_FILE_NOTE = file -> !file.isFolder()
-            && file.getData().contains("title", Tag.TAG_STRING)
-            && file.getData().contains("content", Tag.TAG_STRING);
+            && file.getData().contains("title")
+            && file.getData().contains("content");
     private static final Marker MARKER = MarkerFactory.getMarker("Note Stash App");
 
     /* Main */
@@ -55,13 +54,13 @@ public class NoteStashApp extends Application {
         layoutMain = new Layout(180, 80);
         layoutMain.setInitListener(() -> {
             notes.getItems().clear();
-            OmnixerioDevicesMod.LOGGER.debug(MARKER, "Loading notes...");
+            OmnixerioDevices.LOGGER.debug(MARKER, "Loading notes...");
             FileSystem.getApplicationFolder(this, (folder, success) -> {
                 if (success) {
                     assert folder != null;
                     folder.search(file -> file.isForApplication(this)).forEach(file -> notes.addItem(Note.fromFile(file)));
                 } else {
-                    OmnixerioDevicesMod.LOGGER.error(MARKER, "Failed to get application folder");
+                    OmnixerioDevices.LOGGER.error(MARKER, "Failed to get application folder");
                     //TODO error dialog
                 }
             });
@@ -145,7 +144,7 @@ public class NoteStashApp extends Application {
                     assert folder != null;
                     folder.search(file -> file.isForApplication(this)).forEach(file -> notes.addItem(Note.fromFile(file)));
                 } else {
-                    OmnixerioDevicesMod.LOGGER.error(MARKER, "Failed to get application folder");
+                    OmnixerioDevices.LOGGER.error(MARKER, "Failed to get application folder");
                     //TODO error dialog
                 }
             });
@@ -210,8 +209,8 @@ public class NoteStashApp extends Application {
 
         CompoundTag data = file.getData();
         assert data != null;
-        noteTitle.setText(data.getString("title"));
-        noteContent.setText(data.getString("content"));
+        noteTitle.setText(data.getString("title").orElse("Untitled"));
+        noteContent.setText(data.getString("content").orElse(""));
         setCurrentLayout(layoutViewNote);
         return true;
     }
@@ -227,7 +226,7 @@ public class NoteStashApp extends Application {
         }
 
         public static Note fromFile(File file) {
-            Note note = new Note(Objects.requireNonNull(file.getData(), "File data doesn't exist.").getString("title"), file.getData().getString("content"));
+            Note note = new Note(Objects.requireNonNull(file.getData(), "File data doesn't exist.").getStringOr("title", "Untitled"), file.getData().getStringOr("content", ""));
             note.source = file;
             return note;
         }

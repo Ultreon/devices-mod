@@ -5,7 +5,7 @@ import dev.ultreon.devices.api.app.component.Slider;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.awt.*;
 
@@ -31,7 +31,7 @@ public class ColorGrid extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         int endX = xPosition + width + 2;
         int endY = yPosition + (colors.length / 5) * 10 + 2;
         graphics.fill(xPosition, yPosition, endX, endY, Color.DARK_GRAY.getRGB());

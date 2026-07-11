@@ -6,7 +6,7 @@ import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.core.Wrappable;
 import dev.ultreon.devices.util.GLHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.nbt.CompoundTag;
 
 import java.awt.*;
@@ -163,7 +163,7 @@ public class Layout extends Component {
      * @param y      the starting y rendering position (top most)
      */
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (!this.visible)
             return;
 
@@ -171,17 +171,15 @@ public class Layout extends Component {
             background.render(graphics, mc, x, y, width, height, mouseX, mouseY, windowActive);
         }
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         for (var c : new ArrayList<>(components)) {
-            RenderSystem.disableDepthTest();
-            GLHelper.pushScissor(x, y, width, height);
-            c.render(graphics, laptop, mc, x + c.left, y + c.top, mouseX, mouseY, windowActive, partialTicks);
-            GLHelper.popScissor();
+            GLHelper.pushScissor(graphics, x, y, width, height);
+            c.extractRenderState(graphics, laptop, mc, x + c.left, y + c.top, mouseX, mouseY, windowActive, partialTicks);
+            GLHelper.popScissor(graphics);
         }
     }
 
     @Override
-    public void renderOverlay(GuiGraphics graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
+    public void renderOverlay(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
         if (!visible)
             return;
 
@@ -369,7 +367,7 @@ public class Layout extends Component {
          * @param width  the width of the layout
          * @param height the height of the layout
          */
-        void render(GuiGraphics graphics, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive);
+        void render(GuiGraphicsExtractor graphics, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive);
     }
 
     public static class Context extends Layout {
@@ -380,8 +378,8 @@ public class Layout extends Component {
         }
 
         @Override
-        public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
-            super.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+        public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+            super.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
             if (borderVisible) {
                 drawHorizontalLine(graphics, x, x + width - 1, y, Color.DARK_GRAY.getRGB());
                 drawHorizontalLine(graphics, x, x + width - 1, y + height - 1, Color.DARK_GRAY.getRGB());

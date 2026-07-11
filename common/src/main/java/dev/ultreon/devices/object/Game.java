@@ -1,23 +1,22 @@
 package dev.ultreon.devices.object;
 
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.exception.WorldLessException;
 import dev.ultreon.devices.object.tiles.Tile;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Game extends Component {
-    public static final ResourceLocation ICONS = OmnixerioDevicesMod.id("textures/gui/mine_racer.png");
+    public static final Identifier ICONS = OmnixerioDevices.id("textures/gui/mine_racer.png");
 
     private static final Map<Integer, Tile> registeredTiles = new HashMap<Integer, Tile>();
     private final Player player;
@@ -116,16 +115,14 @@ public class Game extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         //long start = System.currentTimeMillis();
 
         if (editorMode) {
             graphics.fill(xPosition - 1, yPosition - 1, xPosition + mapWidth * Tile.WIDTH + 1, yPosition + mapHeight * Tile.HEIGHT + 1, Color.DARK_GRAY.getRGB());
         }
 
-        graphics.pose().pushPose();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.setShaderTexture(0, ICONS);
+        graphics.pose().pushMatrix();
 
         if (renderBackground) {
             for (int i = 0; i < tiles[0].length; i++) {
@@ -163,7 +160,6 @@ public class Game extends Component {
             player.render(graphics, xPosition, yPosition, partialTicks);
         }
 
-        RenderSystem.setShaderTexture(0, ICONS);
         if (renderMidgroundHigh) {
             for (int i = 0; i < tiles[2].length; i++) {
                 Tile tile = tiles[2][i];
@@ -196,7 +192,7 @@ public class Game extends Component {
             }
         }
 
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
         //DebugLog.log("Rendered game in " + (System.currentTimeMillis() - start));
     }

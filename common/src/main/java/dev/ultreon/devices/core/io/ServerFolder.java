@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -30,19 +31,23 @@ public final class ServerFolder extends ServerFile {
     private ServerFolder(String name, boolean protect, CompoundTag tag) {
         this.name = name;
         this.protect = protect;
-        this.creationTime = tag.getLong("creationTime");
-        this.lastModified = tag.getLong("lastModified");
-        this.lastAccessed = tag.getLong("lastAccessed");
+        this.creationTime = tag.getLongOr("creationTime", System.currentTimeMillis());
+        this.lastModified = tag.getLongOr("lastModified", System.currentTimeMillis());
+        this.lastAccessed = tag.getLongOr("lastAccessed", System.currentTimeMillis());
     }
 
     public static ServerFolder fromTag(String name, CompoundTag folderTag) {
         ServerFolder folder = new ServerFolder(name, false, folderTag);
 
-        if (folderTag.contains("protected", Tag.TAG_BYTE)) folder.protect = folderTag.getBoolean("protected");
+        if (folderTag.contains("protected")) folder.protect = folderTag.getBooleanOr("protected", false);
 
-        CompoundTag fileList = folderTag.getCompound("files");
-        for (String fileName : fileList.getAllKeys()) {
-            CompoundTag fileTag = fileList.getCompound(fileName);
+        Optional<CompoundTag> optionalFileList = folderTag.getCompound("files");
+        if (optionalFileList.isEmpty()) return folder;
+        CompoundTag fileList = optionalFileList.get();
+        for (String fileName : fileList.keySet()) {
+            Optional<CompoundTag> optionalFileTag = fileList.getCompound(fileName);
+            if (optionalFileTag.isEmpty()) continue;
+            CompoundTag fileTag = optionalFileTag.get();
             if (fileTag.contains("files")) {
                 folder.add(ServerFolder.fromTag(fileName, fileTag), false);
             } else {

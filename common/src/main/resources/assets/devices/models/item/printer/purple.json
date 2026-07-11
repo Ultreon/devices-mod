@@ -1,6 +1,0 @@
-{
-    "parent": "devices:item/printer",
-    "textures": {
-        "2": "block/purple_wool"
-    }
-}

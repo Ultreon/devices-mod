@@ -4,7 +4,7 @@ import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.Layout;
 import dev.ultreon.devices.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.text.DecimalFormat;
 
@@ -70,7 +70,7 @@ public class NumberSelector extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
     }
 
     @Override

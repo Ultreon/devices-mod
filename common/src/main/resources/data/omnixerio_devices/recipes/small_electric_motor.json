@@ -1,0 +1,25 @@
+{
+    "result": {
+        "item": "omnixerio_devices:small_electric_motor"
+    },
+    "pattern": [
+        "GIG",
+        "PIP",
+        "PRP"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "G": {
+            "item": "minecraft:gold_nugget"
+        },
+        "P": {
+            "item": "omnixerio_devices:plastic"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        }
+    }
+}

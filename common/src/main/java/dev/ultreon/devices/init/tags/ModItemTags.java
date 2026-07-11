@@ -1,6 +1,6 @@
 package dev.ultreon.devices.init.tags;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -13,7 +13,7 @@ public final class ModItemTags {
     public static final TagKey<Item> ROUTERS = create("routers");
 
     private static TagKey<Item> create(String name) {
-        return TagKey.create(Registries.ITEM, OmnixerioDevicesMod.id(name));
+        return TagKey.create(Registries.ITEM, OmnixerioDevices.id(name));
     }
 
     public static void init() {

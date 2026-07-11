@@ -40,7 +40,7 @@ public class OfficeChairBlock extends DeviceBlock.Colored {
     private DyeColor color;
 
     public OfficeChairBlock(Properties properties, DyeColor color) {
-        super(BlockBehaviour.Properties.of().mapColor(color), color, ModDeviceTypes.SEAT);
+        super(properties.mapColor(color), color, ModDeviceTypes.SEAT);
         this.color = color;
 
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(TYPE, Type.LEGS));
@@ -74,7 +74,7 @@ public class OfficeChairBlock extends DeviceBlock.Colored {
     @Override
     protected @NotNull InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos pos, Player player, BlockHitResult blockHitResult) {
         DebugLog.log("OKOKJRTKFD");
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             SeatUtil.createSeatAndSit(level, pos, player, -1);
         }
         return InteractionResult.SUCCESS;

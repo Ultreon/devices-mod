@@ -1,7 +1,6 @@
 package dev.ultreon.devices.programs.system.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.ApplicationManager;
 import dev.ultreon.devices.api.app.*;
 import dev.ultreon.devices.api.app.Component;
@@ -30,28 +29,28 @@ import dev.ultreon.devices.object.AppInfo;
 import dev.ultreon.devices.programs.system.SystemApp;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.awt.*;
 import java.lang.System;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static net.minecraft.network.chat.Component.literal;
 
 /**
  * Created by Casey on 20-Jun-17.
  */
 @SuppressWarnings("FieldCanBeLocal")
 public class FileBrowser extends Component {
-    private static final ResourceLocation ASSETS = OmnixerioDevicesMod.id("textures/gui/file_browser.png");
+    private static final Identifier ASSETS = OmnixerioDevices.id("textures/gui/file_browser.png");
 
     private static final Color HEADER_BACKGROUND = Color.decode("0x535861");
     private static final Color ITEM_BACKGROUND = Color.decode("0x9E9E9E");
@@ -60,20 +59,18 @@ public class FileBrowser extends Component {
 
     private static final ListItemRenderer<File> ITEM_RENDERER = new ListItemRenderer<>(18) {
         @Override
-        public void render(GuiGraphics graphics, File file, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+        public void render(GuiGraphicsExtractor graphics, File file, Minecraft mc, int x, int y, int width, int height, boolean selected) {
             Color bgColor = new Color(Laptop.getSystem().getSettings().getColorScheme().getBackgroundColor());
             graphics.fill(x, y, x + width, y + height, selected ? bgColor.brighter().brighter().getRGB() : bgColor.brighter().getRGB());
 
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.setShaderTexture(0, ASSETS);
             if (file.isFolder()) {
-                RenderUtil.drawRectWithTexture(ASSETS, graphics, x + 3, y + 2, 0, 0, 14, 14, 14, 14);
+                RenderUtil.drawRectWithTexture3(ASSETS, graphics, x + 3, y + 2, 0, 0, 14, 14, 14, 14);
             } else {
                 assert file.getOpeningApp() != null;
-                AppInfo info = ApplicationManager.getApplication(ResourceLocation.tryParse(file.getOpeningApp()));
+                AppInfo info = ApplicationManager.getApplication(Identifier.tryParse(file.getOpeningApp()));
                 RenderUtil.drawApplicationIcon(graphics, info, x + 3, y + 2);
             }
-            graphics.drawString(Minecraft.getInstance().font, file.getName(), x + 22, y + 5, file.isProtected() ? PROTECTED_FILE.getRGB() : Laptop.getSystem().getSettings().getColorScheme().getTextColor());
+            graphics.textRenderer().accept(TextAlignment.LEFT, x + 22, y + 5, literal(file.getName()).withColor(file.isProtected() ? PROTECTED_FILE.getRGB() : Laptop.getSystem().getSettings().getColorScheme().getTextColor()));
         }
     };
 
@@ -281,18 +278,16 @@ public class FileBrowser extends Component {
         comboBoxDrive.setChangeListener((oldValue, newValue) -> openDrive(newValue));
         comboBoxDrive.setListItemRenderer(new ListItemRenderer<>(12) {
             @Override
-            public void render(GuiGraphics graphics, Drive drive, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, Drive drive, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor());
                 graphics.fill(x, y, x + width, y + height, selected ? bgColor.brighter().brighter().getRGB() : bgColor.brighter().getRGB());
-                RenderSystem.setShaderTexture(0, ASSETS);
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                RenderUtil.drawRectWithTexture(ASSETS, graphics, x + 2, y + 2, drive.getType().ordinal() * 8, 30, 8, 8, 8, 8);
+                RenderUtil.drawRectWithTexture3(ASSETS, graphics, x + 2, y + 2, drive.getType().ordinal() * 8, 30, 8, 8, 8, 8);
 
                 String text = drive.getName();
                 if (mc.font.width(text) > 87) {
                     text = mc.font.plainSubstrByWidth(drive.getName(), 78) + "...";
                 }
-                graphics.drawString(mc.font, text, x + 13, y + 2, Color.WHITE.getRGB());
+                graphics.textRenderer().accept(TextAlignment.LEFT, x + 13, y + 2, literal(text));
             }
         });
         layoutMain.addComponent(comboBoxDrive);
@@ -320,20 +315,21 @@ public class FileBrowser extends Component {
                 if (success) {
                     if (Laptop.getMainDrive() == null) {
                         assert tag != null;
-                        CompoundTag structureTag = tag.getCompound("structure");
-                        Drive drive = new Drive(tag.getCompound("main_drive"));
+                        CompoundTag structureTag = tag.getCompoundOrEmpty("structure");
+                        Drive drive = new Drive(tag.getCompoundOrEmpty("main_drive"));
                         drive.syncRoot(Folder.fromTag(FileSystem.LAPTOP_DRIVE_NAME, structureTag));
                         drive.getRoot().validate();
                         Laptop.setMainDrive(drive);
                     }
 
                     assert tag != null;
-                    ListTag driveList = tag.getList("available_drives", Tag.TAG_COMPOUND);
+                    ListTag driveList = tag.getListOrEmpty("available_drives");
                     Drive[] drives = new Drive[driveList.size() + 1];
                     drives[0] = currentDrive = Laptop.getMainDrive();
                     for (int i = 0; i < driveList.size(); i++) {
-                        CompoundTag driveTag = driveList.getCompound(i);
-                        drives[i + 1] = new Drive(driveTag);
+                        Optional<CompoundTag> driveTag = driveList.getCompound(i);
+                        if (driveTag.isEmpty()) continue;
+                        drives[i + 1] = new Drive(driveTag.get());
                     }
                     comboBoxDrive.setItems(drives);
 
@@ -392,7 +388,10 @@ public class FileBrowser extends Component {
                 setLoading(false);
                 if (success) {
                     assert tag != null;
-                    Folder folder = Folder.fromTag(tag.getString("file_name"), tag.getCompound("structure"));
+                    Optional<String> string = tag.getString("file_name");
+                    Optional<CompoundTag> compound = tag.getCompound("structure");
+                    if (string.isEmpty() || compound.isEmpty()) throw new RuntimeException("Unable to retrieve drive structure for '" + drive.getName() + "'");
+                    Folder folder = Folder.fromTag(string.get(), compound.get());
                     drive.syncRoot(folder);
                     openFolder(drive.getRoot(), false, (folder1, success1) -> {
                         if (!success1) {
@@ -424,8 +423,8 @@ public class FileBrowser extends Component {
             task.setCallback((tag, success) -> {
                 if (success) {
                     assert tag != null;
-                    if (tag.contains("files", Tag.TAG_LIST)) {
-                        ListTag files = tag.getList("files", Tag.TAG_COMPOUND);
+                    if (tag.contains("files")) {
+                        ListTag files = tag.getList("files").orElseThrow();
                         folder.syncFiles(files);
                         setCurrentFolder(folder, push);
                     }

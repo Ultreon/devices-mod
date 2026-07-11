@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,vertical=false": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 270
+    },
+    "facing=east,vertical=true": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 270
+    },
+    "facing=north,vertical=false": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 180
+    },
+    "facing=north,vertical=true": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 180
+    },
+    "facing=south,vertical=false": {
+      "model": "omnixerio_devices:block/cyan_router"
+    },
+    "facing=south,vertical=true": {
+      "model": "omnixerio_devices:block/cyan_router"
+    },
+    "facing=west,vertical=false": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 90
+    },
+    "facing=west,vertical=true": {
+      "model": "omnixerio_devices:block/cyan_router",
+      "y": 90
+    }
+  }
+}

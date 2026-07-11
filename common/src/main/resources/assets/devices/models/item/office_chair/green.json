@@ -1,6 +1,0 @@
-{
-    "parent": "devices:item/office_chair",
-    "textures": {
-        "chair_color": "block/green_wool"
-    }
-}

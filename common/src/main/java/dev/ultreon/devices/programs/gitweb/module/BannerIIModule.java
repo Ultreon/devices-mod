@@ -1,21 +1,17 @@
 package dev.ultreon.devices.programs.gitweb.module;
 
-import com.mojang.blaze3d.platform.Lighting;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.Layout;
 import dev.ultreon.devices.core.Laptop;
-import dev.ultreon.devices.debug.DebugLog;
 import dev.ultreon.devices.programs.gitweb.component.GitWebFrame;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BannerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.model.object.banner.BannerFlagModel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
@@ -53,50 +49,43 @@ public class BannerIIModule extends Module {
     public static class LoomBox extends Component {
         public static final int HEIGHT = 84;
         private final ItemStack banner;
-        private final ModelPart flag;
-        private final BannerPatternLayers resultBannerPatterns;
+        private final boolean waving;
+        private final BannerFlagModel flagModel;
+        private final ModelPart flagPart;
+        private final BannerPatternLayers bannerPatternLayers;
 
         public LoomBox(ItemStack banner, boolean waving) {
             super(0, 0);
             this.banner = banner;
-            this.flag = Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.BANNER).getChild("flag");
+            this.waving = waving;
+            ModelPart root = Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.STANDING_BANNER_FLAG);
+            this.flagPart = root.getChild("flag");
+            this.flagModel = new BannerFlagModel(root);
 
             if (!banner.isEmpty())
-                this.resultBannerPatterns = banner.get(DataComponents.BANNER_PATTERNS);
+                this.bannerPatternLayers = banner.get(DataComponents.BANNER_PATTERNS);
             else
-                this.resultBannerPatterns = new BannerPatternLayers(List.of());
+                this.bannerPatternLayers = new BannerPatternLayers(List.of());
         }
 
         @Override
-        protected void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
-            super.render(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
-            int i = x;//this.leftPos;
-            int j = y;//this.topPos;
-            if (banner.isEmpty())return;
-            Lighting.setupForFlatItems();
-            MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-            graphics.pose().pushPose();
-            //pose.translate((double)(i + 139), (double)(j + 52), 0.0D);
-            graphics.pose().translate(i+139,j+90,0.0D);
-            graphics.pose().scale(48.0F, -48.0F, 48.0F);
-        //    pose.scale(24.0F, -24.0F, 1.0F);
-            graphics.pose().translate(0.5D, 0.5D, 0.5D);
-            float f = 0.6666667F;
-            graphics.pose().scale(f, -f, -f);
-            long l = System.currentTimeMillis()/50;
-            DebugLog.log(l);
-            float h = ((float)Math.floorMod(l, 100L) + partialTicks) / 100.0f;
+        protected void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+            super.extractRenderState(graphics, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+            if (banner.isEmpty()) return;
 
-            this.flag.yRot = (float) Math.toRadians(30);
-            this.flag.xRot = (-0.0125f + 0.01f * Mth.cos((float)Math.PI * 2 * h)) * (float)Math.PI;
-           // this.flag.xRot = 0.0F;
-            this.flag.y = -32.0F;
-            BannerRenderer.renderPatterns(graphics.pose(), bufferSource, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, this.resultBannerPatterns);
-            graphics.pose().popPose();
-            bufferSource.endBatch();
+            if (waving) {
+                long l = System.currentTimeMillis() / 50;
+                float h = ((float) Math.floorMod(l, 100L) + partialTicks) / 100.0f;
+                this.flagPart.yRot = (float) Math.toRadians(30);
+                this.flagPart.xRot = (-0.0125f + 0.01f * Mth.cos((float) Math.PI * 2 * h)) * (float) Math.PI;
+            } else {
+                this.flagPart.yRot = (float) Math.toRadians(30);
+                this.flagPart.xRot = 0.0f;
+            }
 
-
+            DyeColor baseColor = ((BannerItem) banner.getItem()).getColor();
+            graphics.bannerPattern(this.flagModel, baseColor, this.bannerPatternLayers, x + 130, y + 55, x + 150, y + 95);
+            Minecraft.getInstance().gameRenderer.lighting().setupFor(com.mojang.blaze3d.platform.Lighting.Entry.ITEMS_3D);
         }
     }
 }
-// 128, 72

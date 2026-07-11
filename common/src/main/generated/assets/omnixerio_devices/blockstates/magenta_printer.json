@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "omnixerio_devices:block/magenta_printer",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "omnixerio_devices:block/magenta_printer",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "omnixerio_devices:block/magenta_printer"
+    },
+    "facing=west": {
+      "model": "omnixerio_devices:block/magenta_printer",
+      "y": 90
+    }
+  }
+}

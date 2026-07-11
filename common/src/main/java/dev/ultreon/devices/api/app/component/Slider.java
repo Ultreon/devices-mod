@@ -7,7 +7,7 @@ import dev.ultreon.devices.api.app.listener.SlideListener;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.awt.*;
 
@@ -40,7 +40,7 @@ public class Slider extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             Color bgColor = new Color(getColorScheme().getBackgroundColor());
             graphics.fill(x, y + 4, x + width, y + 8, bgColor.darker().darker().getRGB());

@@ -5,7 +5,7 @@ import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.util.GLHelper;
 import dev.ultreon.devices.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
 import java.awt.*;
@@ -41,17 +41,17 @@ public class ScrollableLayout extends Layout {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (!visible)
             return;
 
-        GLHelper.pushScissor(x, y, width, visibleHeight);
-        super.render(graphics, laptop, mc, x, y - scroll, mouseX, mouseY, windowActive, partialTicks);
-        GLHelper.popScissor();
+        GLHelper.pushScissor(graphics, x, y, width, visibleHeight);
+        super.extractRenderState(graphics, laptop, mc, x, y - scroll, mouseX, mouseY, windowActive, partialTicks);
+        GLHelper.popScissor(graphics);
     }
 
     @Override
-    public void renderOverlay(GuiGraphics graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
+    public void renderOverlay(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive) {
         if (!visible)
             return;
 

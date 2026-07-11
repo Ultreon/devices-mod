@@ -1,37 +1,21 @@
 architectury {
-    common(enabled_platforms.split(","))
-}
-
-loom {
-    accessWidenerPath = file("src/main/resources/devices.accesswidener")
-}
-
-dependencies {
-    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
-    // Do NOT use other classes from fabric loader
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    // Remove the next line if you don't want to depend on the API
-//    modApi 'com.cinemamod:mcef:2.1.6-1.21.1'
-    modApi "dev.architectury:architectury:${architectury_version}"
-    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:21.1.6")
+    common rootProject.enabled_platforms.split(',')
 }
 
 sourceSets {
     main {
-        resources.srcDirs(project(":fabric").file("src/main/generated"))
+        resources.srcDirs(file("src/main/generated"))
     }
 }
 
-publishing {
-    publications {
-        mavenCommon(MavenPublication) {
-            artifactId = archives_base_name
-            from components.java
-        }
-    }
+dependencies {
+    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
+    // which get remapped to the correct annotations on each platform.
+    // Do NOT use other classes from Fabric Loader.
+    implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-    }
+    implementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+    api("fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:26.2.1")
+
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
 }

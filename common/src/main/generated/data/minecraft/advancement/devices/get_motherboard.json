@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:omnixerio_devices/root",
+  "criteria": {
+    "got_motherboard": {
+      "conditions": {
+        "items": [
+          {
+            "items": "omnixerio_devices:motherboard_full"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "omnixerio_devices:textures/gui/advancement_background.png",
+    "description": "Create your first motherboard",
+    "icon": {
+      "count": 1,
+      "id": "omnixerio_devices:motherboard_full"
+    },
+    "title": "Motherboard"
+  },
+  "requirements": [
+    [
+      "got_motherboard"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

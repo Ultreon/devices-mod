@@ -1,6 +1,0 @@
-{
-    "parent": "devices:item/flash_drive",
-    "textures": {
-        "1": "block/blue_wool"
-    }
-}

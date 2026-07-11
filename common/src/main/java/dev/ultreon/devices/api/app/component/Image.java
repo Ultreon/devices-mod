@@ -1,9 +1,7 @@
 package dev.ultreon.devices.api.app.component;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.IIcon;
 import dev.ultreon.devices.api.app.Layout;
@@ -11,16 +9,13 @@ import dev.ultreon.devices.api.utils.OnlineRequest;
 import dev.ultreon.devices.api.utils.RenderUtil;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.object.AppInfo;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -30,10 +25,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
@@ -124,6 +121,10 @@ public class Image extends Component {
         int r;
         int g;
         int b;
+
+        public int argb() {
+            return 0xff000000 | (r << 16) | (g << 8) | b;
+        }
     }
 
     public void setTint(Supplier<ColorSupplier> colorSupplier) {
@@ -141,7 +142,7 @@ public class Image extends Component {
     }
 
     /**
-     * Creates a new Image using a ResourceLocation. This automatically sets the width and height of
+     * Creates a new Image using a Identifier. This automatically sets the width and height of
      * the component according to the width and height of the image.
      *
      * @param left        the amount of pixels to be offset from the left
@@ -152,14 +153,14 @@ public class Image extends Component {
      * @param imageHeight the image height
      * @param resource    the resource location of the image
      */
-    public Image(int left, int top, int imageU, int imageV, int imageWidth, int imageHeight, ResourceLocation resource) {
+    public Image(int left, int top, int imageU, int imageV, int imageWidth, int imageHeight, Identifier resource) {
         this(left, top, imageWidth, imageHeight, imageU, imageV, imageWidth, imageHeight, resource);
     }
 
     /**
-     * Creates a new Image using a ResourceLocation. This constructor allows the specification of
+     * Creates a new Image using a Identifier. This constructor allows the specification of
      * the width and height of the component instead of automatically unlike
-     * {@link Image#Image(int, int, int, int, int, int, ResourceLocation)}
+     * {@link Image#Image(int, int, int, int, int, int, Identifier)}
      *
      * @param left            the amount of pixels to be offset from the left
      * @param top             the amount of pixels to be offset from the top
@@ -171,11 +172,11 @@ public class Image extends Component {
      * @param imageHeight     the image height
      * @param resource        the resource location of the image
      */
-    public Image(int left, int top, int componentWidth, int componentHeight, int imageU, int imageV, int imageWidth, int imageHeight, ResourceLocation resource) {
+    public Image(int left, int top, int componentWidth, int componentHeight, int imageU, int imageV, int imageWidth, int imageHeight, Identifier resource) {
         this(left, top, componentWidth, componentHeight, imageU, imageV, imageWidth, imageHeight, 256, 256, resource);
     }
 
-    public Image(int left, int top, int componentWidth, int componentHeight, int imageU, int imageV, int imageWidth, int imageHeight, int sourceWidth, int sourceHeight, ResourceLocation resource) {
+    public Image(int left, int top, int componentWidth, int componentHeight, int imageU, int imageV, int imageWidth, int imageHeight, int sourceWidth, int sourceHeight, Identifier resource) {
         super(left, top);
         this.loader = new StandardLoader(resource);
         this.componentWidth = componentWidth;
@@ -257,7 +258,7 @@ public class Image extends Component {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
         if (this.visible) {
             if (loader != null && loader.setup) {
                 image = loader.load(this);
@@ -269,44 +270,17 @@ public class Image extends Component {
                 graphics.fill(x, y, x + componentWidth, y + componentHeight, borderColor);
             }
 
-            RenderSystem.setShaderColor(tint.get().r/255f, tint.get().g/255f, tint.get().b/255f, alpha);
-
-            if (image != null && image.textureId != -1) {
+            if (image != null && image.texture != null && image.id != null) {
                 image.restore();
 
-                RenderSystem.setShaderColor(tint.get().r/255f, tint.get().g/255f, tint.get().b/255f, alpha);
-                RenderSystem.enableBlend();
-                RenderSystem.setShaderTexture(0, image.textureId);
-
-                if (/*hasBorder*/true) {
-                    if (drawFull) {
-                        //DebugLog.log("Rendering image");
-                        RenderUtil.drawRectWithTexture(null, graphics, x + borderThickness, y + borderThickness, 0, imageU, imageV, componentWidth - borderThickness * 2, componentHeight - borderThickness * 2, 256, 256);
-                        //GuiComponent.blit(pose, x + borderThickness, y + borderThickness, imageU, imageV, componentWidth - borderThickness * 2, componentHeight - borderThickness * 2, 256, 256);
-                    } else {
-                        //DebugLog.log("Rendering image");
-                        RenderUtil.drawRectWithTexture(null, graphics, x + borderThickness, y + borderThickness, imageU, imageV, componentWidth - borderThickness * 2, componentHeight - borderThickness * 2, imageWidth, imageHeight, sourceWidth, sourceHeight);
-                        //GuiComponent.blit(pose, x + borderThickness, y + borderThickness, componentWidth - borderThickness * 2, imageU, imageV, componentHeight - borderThickness * 2, sourceWidth, sourceHeight, imageWidth, imageHeight);
-                    }
+                if (drawFull) {
+                    RenderUtil.drawRectWithTexture(image.id, graphics, x + borderThickness, y + borderThickness, 0, imageU, imageV, componentWidth - borderThickness * 2, componentHeight - borderThickness * 2, 256, 256, tint.get().argb());
                 } else {
-                    if (drawFull) {
-                        //DebugLog.log("Rendering image");
-                        RenderUtil.drawRectWithTexture(null, graphics, x, y, componentWidth, componentHeight, imageU, imageV, 256, 256);
-//                        GuiComponent.blit(pose, x, y, componentWidth, componentHeight, imageU, imageV, 256, 256);
-                    } else {
-                        //DebugLog.log("Rendering image");
-                        RenderUtil.drawRectWithTexture(null, graphics, x, y, componentWidth, componentHeight, imageU, imageV, imageWidth, imageHeight, sourceWidth, sourceHeight);
-                        //GuiComponent.blit(pose, x, y, componentWidth, componentHeight, imageU, imageV, sourceWidth, sourceHeight, imageWidth, imageHeight);
-                    }
+                    RenderUtil.drawRectWithTexture(image.id, graphics, x + borderThickness, y + borderThickness, imageU, imageV, componentWidth - borderThickness * 2, componentHeight - borderThickness * 2, imageWidth, imageHeight, sourceWidth, sourceHeight, tint.get().argb());
                 }
             } else {
-                if (/*hasBorder*/true) {
-                    graphics.fill(x + borderThickness, y + borderThickness, x + componentWidth - borderThickness, y + componentHeight - borderThickness, Color.LIGHT_GRAY.getRGB());
-                } else {
-                    graphics.fill(x, y, x + componentWidth, y + componentHeight, Color.LIGHT_GRAY.getRGB());
-                }
+                graphics.fill(x + borderThickness, y + borderThickness, x + componentWidth - borderThickness, y + componentHeight - borderThickness, Color.LIGHT_GRAY.getRGB());
             }
-            RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
         }
     }
 
@@ -316,7 +290,7 @@ public class Image extends Component {
         }
     }
 
-    public void setImage(ResourceLocation resource) {
+    public void setImage(Identifier resource) {
         setLoader(new StandardLoader(resource));
         this.drawFull = true;
     }
@@ -416,9 +390,9 @@ public class Image extends Component {
 
     private static class StandardLoader extends ImageLoader {
         private final AbstractTexture texture;
-        private final ResourceLocation resource;
+        private final Identifier resource;
 
-        public StandardLoader(ResourceLocation resource) {
+        public StandardLoader(Identifier resource) {
             this.texture = new SimpleTexture(resource);
             this.resource = resource;
         }
@@ -431,13 +405,13 @@ public class Image extends Component {
         @Override
         @SuppressWarnings("ConstantConditions")
         public CachedImage load(Image image) {
-            @Nullable AbstractTexture textureObj = Minecraft.getInstance().getTextureManager().getTexture(resource, null);
+            @Nullable AbstractTexture textureObj = Minecraft.getInstance().getTextureManager().getTexture(resource);
             if (textureObj != null) {
-                return new CachedImage(textureObj.getId(), 0, 0, false);
+                return new CachedImage(textureObj, OmnixerioDevices.id("dynamic/standard/" + UUID.randomUUID().toString().replace("_", "")), 0, 0, false);
             } else {
                 AbstractTexture texture = new SimpleTexture(resource);
                 Minecraft.getInstance().getTextureManager().register(resource, texture);
-                return new CachedImage(texture.getId(), 0, 0, false);
+                return new CachedImage(texture, resource, 0, 0, false);
             }
         }
 
@@ -462,7 +436,7 @@ public class Image extends Component {
             }
             Runnable r = () -> {
                 try {
-                    URL url = new URL(this.url);
+                    URL url = URI.create(this.url).toURL();
                     OnlineRequest.checkURLForSuspicions(url);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestProperty("User-Agent", "Mozilla/5.0");
@@ -479,14 +453,13 @@ public class Image extends Component {
                     NativeImage nativeImage = NativeImage.read(in);
 
                     Laptop.runLater(() -> {
-                        OmnixerioDevicesMod.LOGGER.debug("Loaded image: " + url);
-                        texture = new DynamicTexture(nativeImage);
+                        OmnixerioDevices.LOGGER.debug("Loaded image: " + url);
+                        texture = new DynamicTexture(() -> "devices_dynamic", nativeImage);
                         setup = true;
                     });
                 } catch (IOException e) {
-                    texture = MissingTextureAtlasSprite.getTexture();
                     setup = true;
-                    e.printStackTrace();
+                    OmnixerioDevices.LOGGER.error("Failed to load image: " + url, e);
                 }
             };
             Thread thread = new Thread(r, "Image Loader");
@@ -502,42 +475,9 @@ public class Image extends Component {
                 return cachedImage;
             }
 
-            try {
-                texture.load(Minecraft.getInstance().getResourceManager());
-                CachedImage cachedImage = new CachedImage(texture.getId(), image.imageWidth, image.imageHeight, true);
-                if (texture != MissingTextureAtlasSprite.getTexture())
-                    CACHE.put(url, cachedImage);
-                return cachedImage;
-            } catch (IOException e) {
-                return new CachedImage(MissingTextureAtlasSprite.getTexture().getId(), 0, 0, true);
-            }
-        }
-    }
-
-    private static class DynamicLoadedTexture extends AbstractTexture {
-        private final InputStream in;
-        private final BufferedImage image;
-
-        private DynamicLoadedTexture(InputStream in, BufferedImage image) {
-            this.in = in;
-
-            this.image = image;
-            TextureUtil.prepareImage(getId(), this.image.getWidth(), this.image.getHeight());
-        }
-
-        @Override
-        public void load(@NotNull ResourceManager resourceManager) throws IOException {
-            NativeImage nativeImage = NativeImage.read(in);
-            Minecraft.getInstance().getTextureManager().register(OmnixerioDevicesMod.id("dynamic_loaded/" + getId()), this);
-            this.upload(nativeImage);
-        }
-
-        private void upload(NativeImage nativeImage) {
-            nativeImage.upload(0, 0, 0, mipmap);
-        }
-
-        public BufferedImage getImage() {
-            return image;
+            CachedImage cachedImage = new CachedImage(texture, OmnixerioDevices.id("dynamic/dynamic/" + UUID.randomUUID().toString().replace("_", "")), image.imageWidth, image.imageHeight, true);
+            CACHE.put(url, cachedImage);
+            return cachedImage;
         }
     }
 
@@ -560,21 +500,24 @@ public class Image extends Component {
     }
 
     public static class CachedImage {
-        private final int textureId;
+        private final AbstractTexture texture;
+        private final Identifier id;
         private final int width;
         private final int height;
         private final boolean dynamic;
         private boolean delete = false;
 
-        private CachedImage(int textureId, int width, int height, boolean dynamic) {
-            this.textureId = textureId;
+        private CachedImage(AbstractTexture texture, Identifier id, int width, int height, boolean dynamic) {
+            this.texture = texture;
+            this.id = id;
             this.width = width;
             this.height = height;
             this.dynamic = dynamic;
+            Minecraft.getInstance().getTextureManager().register(id, texture);
         }
 
-        public int getTextureId() {
-            return textureId;
+        public AbstractTexture getTexture() {
+            return texture;
         }
 
         public void restore() {
@@ -583,6 +526,10 @@ public class Image extends Component {
 
         public void delete() {
             delete = true;
+        }
+
+        public void release() {
+            Minecraft.getInstance().getTextureManager().release(id);
         }
 
         public boolean isDynamic() {

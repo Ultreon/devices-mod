@@ -7,9 +7,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class NetworkDevice extends Device {
@@ -60,14 +62,37 @@ public class NetworkDevice extends Device {
         return tag;
     }
 
-    public static NetworkDevice fromTag(CompoundTag tag) {
+    public static @Nullable NetworkDevice fromTag(CompoundTag tag) {
         NetworkDevice device = new NetworkDevice();
-        device.id = UUID.fromString(tag.getString("id"));
-        device.name = tag.getString("name");
+        Optional<String> id = tag.getString("id");
+        if (id.isEmpty()) return null;
+        device.id = UUID.fromString(id.get());
 
-        if (tag.contains("pos", Tag.TAG_LONG)) {
-            device.pos = BlockPos.of(tag.getLong("pos"));
+        Optional<String> name = tag.getString("name");
+        if (name.isEmpty()) return null;
+        device.name = name.get();
+
+        if (tag.contains("pos")) {
+            Optional<Long> pos1 = tag.getLong("pos");
+            if (pos1.isEmpty()) return null;
+            device.pos = BlockPos.of(pos1.get());
         }
+        return device;
+    }
+
+    public static NetworkDevice load(ValueInput in) {
+        NetworkDevice device = new NetworkDevice();
+        Optional<String> id = in.getString("id");
+        if (id.isEmpty()) return null;
+        device.id = UUID.fromString(id.get());
+
+        Optional<String> name = in.getString("name");
+        if (name.isEmpty()) return null;
+        device.name = name.get();
+
+        Optional<Long> pos1 = in.getLong("pos");
+        if (pos1.isEmpty()) return device;
+        device.pos = BlockPos.of(pos1.get());
         return device;
     }
 }

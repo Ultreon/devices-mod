@@ -1,5 +1,6 @@
 package dev.ultreon.devices.programs.system.task;
 
+import dev.ultreon.devices.MoreCodecs;
 import dev.ultreon.devices.api.task.Task;
 import dev.ultreon.devices.api.utils.BankUtil;
 import dev.ultreon.devices.programs.system.object.Account;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class TaskPay extends Task {
@@ -31,10 +33,15 @@ public class TaskPay extends Task {
 
     @Override
     public void processRequest(CompoundTag tag, Level level, Player player) {
-        String uuid = tag.getString("uuid");
-        int amount = tag.getInt("amount");
+        Optional<UUID> optUuid = tag.read("player", MoreCodecs.UUID);
+        Optional<Integer> optAmount = tag.getInt("amount");
+
+        if (optUuid.isEmpty() || optAmount.isEmpty()) return;
+
+        UUID uuid = optUuid.get();
+        int amount = optAmount.get();
         Account sender = BankUtil.INSTANCE.getAccount(player);
-        Account recipient = BankUtil.INSTANCE.getAccount(UUID.fromString(uuid));
+        Account recipient = BankUtil.INSTANCE.getAccount(uuid);
         if (recipient != null && sender.hasAmount(amount)) {
             recipient.add(amount);
             sender.remove(amount);

@@ -7,7 +7,7 @@ import dev.ultreon.devices.api.app.component.Label;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.programs.snake.layout.SnakeLayout;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ public class SnakeApp extends Application {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
+    public void render(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks) {
         super.render(graphics, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
 //        for (Component component : this.titleScreen.components) {
 //            DebugLog.log(component + "lt: " + component.left + ", " + component.top);

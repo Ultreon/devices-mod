@@ -1,0 +1,68 @@
+{
+  "values": [
+    {
+      "id": "omnixerio_devices:gray_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:lime_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:red_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:light_blue_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:black_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:light_gray_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:purple_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:green_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:white_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:yellow_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:cyan_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:brown_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:orange_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:magenta_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:blue_laptop",
+      "required": false
+    },
+    {
+      "id": "omnixerio_devices:pink_laptop",
+      "required": false
+    }
+  ]
+}

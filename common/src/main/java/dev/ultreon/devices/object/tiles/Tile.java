@@ -2,7 +2,7 @@ package dev.ultreon.devices.object.tiles;
 
 import dev.ultreon.devices.api.utils.RenderUtil;
 import dev.ultreon.devices.object.Game;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class Tile
 {
@@ -72,12 +72,12 @@ public class Tile
 		return this;
 	}
 
-	public void render(GuiGraphics graphics, Game game, int x, int y, Game.Layer layer)
+	public void render(GuiGraphicsExtractor graphics, Game game, int x, int y, Game.Layer layer)
 	{
-		RenderUtil.drawRectWithTexture(null, graphics, game.xPosition + x * Tile.WIDTH , game.yPosition + y * Tile.HEIGHT, this.x * 16, this.y * 16, WIDTH, HEIGHT, 16, 16);
+		RenderUtil.drawRectWithTexture3(null, graphics, game.xPosition + x * Tile.WIDTH , game.yPosition + y * Tile.HEIGHT, this.x * 16, this.y * 16, WIDTH, HEIGHT, 16, 16);
 	}
 
-	public void renderForeground(GuiGraphics graphics, Game game, int x, int y, Game.Layer layer) {}
+	public void renderForeground(GuiGraphicsExtractor graphics, Game game, int x, int y, Game.Layer layer) {}
 
 	public boolean isFullTile()
 	{

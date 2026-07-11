@@ -1,6 +1,6 @@
 package dev.ultreon.devices.network.serverbound;
 
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public record C2SSyncBlockPacket(
         BlockPos routerPos
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<C2SSyncBlockPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevicesMod.id("serverbound/sync_block"));
+    public static final CustomPacketPayload.Type<C2SSyncBlockPacket> TYPE = new CustomPacketPayload.Type<>(OmnixerioDevices.id("serverbound/sync_block"));
     public static final StreamCodec<RegistryFriendlyByteBuf, C2SSyncBlockPacket> CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, C2SSyncBlockPacket::routerPos,
             C2SSyncBlockPacket::new

@@ -6,7 +6,7 @@
 //import com.mojang.blaze3d.vertex.*;
 //import dev.ultreon.devices.block.entity.ComputerBlockEntity;
 //import net.minecraft.client.Minecraft;
-//import net.minecraft.client.gui.GuiGraphics;
+//import net.minecraft.client.gui.GuiGraphicsExtractor;
 //import net.minecraft.client.gui.screens.Screen;
 //import net.minecraft.client.renderer.GameRenderer;
 //import net.minecraft.core.BlockPos;
@@ -87,7 +87,7 @@
 //    }
 //
 //    @Override
-//    public void render(GuiGraphics graphics, int i, int j, float f) {
+//    public void render(GuiGraphicsExtractor graphics, int i, int j, float f) {
 //        super.render(graphics, i, j, f);
 //        RenderSystem.disableDepthTest();
 //        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);

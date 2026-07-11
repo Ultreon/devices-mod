@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "omnixerio_devices:printer",
+  "key": {
+    "b": {
+      "item": "omnixerio_devices:controller_unit"
+    },
+    "c": {
+      "item": "omnixerio_devices:carriage"
+    },
+    "d": {
+      "item": "minecraft:purple_dye"
+    },
+    "m": {
+      "item": "omnixerio_devices:small_electric_motor"
+    },
+    "p": {
+      "item": "omnixerio_devices:plastic_frame"
+    },
+    "s": {
+      "item": "omnixerio_devices:screen"
+    }
+  },
+  "pattern": [
+    "psp",
+    "mcb",
+    "pdp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "omnixerio_devices:purple_printer"
+  }
+}

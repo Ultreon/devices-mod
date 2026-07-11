@@ -1,11 +1,7 @@
 package dev.ultreon.devices.programs;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.ultreon.devices.OmnixerioDevicesMod;
+import dev.ultreon.devices.OmnixerioDevices;
 import dev.ultreon.devices.api.app.*;
 import dev.ultreon.devices.api.app.Component;
 import dev.ultreon.devices.api.app.Dialog;
@@ -25,22 +21,25 @@ import dev.ultreon.devices.object.ColorGrid;
 import dev.ultreon.devices.object.Picture;
 import dev.ultreon.devices.programs.system.layout.StandardLayout;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class PixelPainterApp extends Application {
-    private static final ResourceLocation PIXEL_PAINTER_ICONS = OmnixerioDevicesMod.id("textures/gui/pixel_painter.png");
+    private static final Identifier PIXEL_PAINTER_ICONS = OmnixerioDevices.id("textures/gui/pixel_painter.png");
 
     private static final Color ITEM_BACKGROUND = new Color(170, 176, 194);
     private static final Color ITEM_SELECTED = new Color(200, 176, 174);
@@ -101,7 +100,7 @@ public class PixelPainterApp extends Application {
         ItemList<Picture> pictureList = new ItemList<>(5, 43, 80, 4);
         pictureList.setListItemRenderer(new ListItemRenderer<>(18) {
             @Override
-            public void render(GuiGraphics graphics, Picture picture, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, Picture picture, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 RenderUtil.drawStringClipped(graphics, "Henlo", x, y, 100, AUTHOR_TEXT.getRGB(), true);
             }
         });
@@ -190,10 +189,10 @@ public class PixelPainterApp extends Application {
         listPictures = new ItemList<>(5, 5, 80, 5);
         listPictures.setListItemRenderer(new ListItemRenderer<>(20) {
             @Override
-            public void render(GuiGraphics graphics, Picture picture, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+            public void render(GuiGraphicsExtractor graphics, Picture picture, Minecraft mc, int x, int y, int width, int height, boolean selected) {
                 graphics.fill(x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
-                graphics.drawString(mc.font, picture.getName(), x + 2, y + 2, Color.WHITE.getRGB(), false);
-                graphics.drawString(mc.font, picture.getAuthor(), x + 2, y + 11, AUTHOR_TEXT.getRGB(), false);
+                graphics.textRenderer().accept(x + 2, y + 2, net.minecraft.network.chat.Component.literal(picture.getName()));
+                graphics.textRenderer().accept(x + 2, y + 11, net.minecraft.network.chat.Component.literal(picture.getAuthor()).withColor(0xff000000 | AUTHOR_TEXT.getRGB()));
             }
         });
         listPictures.setItemClickListener((picture, index, mouseButton) ->
@@ -385,7 +384,7 @@ public class PixelPainterApp extends Application {
 
         colorDisplay = new Component(158, 5) {
             @Override
-            public void render(GuiGraphics graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
+            public void extractRenderState(GuiGraphicsExtractor graphics, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {
                 graphics.fill(xPosition, yPosition, xPosition + 50, yPosition + 20, Color.DARK_GRAY.getRGB());
                 graphics.fill(xPosition + 1, yPosition + 1, xPosition + 49, yPosition + 19, canvas.getCurrentColor());
             }
@@ -466,20 +465,77 @@ public class PixelPainterApp extends Application {
         }
 
         @Override
-        public CompoundTag toTag() {
+        public void store(ValueOutput data) {
             CompoundTag tag = new CompoundTag();
             tag.putString("name", name);
             tag.putIntArray("pixels", pixels);
             tag.putInt("resolution", resolution);
-            if (cut) tag.putBoolean("cut", true);
-            return tag;
+            tag.putBoolean("cut", cut);
         }
 
         @Override
-        public void fromTag(CompoundTag tag) {
-            name = tag.getString("name");
-            cut = tag.getBoolean("cut");
-            setPicture(tag.getIntArray("pixels"));
+        public void read(@UnknownNullability ValueInput tag) {
+            name = tag.getStringOr("name", "Untitled Print");
+            cut = tag.getBooleanOr("cut", false);
+            Optional<int[]> optionalPixels = tag.getIntArray("pixels");
+            if (optionalPixels.isEmpty()) {
+                int resolution = tag.getIntOr("resolution", 16);
+                setPicture(new int[resolution * resolution]);
+            } else {
+                int[] pixels = optionalPixels.get();
+                int resolution = tag.getIntOr("resolution", pixels.length == 32 * 32 ? 32 : 16);
+                setPicture(pixels);
+            }
+        }
+
+        @Override
+        public void saveTag(CompoundTag tag) {
+            tag.putString("name", name);
+            tag.putIntArray("pixels", pixels);
+            tag.putInt("resolution", resolution);
+            tag.putBoolean("cut", cut);
+        }
+
+        @Override
+        public void loadTag(CompoundTag tag) {
+            Optional<String> optionalName = tag.getString("name");
+            Optional<int[]> optionalPixels = tag.getIntArray("pixels");
+            Optional<Integer> optionalResolution = tag.getInt("resolution");
+            Optional<Boolean> optionalCut = tag.getBoolean("cut");
+            name = optionalName.orElse("Untitled Print");
+            cut = optionalCut.orElse(false);
+            if (optionalPixels.isEmpty() && optionalResolution.isEmpty()) {
+                setPicture(new int[16 * 16]);
+                setResolution(16);
+            } else if (optionalPixels.isEmpty()) {
+                int[] pixels = new int[optionalResolution.get() * optionalResolution.get()];
+                setPicture(pixels);
+            } else {
+                int[] pixels = optionalPixels.get();
+                int resolution = optionalResolution.orElse(pixels.length == 32 * 32 ? 32 : 16);
+                setPicture(pixels);
+                setResolution(resolution);
+            }
+        }
+
+        @Override
+        public int[] getPixels() {
+            return pixels;
+        }
+
+        @Override
+        public void setPixels(int[] pixels) {
+            this.pixels = pixels;
+        }
+
+        @Override
+        public int getResolution() {
+            return resolution;
+        }
+
+        @Override
+        public void setResolution(int resolution) {
+            this.resolution = resolution;
         }
 
         @Override
@@ -490,28 +546,23 @@ public class PixelPainterApp extends Application {
 
 
     public static class PictureRenderer implements IPrint.Renderer {
-        public static final ResourceLocation TEXTURE = OmnixerioDevicesMod.id("textures/model/paper.png");
+        public static final Identifier TEXTURE = OmnixerioDevices.id("textures/model/paper.png");
         public static final int MAX_COLOR = 0xFFFFFF;
+        private Identifier picture;
 
-        @SuppressWarnings("resource")
         @Override
-        public boolean render(PoseStack pose, CompoundTag data, int packedLight, int packedOverlay, Direction direction) {
-            if (data.contains("pixels", Tag.TAG_INT_ARRAY) && data.contains("resolution", Tag.TAG_INT)) {
-                int[] pixels = data.getIntArray("pixels");
-                int resolution = data.getInt("resolution");
-                boolean cut = data.getBoolean("cut");
+        public boolean render(GuiGraphicsExtractor graphics, CompoundTag data, int packedLight, int packedOverlay, Direction direction) {
+            if (data.contains("pixels") && data.contains("resolution")) {
+                int[] pixels = data.getIntArray("pixels").orElseThrow(() -> new IllegalArgumentException("Invalid pixels"));
+                int resolution = data.getIntOr("resolution", pixels.length == 32 * 32 ? 32 : 16);
+                boolean cut = data.getBooleanOr("cut", false);
 
                 if (pixels.length != resolution * resolution)
                     return false;
 
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
-                pose.mulPose(new Quaternionf(0, 0, 0, 180));
-
                 // This is for the paper background
                 if (!cut) {
-                    RenderSystem.setShaderTexture(0, TEXTURE);
-                    RenderUtil.drawRectWithTexture(TEXTURE, pose, 0, 0, 0, 0, 1, 1, resolution, resolution, resolution, resolution);
+                    RenderUtil.drawRectWithTexture(TEXTURE, graphics, 0, 0, 0, 0, 1, 1, resolution, resolution, resolution, resolution);
                 }
 
                 // This creates a flipped copy of the pixel array
@@ -520,33 +571,28 @@ public class PixelPainterApp extends Application {
                 NativeImage image = new NativeImage(resolution, resolution, false);
                 for (int i = 0; i < resolution; i++) {
                     for (int j = 0; j < resolution; j++) {
-                        image.setPixelRGBA(resolution - i - 1, resolution - j - 1, getPx(pixels, i, j, resolution));
+                        image.setPixel(resolution - i - 1, resolution - j - 1, getPx(pixels, i, j, resolution));
                     }
                 }
 
-                int textureId = TextureUtil.generateTextureId();
-                TextureUtil.prepareImage(textureId, resolution, resolution);
-                if (!RenderSystem.isOnRenderThreadOrInit()) {
-                    RenderSystem.recordRenderCall(() -> GlStateManager._bindTexture(textureId));
-                } else {
-                    GlStateManager._bindTexture(textureId);
-                }
-                image.upload(0, 0, 0, false);
+                Identifier oldPictureId = picture;
+                if (oldPictureId != null)
+                    Minecraft.getInstance().getTextureManager().release(picture);
 
-                RenderSystem.setShaderTexture(0, textureId);
-                Matrix3f poseNormal = pose.last().normal();
-                Vector3f transformedNor = poseNormal.transform(new Vector3f());
-                float norX = transformedNor.x();
-                float norY = transformedNor.y();
-                float norZ = transformedNor.z();
-                pose.translate(0, 0, 0.01);
-                RenderUtil.drawRectWithTexture2(null, pose, 1, 0, 0, 0, -1, 1, resolution, resolution, resolution, resolution, packedLight, packedOverlay, norX, norY, norZ);
-                RenderSystem.deleteTexture(textureId);
+                picture = OmnixerioDevices.id("picture/" + UUID.randomUUID().toString().replace("-", ""));
+                DynamicTexture texture = new DynamicTexture(() -> "picture", image);
+                Minecraft.getInstance().getTextureManager().register(picture, texture);
 
-                RenderSystem.disableBlend();
+                graphics.blit(RenderPipelines.GUI_TEXTURED, picture, 0, 0, 0, 0, resolution, resolution, resolution, resolution);
                 return true;
             }
             return false;
+        }
+
+        @Override
+        public void delete() {
+            if (picture != null)
+                Minecraft.getInstance().getTextureManager().release(picture);
         }
 
         private static int getPx(int[] pixels, int i, int j, int resolution) {

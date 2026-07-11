@@ -12,7 +12,11 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public abstract class ComputerBlockEntity extends NetworkDeviceBlockEntity.Colored {
 
@@ -40,39 +44,35 @@ public abstract class ComputerBlockEntity extends NetworkDeviceBlockEntity.Color
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("system_data", Tag.TAG_COMPOUND)) {
-            this.systemData = tag.getCompound("system_data");
-        }
-        if (tag.contains("application_data", Tag.TAG_COMPOUND)) {
-            this.applicationData = tag.getCompound("application_data");
-        }
-        if (tag.contains("file_system")) {
-            this.fileSystem = new FileSystem(this, tag.getCompound("file_system"));
-        }
-        if (tag.contains("external_drive_color", Tag.TAG_BYTE)) {
-            this.externalDriveColor = null;
-            if (tag.getByte("external_drive_color") != -1) {
-                this.externalDriveColor = DyeColor.byId(tag.getByte("external_drive_color"));
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
+        this.systemData = in.read("system_data", CompoundTag.CODEC).orElse(new CompoundTag());
+        this.applicationData = in.read("application_data", CompoundTag.CODEC).orElse(new CompoundTag());
+        this.fileSystem = new FileSystem(this, in.read("file_system", CompoundTag.CODEC).orElse(new CompoundTag()));
+
+        byte optionalDriveColor = in.getByteOr("external_drive_color", (byte) -1);
+        if (optionalDriveColor != -1) {
+            if (optionalDriveColor > 15 || optionalDriveColor < 0) {
+                optionalDriveColor = 0;
             }
+            this.externalDriveColor = DyeColor.byId(optionalDriveColor);
         }
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag compound, HolderLookup.Provider provider) {
-        super.saveAdditional(compound, provider);
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
 
         if (systemData != null) {
-            compound.put("system_data", systemData);
+            out.store("system_data", CompoundTag.CODEC, systemData);
         }
 
         if (applicationData != null) {
-            compound.put("application_data", applicationData);
+            out.store("application_data", CompoundTag.CODEC, applicationData);
         }
 
         if (fileSystem != null) {
-            compound.put("file_system", fileSystem.toTag());
+            out.store("file_system", CompoundTag.CODEC, fileSystem.toTag());
         }
     }
 
