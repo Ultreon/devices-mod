@@ -1,4 +1,4 @@
-# Ultreon Devices Mod [![CircleCI](https://dl.circleci.com/status-badge/img/gh/Ultreon/devices-mod/tree/1.19.3-development.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/Ultreon/devices-mod/tree/1.19.3-development)
+# Omnixerio Devices Mod [![CircleCI](https://dl.circleci.com/status-badge/img/gh/omnixerio/omnixerio-devices/tree/versions%2F26.2.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/omnixerio/omnixerio-devices/tree/versions%2F26.2)
 **Language:** Java  
 **Minecraft Version:** `1.19.3`, `1.20.1`  
 **Mod Loader:** [Forge](https://files.minecraftforge.net/), [NeoForge](https://neoforged.net/), [Fabric](https://fabricmc.net/)  
