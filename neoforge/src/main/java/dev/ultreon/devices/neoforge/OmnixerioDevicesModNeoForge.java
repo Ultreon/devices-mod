@@ -52,9 +52,6 @@ public final class OmnixerioDevicesModNeoForge {
         // Common side stuff
         LOGGER.info("Initializing registration handler and mod config.");
         RegistrationHandler.register();
-        container.registerConfig(ModConfig.Type.CLIENT, DeviceConfig.CONFIG);
-
-        LOGGER.info("Registering common setup handler, and load complete handler.");
         this.modEventBus.addListener(this::fmlCommonSetup);
         this.modEventBus.addListener(this::fmlLoadComplete);
 
