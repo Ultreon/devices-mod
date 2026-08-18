@@ -34,6 +34,8 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+
+    include api("de.marhali:json5-java:${json5_version}")
 }
 
 processResources {

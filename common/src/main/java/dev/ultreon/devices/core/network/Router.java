@@ -1,6 +1,7 @@
 package dev.ultreon.devices.core.network;
 
 import dev.ultreon.devices.DeviceConfig;
+import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.block.entity.NetworkDeviceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,25 +31,25 @@ public class Router {
     }
 
     public void tick(Level level) {
-        if (++timer >= DeviceConfig.BEACON_INTERVAL.get()) {
+        if (++timer >= OmnixerioDevicesMod.getConfig().beaconInterval) {
             sendBeacon(level);
             timer = 0;
         }
     }
 
     public boolean addDevice(UUID id, String name) {
-        if (NETWORK_DEVICES.size() >= DeviceConfig.MAX_DEVICES.get()) {
+        if (NETWORK_DEVICES.size() >= OmnixerioDevicesMod.getConfig().maxDevices) {
             return NETWORK_DEVICES.containsKey(id);
         }
         if (!NETWORK_DEVICES.containsKey(id)) {
             NETWORK_DEVICES.put(id, new NetworkDevice(id, name, this));
         }
-        timer = DeviceConfig.BEACON_INTERVAL.get();
+        timer = OmnixerioDevicesMod.getConfig().beaconInterval;
         return true;
     }
 
     public boolean addDevice(NetworkDeviceBlockEntity device) {
-        if (NETWORK_DEVICES.size() >= DeviceConfig.MAX_DEVICES.get()) {
+        if (NETWORK_DEVICES.size() >= OmnixerioDevicesMod.getConfig().maxDevices) {
             return NETWORK_DEVICES.containsKey(device.getId());
         }
         if (!NETWORK_DEVICES.containsKey(device.getId())) {
@@ -115,7 +116,7 @@ public class Router {
             return;
 
         NETWORK_DEVICES.forEach((uuid, device) -> device.setPos(null));
-        int range = DeviceConfig.SIGNAL_RANGE.get();
+        int range = OmnixerioDevicesMod.getConfig().signalRange;
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {

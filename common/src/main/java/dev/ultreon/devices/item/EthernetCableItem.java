@@ -1,6 +1,5 @@
 package dev.ultreon.devices.item;
 
-import dev.ultreon.devices.DeviceConfig;
 import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.block.entity.NetworkDeviceBlockEntity;
 import dev.ultreon.devices.block.entity.RouterBlockEntity;
@@ -67,7 +66,7 @@ public class EthernetCableItem extends Item {
                         if (router.addDevice(networkDeviceBlockEntity)) {
                             networkDeviceBlockEntity.connect(router);
                             heldItem.shrink(1);
-                            if (getDistance(tileEntity1.getBlockPos(), routerBE.getBlockPos()) > DeviceConfig.SIGNAL_RANGE.get()) {
+                            if (getDistance(tileEntity1.getBlockPos(), routerBE.getBlockPos()) > OmnixerioDevicesMod.getConfig().signalRange) {
                                 sendGameInfoMessage(player, "message.devices.successful_registered");
                             } else {
                                 sendGameInfoMessage(player, "message.devices.successful_connection");

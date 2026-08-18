@@ -3,21 +3,18 @@ package dev.ultreon.devices.fabric;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.ultreon.devices.ClientModEvents;
-import dev.ultreon.devices.DeviceConfig;
 import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.api.app.Application;
 import dev.ultreon.devices.api.print.IPrint;
 import dev.ultreon.devices.api.print.PrintingManager;
 import dev.ultreon.devices.core.Laptop;
 import dev.ultreon.devices.init.RegistrationHandler;
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.neoforged.fml.config.ModConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +23,6 @@ import java.util.Map;
 public class OmnixerioDevicesModFabric extends OmnixerioDevicesMod implements ModInitializer {
     @Override
     public void onInitialize() {
-        NeoForgeConfigRegistry.INSTANCE.register(OmnixerioDevicesMod.MOD_ID, ModConfig.Type.CLIENT, DeviceConfig.CONFIG);
-
         this.init();
 
         RegistrationHandler.register();

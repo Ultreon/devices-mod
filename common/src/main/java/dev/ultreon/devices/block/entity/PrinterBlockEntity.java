@@ -1,6 +1,7 @@
 package dev.ultreon.devices.block.entity;
 
 import dev.ultreon.devices.DeviceConfig;
+import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.api.print.IPrint;
 import dev.ultreon.devices.init.ModBlockEntities;
 import dev.ultreon.devices.init.ModSounds;
@@ -136,8 +137,8 @@ public class PrinterBlockEntity extends NetworkDeviceBlockEntity.Colored {
 
         state = newState;
         if (state == PRINTING) {
-            if (DeviceConfig.OVERRIDE_PRINT_SPEED.get()) {
-                remainingPrintTime = DeviceConfig.CUSTOM_PRINT_SPEED.get() * 20;
+            if (OmnixerioDevicesMod.getConfig().overridePrintSpeed) {
+                remainingPrintTime = OmnixerioDevicesMod.getConfig().customPrintSpeed * 20;
             } else {
                 remainingPrintTime = currentPrint.speed() * 20;
             }
@@ -186,7 +187,7 @@ public class PrinterBlockEntity extends NetworkDeviceBlockEntity.Colored {
     }
 
     public boolean addPaper(ItemStack stack, boolean addAll) {
-        if (!stack.isEmpty() && stack.getItem() == Items.PAPER && paperCount < DeviceConfig.MAX_PAPER_COUNT.get()) {
+        if (!stack.isEmpty() && stack.getItem() == Items.PAPER && paperCount < OmnixerioDevicesMod.getConfig().maxPaperCount) {
             if (!addAll) {
                 paperCount++;
                 stack.shrink(1);

@@ -2,7 +2,6 @@ package dev.ultreon.devices.block.entity.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import dev.ultreon.devices.DeviceConfig;
 import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.api.print.IPrint;
 import dev.ultreon.devices.api.print.PrintingManager;
@@ -148,11 +147,11 @@ public record PaperRenderer(
                     RenderSystem.setShaderTexture(0, PrinterRenderer.PaperModel.TEXTURE);
 
                     // TODO: Fix in either 0.9 or 0.10
-//                    if (DeviceConfig.RENDER_PRINTED_3D.get() && !data.getBoolean("cut")) {
+//                    if (OmnixerioDevicesMod.getConfig().renderPrinted3D && !data.getBoolean("cut")) {
 //                        drawCuboid(0, 0, 0, 16, 16, 1, bufferSource);
 //                    }
 
-                    pose.translate(0, 0, DeviceConfig.RENDER_PRINTED_3D.get() ? 0.0625 : 0.001);
+                    pose.translate(0, 0, OmnixerioDevicesMod.getConfig().renderPrinted3D ? 0.0625 : 0.001);
 
                     //region <RenderPrint()>
                     pose.pushPose();
@@ -167,7 +166,7 @@ public record PaperRenderer(
                     //region <RenderPrint3D()>
                     pose.pushPose();
                     {
-                        if (DeviceConfig.RENDER_PRINTED_3D.get() && data.getBoolean("cut")) {
+                        if (OmnixerioDevicesMod.getConfig().renderPrinted3D && data.getBoolean("cut")) {
                             CompoundTag tag = print.toTag();
                             drawPixels(pose, tag.getIntArray("pixels"), tag.getInt("resolution"), tag.getBoolean("cut"), packedLight, packedOverlay, bufferSource);
                         }

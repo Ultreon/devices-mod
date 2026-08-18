@@ -50,7 +50,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     modApi "dev.architectury:architectury-fabric:${architectury_version}"
-    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:21.1.6")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
@@ -63,6 +62,8 @@ dependencies {
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:16.0.799", {
         exclude module: "fabric-api"
     }
+
+    include api("de.marhali:json5-java:${json5_version}")
 }
 
 processResources {

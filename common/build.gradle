@@ -10,10 +10,8 @@ dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    // Remove the next line if you don't want to depend on the API
-//    modApi 'com.cinemamod:mcef:2.1.6-1.21.1'
     modApi "dev.architectury:architectury:${architectury_version}"
-    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:21.1.6")
+    api "de.marhali:json5-java:${json5_version}"
 }
 
 sourceSets {

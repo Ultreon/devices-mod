@@ -1,6 +1,5 @@
 package dev.ultreon.devices.core.network;
 
-import dev.ultreon.devices.DeviceConfig;
 import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.api.app.Icons;
 import dev.ultreon.devices.api.app.Layout;
@@ -105,7 +104,7 @@ public class TrayItemWifi extends TrayItem {
         }
 
         BlockPos laptopPos = Laptop.getPos();
-        int range = DeviceConfig.SIGNAL_RANGE.get();
+        int range = OmnixerioDevicesMod.getConfig().signalRange;
 
         for (int y = -range; y < range + 1; y++) {
             for (int z = -range; z < range + 1; z++) {
@@ -138,7 +137,7 @@ public class TrayItemWifi extends TrayItem {
 
     @Override
     public void tick() {
-        if (++pingTimer >= DeviceConfig.PING_RATE.get()) {
+        if (++pingTimer >= OmnixerioDevicesMod.getConfig().pingRate) {
             runPingTask();
             pingTimer = 0;
         }

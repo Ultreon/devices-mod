@@ -1,7 +1,6 @@
 package dev.ultreon.devices.network;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ultreon.devices.DeviceConfig;
 import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.api.task.Task;
 import dev.ultreon.devices.api.task.TaskManager;
@@ -34,7 +33,7 @@ public class ClientPacketHandler {
     }
 
     private static void onSyncConfig(S2CSyncConfigPacket value, NetworkManager.PacketContext context) {
-        DeviceConfig.readSyncTag(Objects.requireNonNull(value.configTag()));
+        OmnixerioDevicesMod.getConfig().readSyncTag(Objects.requireNonNull(value.configTag()));
     }
 
     private static void onTaskResponse(S2CResponsePacket value, NetworkManager.PacketContext context) {

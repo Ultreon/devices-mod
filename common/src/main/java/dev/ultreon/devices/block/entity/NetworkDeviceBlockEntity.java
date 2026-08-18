@@ -1,6 +1,6 @@
 package dev.ultreon.devices.block.entity;
 
-import dev.ultreon.devices.DeviceConfig;
+import dev.ultreon.devices.OmnixerioDevicesMod;
 import dev.ultreon.devices.core.network.Connection;
 import dev.ultreon.devices.core.network.Router;
 import dev.ultreon.devices.util.Colorable;
@@ -33,7 +33,7 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
 
         if (connection != null) {
             Router router = connection.getRouter(level);
-            if (router != null && ++counter >= DeviceConfig.BEACON_INTERVAL.get() * 2 && router.getPos().distSqr(worldPosition) > DeviceConfig.SIGNAL_RANGE.get() * DeviceConfig.SIGNAL_RANGE.get()) {
+            if (router != null && ++counter >= OmnixerioDevicesMod.getConfig().beaconInterval * 2 && router.getPos().distSqr(worldPosition) > OmnixerioDevicesMod.getConfig().signalRange * OmnixerioDevicesMod.getConfig().signalRange) {
                 connection = null;
                 counter = 0;
             }
@@ -73,7 +73,7 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
     }
 
     public boolean receiveBeacon(Router router) {
-        if (counter >= DeviceConfig.BEACON_INTERVAL.get() * 2) {
+        if (counter >= OmnixerioDevicesMod.getConfig().beaconInterval * 2) {
             connect(router);
             return true;
         }
@@ -89,7 +89,7 @@ public abstract class NetworkDeviceBlockEntity extends DeviceBlockEntity impleme
         BlockPos routerPos = connection != null ? connection.getRouterPos() : null;
         if (routerPos != null) {
             double distance = Math.sqrt(worldPosition.distToCenterSqr(routerPos.getX() + 0.5, routerPos.getY() + 0.5, routerPos.getZ() + 0.5));
-            double level = DeviceConfig.SIGNAL_RANGE.get() / 3d;
+            double level = OmnixerioDevicesMod.getConfig().signalRange / 3d;
             return distance > level * 2 ? 2 : distance > level ? 1 : 0;
         }
         return -1;

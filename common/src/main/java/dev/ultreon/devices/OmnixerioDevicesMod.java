@@ -96,10 +96,16 @@ public abstract class OmnixerioDevicesMod {
 
     private static MinecraftServer server;
     private static TestManager tests;
+    private static final DeviceConfig config = new DeviceConfig();
 
     protected OmnixerioDevicesMod() {
         OmnixerioDevicesMod.instance = this;
+        config.init();
         registerApplications();
+    }
+
+    public static DeviceConfig getConfig() {
+        return config;
     }
 
     public static OmnixerioDevicesMod getInstance() {
@@ -145,8 +151,6 @@ public abstract class OmnixerioDevicesMod {
         if (DEVELOPER_MODE && !Platform.isDevelopmentEnvironment()) {
             throw new LaunchException();
         }
-
-        DeviceConfig.init();
     }
 
 
@@ -364,7 +368,7 @@ public abstract class OmnixerioDevicesMod {
             LOGGER.debug("Client disconnected from server");
 
             allowedApps = null;
-            DeviceConfig.restore();
+            config.load();
         }));
     }
 
@@ -378,7 +382,7 @@ public abstract class OmnixerioDevicesMod {
             if (allowedApps != null) {
                 PacketHandler.sendToClient(S2CSyncApplicationsPacket.create(allowedApps), player);
             }
-            PacketHandler.sendToClient(new S2CSyncConfigPacket(DeviceConfig.writeSyncTag()), player);
+            PacketHandler.sendToClient(new S2CSyncConfigPacket(config.writeSyncTag()), player);
         }));
     }
 

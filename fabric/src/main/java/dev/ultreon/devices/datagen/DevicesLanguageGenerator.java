@@ -35,7 +35,7 @@ public class DevicesLanguageGenerator extends FabricLanguageProvider {
     public void generateTranslations(HolderLookup.Provider registryLookup, TranslationBuilder translationBuilder) {
         if (this.languageCode.equals("en_pt")) {
             createTranslationsForPirateSpeak(translationBuilder);
-        } else if (this.languageCode.startsWith("en_")) { // engurishu
+        } else if (this.languageCode.startsWith("en_")) { // english
             createTranslationsForEnglish(translationBuilder);
         } else if (this.languageCode.startsWith("nl_")) { // dutch
             createTranslationsForDutch(translationBuilder);
